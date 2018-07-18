@@ -25,21 +25,13 @@
   generateAdditionalImports(typesToProcess)
 
   for type in typesToProcess {
-    let associatedTypes: [(associatedType: String, constraints: [String])] = extractAnnotations(type, annotationNames: ["associatedtype", "associatedtypes"])
-      .map {
-        let split = $0.replacingOccurrences(of: " ", with: "").characters.split(separator: ":").map(String.init)
-        let associatedType = split[0]
-        let constraints = split.count == 2 ? split[1].characters.split(separator: ",").map(String.init) : []
-        return (associatedType: associatedType, constraints: constraints)
-      }
-
+    let associatedTypes: [(associatedType: String, constraints: [String])] = extractAssociatedTypes(type)
     let associatedTypesList: String = associatedTypes.map { $0.associatedType }.joined(separator: ", ")
     let genericTypesConstraints: String = {
         let constraints = associatedTypes
-          .flatMap {
-            guard !$0.constraints.isEmpty else { return nil }
-            let adopts = $0.constraints.joined(separator: ", ")
-            return "\($0.associatedType): \(adopts)"
+          .flatMap { associatedType in
+            guard !associatedType.constraints.isEmpty else { return nil }
+            return associatedType.constraints.map { "\(associatedType.associatedType): \($0)" }.joined(separator: ", ")
            }
           .joined(separator: ", ")
         return !constraints.isEmpty ? " where \(constraints)" : ""

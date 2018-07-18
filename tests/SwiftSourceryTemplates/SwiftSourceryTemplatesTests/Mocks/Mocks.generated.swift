@@ -30,15 +30,15 @@ class ErrorPopoverBuildableRawRepresentableMock: ErrorPopoverBuildableRawReprese
 // MARK: - ErrorPopoverPresentable
 class ErrorPopoverPresentableMock<TypeEventType>: ErrorPopoverPresentable {
 
-	typealias EventType = TypeEventType
+    typealias EventType = TypeEventType
 
 
 }
 
 // MARK: - ErrorPopoverPresentableRawRepresentable
-class ErrorPopoverPresentableRawRepresentableMock<TypeEventType>: ErrorPopoverPresentableRawRepresentable where TypeEventType: RawRepresentable {
+class ErrorPopoverPresentableRawRepresentableMock<TypeEventType>: ErrorPopoverPresentableRawRepresentable where TypeEventType: RawRepresentable, TypeEventType: Hashable {
 
-	typealias EventType = TypeEventType
+    typealias EventType = TypeEventType
 
 
 }

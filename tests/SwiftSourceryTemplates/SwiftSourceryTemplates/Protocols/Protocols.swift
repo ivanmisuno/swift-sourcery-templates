@@ -56,7 +56,7 @@ protocol ErrorPopoverBuildableRawRepresentable {
 
 /// sourcery: CreateMock
 /// sourcery: TypeErase
-/// sourcery: associatedtypes = EventType
+/// sourcery: associatedtype = EventType
 protocol ErrorPopoverPresentable {
     associatedtype EventType
     func show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge) -> Observable<EventType>
@@ -64,9 +64,9 @@ protocol ErrorPopoverPresentable {
 
 /// sourcery: CreateMock
 /// sourcery: TypeErase
-/// sourcery: associatedtypes = "EventType: RawRepresentable"
+/// sourcery: associatedtype = "EventType: RawRepresentable, Hashable"
 protocol ErrorPopoverPresentableRawRepresentable {
-    associatedtype EventType: RawRepresentable
+    associatedtype EventType: RawRepresentable, Hashable
     func show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge) -> Observable<EventType>
 }
 
