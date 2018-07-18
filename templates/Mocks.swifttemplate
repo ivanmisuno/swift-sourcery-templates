@@ -115,7 +115,7 @@
     """
   }
   func methodHandlerName(_ method: SourceryRuntime.Method) -> String {
-    return "\(swiftifyMethodName(method.selectorName))Handler"
+    return "\(swiftifyMethodName(method.callName))Handler"
   }
   func methodHandlerDeclaration(_ method: SourceryRuntime.Method) -> String {
     let parameters = method.parameters.map {
@@ -127,15 +127,15 @@
     }.joined(separator: ", ")
     let throwing = method.throws ? " throws" : ""
     let returnType = method.isInitializer ? "()" : method.returnTypeName.name
-    return "    var \(methodHandlerName(method)): ((\(parameters))\(throwing) -> \(returnType))? = nil"
+    return "var \(methodHandlerName(method)): ((\(parameters))\(throwing) -> \(returnType))? = nil"
   }
   func methodHandlerCallParameters(_ method: SourceryRuntime.Method) -> String {
     return method.parameters.map { $0.name }.joined(separator: ", ")
   }
   func mockMethod(_ method: SourceryRuntime.Method) -> String {
     return """
-        // MARK: - \(method.shortName)
-
+        // MARK: - \(method.name)
+        \(methodHandlerDeclaration(method))
 
     """
   }
@@ -209,13 +209,13 @@ class <%= type.name %>Mock<%= genericTypesModifier %>:<%= isObjcProtocol(type) ?
     <%_ if !allVariables.isEmpty { -%>
 
       <%_ for variable in allVariables { -%>
-        <%= mockVariable(variable) -%>
+        <%_= mockVariable(variable) -%>
       <%_ } -%>
     <%_ } -%>
     <%_ if !allMethods.isEmpty { -%>
 
       <%_ for method in allMethods { -%>
-        <%= mockMethod(method) -%>
+        <%_= mockMethod(method) -%>
       <%_ } -%>
       <%_ } -%>
 }
