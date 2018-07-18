@@ -15,15 +15,21 @@ import RxTest
 // MARK: - AlbumPageSizeProviding
 class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
 
+            // MARK: - pageSize
+
 }
 
 // MARK: - ErrorPopoverBuildable
 class ErrorPopoverBuildableMock: ErrorPopoverBuildable {
 
+            // MARK: - buildPopoverPresenter<T>
+
 }
 
 // MARK: - ErrorPopoverBuildableRawRepresentable
 class ErrorPopoverBuildableRawRepresentableMock: ErrorPopoverBuildableRawRepresentable {
+
+            // MARK: - buildPopoverPresenter<T: RawRepresentable>
 
 }
 
@@ -33,6 +39,8 @@ class ErrorPopoverPresentableMock<TypeEventType>: ErrorPopoverPresentable {
     typealias EventType = TypeEventType
 
 
+            // MARK: - show
+
 }
 
 // MARK: - ErrorPopoverPresentableRawRepresentable
@@ -41,44 +49,74 @@ class ErrorPopoverPresentableRawRepresentableMock<TypeEventType>: ErrorPopoverPr
     typealias EventType = TypeEventType
 
 
+            // MARK: - show
+
 }
 
 // MARK: - ExifImageAttributeProviding
 class ExifImageAttributeProvidingMock: ExifImageAttributeProviding {
+
+            // MARK: - dateTaken
 
 }
 
 // MARK: - ImageAttributeProviding
 class ImageAttributeProvidingMock: ImageAttributeProviding {
 
+            // MARK: - imagePixelSize
+
 }
 
 // MARK: - MutableTipsManaging
 class MutableTipsManagingMock: MutableTipsManaging {
-
 }
 
 // MARK: - MutableUploadProgressing
 class MutableUploadProgressingMock: MutableUploadProgressing {
+
+            // MARK: - progress
+
+
+            // MARK: - setInputFiles
+
+            // MARK: - uploadIdRetrieved
+
+            // MARK: - filePartsCreated
+
+            // MARK: - filePartProgressed
+
+            // MARK: - downloadUrlsRetrieved
+
+            // MARK: - fileProgress
 
 }
 
 // MARK: - ThumbCreating
 class ThumbCreatingMock: ThumbCreating {
 
+            // MARK: - createThumbImage
+
+            // MARK: - createThumbJpegData
+
 }
 
 // MARK: - TipsManagerBuilding
 class TipsManagerBuildingMock: TipsManagerBuilding {
 
+            // MARK: - build
+
 }
 
 // MARK: - TipsManaging
 class TipsManagingMock: NSObject, TipsManaging {
-
 }
 
 // MARK: - UploadProgressing
 class UploadProgressingMock: UploadProgressing {
+
+            // MARK: - progress
+
+
+            // MARK: - fileProgress
 
 }

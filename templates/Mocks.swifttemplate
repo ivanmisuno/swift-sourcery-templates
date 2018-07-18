@@ -1,15 +1,6 @@
 <%- include("_header") -%>
 <%- include("_utility") -%>
 <%
-  func lowerFirstWord(_ name: String) -> String {
-    return name
-  }
-  func upperFirstLetter(_ name: String) -> String {
-    return name
-  }
-  func snakeToCamelCase(_ name: String) -> String {
-    return name
-  }
   func swiftifyMethodName(_ name: String) -> String {
     let swiftifiedName = name
       .replacingOccurrences(of: "(", with: "_")
@@ -170,6 +161,15 @@
   func mockedVariableName(_ variable: SourceryRuntime.Variable) -> String {
     return "\(variable.name)"
   }
+
+  func mockVariable(_ variable: SourceryRuntime.Variable) -> String {
+    return """
+        // MARK: - \(variable.name)
+
+
+    """
+  }
+
   func isObjcProtocol(_ type: Type) -> Bool {
     return type.annotations["ObjcProtocol"] != nil
       || type.inheritedTypes.contains("NSObjectProtocol")
@@ -199,14 +199,24 @@
             .joined(separator: ", ")
           return !constraints.isEmpty ? " where \(constraints)" : ""
       }()
-      let allVariables = uniques(variables: type.allVariables.filter({ !$0.isStatic }))
-      let containsVariables = !allVariables.isEmpty
+      let allVariables = uniques(variables: type.allVariables.filter { !$0.isStatic })
+      let allMethods = uniques(methods: type.allMethods.filter { !$0.isStatic })
 -%>
 
 // MARK: - <%= type.name %>
 class <%= type.name %>Mock<%= genericTypesModifier %>:<%= isObjcProtocol(type) ? " NSObject," : "" %> <%= type.name %><%= genericTypesConstraints %> {
     <%_ %><%= genericTypesTypealiases -%>
-    <%_ -%>
+    <%_ if !allVariables.isEmpty { -%>
 
+      <%_ for variable in allVariables { -%>
+        <%= mockVariable(variable) -%>
+      <%_ } -%>
+    <%_ } -%>
+    <%_ if !allMethods.isEmpty { -%>
+
+      <%_ for method in allMethods { -%>
+        <%= mockMethod(method) -%>
+      <%_ } -%>
+      <%_ } -%>
 }
 <% } -%>

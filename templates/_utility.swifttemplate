@@ -1,3 +1,4 @@
+<%- include("_utilityStringsLettercase") -%>
 <%_
 // MARK: - low-level utility methods
 func trimmingWhitespace(_ string: String) -> String {
