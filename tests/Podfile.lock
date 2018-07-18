@@ -1,0 +1,30 @@
+PODS:
+  - RxBlocking (4.2.0):
+    - RxSwift (~> 4.0)
+  - RxSwift (4.2.0)
+  - RxTest (4.2.0):
+    - RxSwift (~> 4.0)
+  - Sourcery (0.13.0)
+
+DEPENDENCIES:
+  - RxBlocking
+  - RxSwift
+  - RxTest
+  - Sourcery (= 0.13)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - RxBlocking
+    - RxSwift
+    - RxTest
+    - Sourcery
+
+SPEC CHECKSUMS:
+  RxBlocking: e339d8a6e752e25ade95ff858466c55436668f59
+  RxSwift: 99e10317ddfcc7fbe01356aafd118fde4a0be104
+  RxTest: 8da864c0ee47534f586ff18fb0c7e5b2f1fe5023
+  Sourcery: d78d3b68aa565a7194e57ccd6995c1368fda9cb0
+
+PODFILE CHECKSUM: 38e08b5e79294027492c2f8f5efd3963a8e4b3ab
+
+COCOAPODS: 1.5.3

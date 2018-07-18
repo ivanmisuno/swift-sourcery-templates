@@ -1,0 +1,21 @@
+project:
+  file: SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj
+  target:
+    name: SwiftSourceryTemplatesTests
+    module: SwiftSourceryTemplates
+templates:
+  - ../templates/Mocks.swifttemplate
+output:
+  SwiftSourceryTemplates/SwiftSourceryTemplatesTests/Mocks
+args:
+  testable:
+    - SwiftSourceryTemplates
+  import:
+    - RxSwift
+    - RxBlocking
+    - RxTest
+  excludedSwiftLintRules:
+    - force_cast
+    - function_body_length
+    - line_length
+    - vertical_whitespace

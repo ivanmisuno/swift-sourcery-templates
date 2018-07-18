@@ -1,0 +1,16 @@
+project:
+  file: SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj
+  target:
+    name: SwiftSourceryTemplates
+    module: SwiftSourceryTemplates
+templates:
+  - ../templates/TypeErase.swifttemplate
+output:
+  SwiftSourceryTemplates/SwiftSourceryTemplates/Generated
+args:
+  import:
+    - RxSwift
+  excludedSwiftLintRules:
+    - function_body_length
+    - line_length
+    - vertical_whitespace

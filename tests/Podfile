@@ -1,0 +1,19 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+workspace 'SwiftSourceryTemplates.xcworkspace'
+
+target 'SwiftSourceryTemplates' do
+    platform :osx, '10.11'
+    use_frameworks!
+    project 'SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj'
+
+    pod 'RxSwift'
+    pod 'Sourcery', '0.13'
+
+    target 'SwiftSourceryTemplatesTests' do
+      inherit! :search_paths
+
+      pod 'RxBlocking'
+      pod 'RxTest'
+    end
+end

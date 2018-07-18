@@ -1,0 +1,33 @@
+<%# ================================================== SwiftLint -%><%_ -%>
+<%_ if let rules = arguments["excludedSwiftLintRules"] as? [String] { -%>
+    <%_ for rule in rules { -%>
+    <%_ %>//swiftlint:disable <%= rule %>
+    <%_ } -%>
+<%_ } -%>
+
+<%# ================================================== IMPORTS -%><%_ -%>
+<%_
+func generateAdditionalImports(_ types: [Type]) {
+  let additionalImports = Set(types.flatMap { extractAnnotations($0, annotationName: "import") })
+  let existingImports = Set(extractImports())
+  let missingImports = additionalImports.subtracting(existingImports).sorted()
+  guard !missingImports.isEmpty else { return }
+  print(missingImports.map { "import \($0)" }.joined(separator: "\n"))
+}
+
+func extractImports(attributeName: String = "import") -> [String] {
+  if let imported = arguments[attributeName] as? String {
+    return [imported]
+  } else if let allimported = arguments[attributeName] as? [String] {
+    return allimported
+  } else {
+    return []
+  }
+}
+-%>
+<%_ for imported in extractImports().sorted() { -%>
+    <%_ %>import <%= imported %>
+<%_ } -%>
+<%_ for imported in extractImports(attributeName: "testable").sorted() { -%>
+    <%_ %>@testable import <%= imported %>
+<%_ } -%>
