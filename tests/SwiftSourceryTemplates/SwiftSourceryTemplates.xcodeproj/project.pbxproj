@@ -7,12 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		140E6F6920FF6627008418F1 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140E6F6820FF6627008418F1 /* Protocols.swift */; };
+		140E6F6C20FF6661008418F1 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140E6F6B20FF6661008418F1 /* Types.swift */; };
 		1415F10220FF583700CBE106 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F10120FF583700CBE106 /* AppDelegate.swift */; };
 		1415F10420FF583800CBE106 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1415F10320FF583800CBE106 /* Assets.xcassets */; };
 		1415F10720FF583800CBE106 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1415F10520FF583800CBE106 /* MainMenu.xib */; };
 		1415F11320FF583800CBE106 /* SwiftSourceryTemplatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F11220FF583800CBE106 /* SwiftSourceryTemplatesTests.swift */; };
 		1415F11F20FF5AF400CBE106 /* TypeErase.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F11E20FF5AF400CBE106 /* TypeErase.generated.swift */; };
-		1415F12220FF5AFB00CBE106 /* Mocks.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F12120FF5AFB00CBE106 /* Mocks.generated.swift */; };
 		A3D0FA61B99D54EF2239F9E7 /* Pods_SwiftSourceryTemplates.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E5046829ACFBDBE51FCC68D /* Pods_SwiftSourceryTemplates.framework */; };
 		A51399099FC204276D34F886 /* Pods_SwiftSourceryTemplatesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91253CD4368FBF69C7FFC00 /* Pods_SwiftSourceryTemplatesTests.framework */; };
 /* End PBXBuildFile section */
@@ -28,6 +29,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		140E6F6820FF6627008418F1 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
+		140E6F6B20FF6661008418F1 /* Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
 		1415F0FE20FF583700CBE106 /* SwiftSourceryTemplates.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftSourceryTemplates.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1415F10120FF583700CBE106 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1415F10320FF583800CBE106 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -67,6 +70,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		140E6F5420FF65EA008418F1 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				140E6F6820FF6627008418F1 /* Protocols.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		140E6F6A20FF6656008418F1 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				140E6F6B20FF6661008418F1 /* Types.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
 		1415F0F520FF583700CBE106 = {
 			isa = PBXGroup;
 			children = (
@@ -90,6 +109,8 @@
 		1415F10020FF583700CBE106 /* SwiftSourceryTemplates */ = {
 			isa = PBXGroup;
 			children = (
+				140E6F6A20FF6656008418F1 /* Types */,
+				140E6F5420FF65EA008418F1 /* Protocols */,
 				1415F11D20FF5AF400CBE106 /* Generated */,
 				1415F10120FF583700CBE106 /* AppDelegate.swift */,
 				1415F10320FF583800CBE106 /* Assets.xcassets */,
@@ -329,8 +350,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				140E6F6920FF6627008418F1 /* Protocols.swift in Sources */,
 				1415F10220FF583700CBE106 /* AppDelegate.swift in Sources */,
 				1415F11F20FF5AF400CBE106 /* TypeErase.generated.swift in Sources */,
+				140E6F6C20FF6661008418F1 /* Types.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,7 +361,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1415F12220FF5AFB00CBE106 /* Mocks.generated.swift in Sources */,
 				1415F11320FF583800CBE106 /* SwiftSourceryTemplatesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

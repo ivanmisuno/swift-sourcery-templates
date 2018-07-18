@@ -25,13 +25,30 @@
   generateAdditionalImports(typesToProcess)
 
   for type in typesToProcess {
-    let associatedTypes = extractAnnotations(type, annotationNames: ["associatedtype", "associatedtypes"])
-    let associatedTypesList = associatedTypes.joined(separator: ", ")
+    let associatedTypes: [(associatedType: String, constraints: [String])] = extractAnnotations(type, annotationNames: ["associatedtype", "associatedtypes"])
+      .map {
+        let split = $0.replacingOccurrences(of: " ", with: "").characters.split(separator: ":").map(String.init)
+        let associatedType = split[0]
+        let constraints = split.count == 2 ? split[1].characters.split(separator: ",").map(String.init) : []
+        return (associatedType: associatedType, constraints: constraints)
+      }
+
+    let associatedTypesList: String = associatedTypes.map { $0.associatedType }.joined(separator: ", ")
+    let genericTypesConstraints: String = {
+        let constraints = associatedTypes
+          .flatMap {
+            guard !$0.constraints.isEmpty else { return nil }
+            let adopts = $0.constraints.joined(separator: ", ")
+            return "\($0.associatedType): \(adopts)"
+           }
+          .joined(separator: ", ")
+        return !constraints.isEmpty ? " where \(constraints)" : ""
+    }()
 -%>
 
 // MARK: - Type erasure for `<%=type.name%>`
 
-private class _Any<%=type.name%>Base<<%=associatedTypesList%>>: <%=type.name%> {
+private class _Any<%=type.name%>Base<<%=associatedTypesList%>>: <%=type.name%><%=genericTypesConstraints%> {
     init() {
         guard type(of: self) != _Any<%=type.name%>Base.self else {
             fatalError("_Any<%=type.name%>Base<<%=associatedTypesList%>> instances can not be created; create a subclass instance instead")
@@ -56,10 +73,10 @@ private class _Any<%=type.name%>Base<<%=associatedTypesList%>>: <%=type.name%> {
     <%_ } -%>
 }
 
-private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type.name%>Base<<%=associatedTypes.map{"Concrete.\($0)"}.joined(separator: ", ")%>> {
+private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type.name%>Base<<%=associatedTypes.map{"Concrete.\($0.associatedType)"}.joined(separator: ", ")%>> {
     private let concrete: Concrete
     <%_ for a in associatedTypes { -%>
-    typealias <%=a%> = Concrete.<%=a%>
+    typealias <%=a.associatedType%> = Concrete.<%=a.associatedType%>
     <%_ } -%>
 
     init(_ concrete: Concrete) {
@@ -84,10 +101,10 @@ private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type
     <%_ } -%>
 }
 
-final class Any<%=type.name%><<%=associatedTypesList%>>: <%=type.name%> {
+final class Any<%=type.name%><<%=associatedTypesList%>>: <%=type.name%><%=genericTypesConstraints%> {
     private let box: _Any<%=type.name%>Base<<%=associatedTypesList%>>
 
-    init<Concrete: <%=type.name%>>(_ concrete: Concrete) where <%=associatedTypes.map {"Concrete.\($0) == \($0)"}.joined(separator: ", ")%> {
+    init<Concrete: <%=type.name%>>(_ concrete: Concrete) where <%=associatedTypes.map {"Concrete.\($0.associatedType) == \($0.associatedType)"}.joined(separator: ", ")%> {
         self.box = _Any<%=type.name%>Box(concrete)
     }
     <%_ if !type.variables.isEmpty { -%>

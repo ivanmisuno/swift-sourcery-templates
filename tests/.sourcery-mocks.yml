@@ -1,7 +1,7 @@
 project:
   file: SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj
   target:
-    name: SwiftSourceryTemplatesTests
+    name: SwiftSourceryTemplates
     module: SwiftSourceryTemplates
 templates:
   - ../templates/Mocks.swifttemplate
