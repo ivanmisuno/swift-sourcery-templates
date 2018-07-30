@@ -7,10 +7,11 @@
 //
 
 import RxSwift
+import Alamofire // for `Result`
 
 // sourcery: CreateMock
 protocol UploadProgressing {
-    var progress: Observable<Double> { get }
+    var progress: Observable<Result<Double>> { get }
     func fileProgress(_ source: UploadAPI.LocalFile.Source) -> Observable<RxProgress>
 }
 

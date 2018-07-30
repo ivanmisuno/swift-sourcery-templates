@@ -29,8 +29,8 @@ class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
             delegateSetHandler?(newValue)
         }
     }    
-    var delegateBacking: AlbumPageSizeProviderDelegate?
     var delegateGetHandler: (() -> AlbumPageSizeProviderDelegate?)? = nil
+    var delegateBacking: AlbumPageSizeProviderDelegate?
     var delegateSetCount: Int = 0
     var delegateSetHandler: ((_ delegate: AlbumPageSizeProviderDelegate?) -> ())? = nil
 
@@ -45,8 +45,8 @@ class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
             return CGSize.zero
         }
     }    
-    var pageSizeBacking: CGSize?
     var pageSizeGetHandler: (() -> CGSize)? = nil
+    var pageSizeBacking: CGSize?
 
 }
 
@@ -105,19 +105,16 @@ class MutableTipsManagingMock: MutableTipsManaging {
 // MARK: - MutableUploadProgressing
 class MutableUploadProgressingMock: MutableUploadProgressing {
 
-    var progress: Observable<Double> {
+    var progress: Observable<Result<Double>> {
         get {
             if let handler = progressGetHandler {
                 return handler()
             }
-            if let value = progressBacking {
-                return value
-            }
-            fatalError("Either `progressGetHandler` or value must be provided!")
+            return progressSubject.asObservable()
         }
     }    
-    var progressBacking: Observable<Double>?
-    var progressGetHandler: (() -> Observable<Double>)? = nil
+    var progressGetHandler: (() -> Observable<Result<Double>>)? = nil
+    lazy var progressSubject = PublishSubject<Result<Double>>()
 
 
     // MARK: - setInputFiles(localFiles: [UploadAPI.LocalFile])
@@ -164,16 +161,16 @@ class TipsManagingMock: NSObject, TipsManaging {
             return [:]
         }
     }    
-    var tipsBacking: [String: String]?
     var tipsGetHandler: (() -> [String: String])? = nil
+    var tipsBacking: [String: String]?
 
     var tipsOptional: [String: String]? {
         get {
             return tipsOptionalGetHandler?() ?? tipsOptionalBacking
         }
     }    
-    var tipsOptionalBacking: [String: String]?
     var tipsOptionalGetHandler: (() -> [String: String]?)? = nil
+    var tipsOptionalBacking: [String: String]?
 
     var tupleVariable: (String, Int) {
         get {
@@ -186,8 +183,8 @@ class TipsManagingMock: NSObject, TipsManaging {
             return ("", 0)
         }
     }    
-    var tupleVariableBacking: (String, Int)?
     var tupleVariableGetHandler: (() -> (String, Int))? = nil
+    var tupleVariableBacking: (String, Int)?
 
     var tupleVariable2: (String?, Int?) {
         get {
@@ -200,16 +197,16 @@ class TipsManagingMock: NSObject, TipsManaging {
             return (nil, nil)
         }
     }    
-    var tupleVariable2Backing: (String?, Int?)?
     var tupleVariable2GetHandler: (() -> (String?, Int?))? = nil
+    var tupleVariable2Backing: (String?, Int?)?
 
     var tupleOptional: (String, Int)? {
         get {
             return tupleOptionalGetHandler?() ?? tupleOptionalBacking
         }
     }    
-    var tupleOptionalBacking: (String, Int)?
     var tupleOptionalGetHandler: (() -> (String, Int)?)? = nil
+    var tupleOptionalBacking: (String, Int)?
 
     var arrayVariable: [Double] {
         get {
@@ -222,27 +219,24 @@ class TipsManagingMock: NSObject, TipsManaging {
             return []
         }
     }    
-    var arrayVariableBacking: [Double]?
     var arrayVariableGetHandler: (() -> [Double])? = nil
+    var arrayVariableBacking: [Double]?
 
 }
 
 // MARK: - UploadProgressing
 class UploadProgressingMock: UploadProgressing {
 
-    var progress: Observable<Double> {
+    var progress: Observable<Result<Double>> {
         get {
             if let handler = progressGetHandler {
                 return handler()
             }
-            if let value = progressBacking {
-                return value
-            }
-            fatalError("Either `progressGetHandler` or value must be provided!")
+            return progressSubject.asObservable()
         }
     }    
-    var progressBacking: Observable<Double>?
-    var progressGetHandler: (() -> Observable<Double>)? = nil
+    var progressGetHandler: (() -> Observable<Result<Double>>)? = nil
+    lazy var progressSubject = PublishSubject<Result<Double>>()
 
 
     // MARK: - fileProgress(_ source: UploadAPI.LocalFile.Source)

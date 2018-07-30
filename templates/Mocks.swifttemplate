@@ -187,9 +187,9 @@
     var backingMockedVariableName = "\(variable.name)Backing"
     var mockedVariableHandlers = """
 
-        var \(backingMockedVariableName): \(variable.unwrappedTypeName)?
         var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil
     """
+
     var getterImplementation = ""
     if variable.typeName.isOptional {
         getterImplementation += """
@@ -198,6 +198,10 @@
                     return \(mockedVariableName)GetHandler?() ?? \(backingMockedVariableName)
                 }
         """
+        mockedVariableHandlers += """
+
+            var \(backingMockedVariableName): \(variable.unwrappedTypeName)?
+        """
     } else {
       getterImplementation += """
 
@@ -205,20 +209,40 @@
                   if let handler = \(mockedVariableName)GetHandler {
                       return handler()
                   }
-                  if let value = \(backingMockedVariableName) {
-                      return value
-                  }
       """
-      if let defaultValue = try? defaultValue(variable.typeName) {
+
+      if !variable.isMutable, variable.typeName.isGeneric, let generic = variable.typeName.generic, generic.name == "Observable", generic.typeParameters.count == 1 {
           getterImplementation += """
 
-                      return \(defaultValue)
+                      return \(mockedVariableName)Subject.asObservable()
+          """
+          mockedVariableHandlers += """
+
+              lazy var \(mockedVariableName)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()
           """
       } else {
           getterImplementation += """
 
-                      fatalError("Either `\(mockedVariableName)GetHandler` or value must be provided!")
+                      if let value = \(backingMockedVariableName) {
+                          return value
+                      }
           """
+          mockedVariableHandlers += """
+
+              var \(backingMockedVariableName): \(variable.unwrappedTypeName)?
+          """
+
+          if let defaultValue = try? defaultValue(variable.typeName) {
+              getterImplementation += """
+
+                          return \(defaultValue)
+              """
+          } else {
+              getterImplementation += """
+
+                          fatalError("Either `\(mockedVariableName)GetHandler` or value must be provided!")
+              """
+          }
       }
 
       getterImplementation += """
