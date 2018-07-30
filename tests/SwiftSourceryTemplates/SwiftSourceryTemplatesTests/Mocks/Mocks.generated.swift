@@ -12,10 +12,41 @@ import RxTest
 @testable import SwiftSourceryTemplates
 
 
+// MARK: - AlbumPageSizeProviderDelegate
+class AlbumPageSizeProviderDelegateMock: AlbumPageSizeProviderDelegate {
+}
+
 // MARK: - AlbumPageSizeProviding
 class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
 
-    // MARK: - pageSize
+    var delegate: AlbumPageSizeProviderDelegate? {
+        get {
+            return delegateGetHandler?() ?? delegateBacking
+        }
+        set {
+            delegateBacking = newValue
+            delegateSetCount += 1
+            delegateSetHandler?(newValue)
+        }
+    }    
+    var delegateBacking: AlbumPageSizeProviderDelegate?
+    var delegateGetHandler: (() -> AlbumPageSizeProviderDelegate?)? = nil
+    var delegateSetCount: Int = 0
+    var delegateSetHandler: ((_ delegate: AlbumPageSizeProviderDelegate?) -> ())? = nil
+
+    var pageSize: CGSize {
+        get {
+            if let handler = pageSizeGetHandler {
+                return handler()
+            }
+            if let value = pageSizeBacking {
+                return value
+            }
+            return CGSize.zero
+        }
+    }    
+    var pageSizeBacking: CGSize?
+    var pageSizeGetHandler: (() -> CGSize)? = nil
 
 }
 
@@ -74,7 +105,19 @@ class MutableTipsManagingMock: MutableTipsManaging {
 // MARK: - MutableUploadProgressing
 class MutableUploadProgressingMock: MutableUploadProgressing {
 
-    // MARK: - progress
+    var progress: Observable<Double> {
+        get {
+            if let handler = progressGetHandler {
+                return handler()
+            }
+            if let value = progressBacking {
+                return value
+            }
+            fatalError("Either `progressGetHandler` or value must be provided!")
+        }
+    }    
+    var progressBacking: Observable<Double>?
+    var progressGetHandler: (() -> Observable<Double>)? = nil
 
 
     // MARK: - setInputFiles(localFiles: [UploadAPI.LocalFile])
@@ -109,12 +152,97 @@ class TipsManagerBuildingMock: TipsManagerBuilding {
 
 // MARK: - TipsManaging
 class TipsManagingMock: NSObject, TipsManaging {
+
+    var tips: [String: String] {
+        get {
+            if let handler = tipsGetHandler {
+                return handler()
+            }
+            if let value = tipsBacking {
+                return value
+            }
+            return [:]
+        }
+    }    
+    var tipsBacking: [String: String]?
+    var tipsGetHandler: (() -> [String: String])? = nil
+
+    var tipsOptional: [String: String]? {
+        get {
+            return tipsOptionalGetHandler?() ?? tipsOptionalBacking
+        }
+    }    
+    var tipsOptionalBacking: [String: String]?
+    var tipsOptionalGetHandler: (() -> [String: String]?)? = nil
+
+    var tupleVariable: (String, Int) {
+        get {
+            if let handler = tupleVariableGetHandler {
+                return handler()
+            }
+            if let value = tupleVariableBacking {
+                return value
+            }
+            return ("", 0)
+        }
+    }    
+    var tupleVariableBacking: (String, Int)?
+    var tupleVariableGetHandler: (() -> (String, Int))? = nil
+
+    var tupleVariable2: (String?, Int?) {
+        get {
+            if let handler = tupleVariable2GetHandler {
+                return handler()
+            }
+            if let value = tupleVariable2Backing {
+                return value
+            }
+            return (nil, nil)
+        }
+    }    
+    var tupleVariable2Backing: (String?, Int?)?
+    var tupleVariable2GetHandler: (() -> (String?, Int?))? = nil
+
+    var tupleOptional: (String, Int)? {
+        get {
+            return tupleOptionalGetHandler?() ?? tupleOptionalBacking
+        }
+    }    
+    var tupleOptionalBacking: (String, Int)?
+    var tupleOptionalGetHandler: (() -> (String, Int)?)? = nil
+
+    var arrayVariable: [Double] {
+        get {
+            if let handler = arrayVariableGetHandler {
+                return handler()
+            }
+            if let value = arrayVariableBacking {
+                return value
+            }
+            return []
+        }
+    }    
+    var arrayVariableBacking: [Double]?
+    var arrayVariableGetHandler: (() -> [Double])? = nil
+
 }
 
 // MARK: - UploadProgressing
 class UploadProgressingMock: UploadProgressing {
 
-    // MARK: - progress
+    var progress: Observable<Double> {
+        get {
+            if let handler = progressGetHandler {
+                return handler()
+            }
+            if let value = progressBacking {
+                return value
+            }
+            fatalError("Either `progressGetHandler` or value must be provided!")
+        }
+    }    
+    var progressBacking: Observable<Double>?
+    var progressGetHandler: (() -> Observable<Double>)? = nil
 
 
     // MARK: - fileProgress(_ source: UploadAPI.LocalFile.Source)

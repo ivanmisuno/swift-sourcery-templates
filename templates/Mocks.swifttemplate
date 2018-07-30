@@ -139,6 +139,8 @@
 
     """
   }
+
+
   func mockOptionalVariable(_ variable: SourceryRuntime.Variable) -> String {
     return "var \(mockedVariableName(variable)): \(variable.typeName)"
   }
@@ -146,28 +148,125 @@
     assert(variable.isArray || variable.isDictionary)
     return "var \(mockedVariableName(variable)): \(variable.typeName) = \(variable.isArray ? "[]" : "[:]")"
   }
-  func mockNonOptionalVariable(_ variable: SourceryRuntime.Variable) -> String {
-    return """
-        var \(mockedVariableName(variable)): \(variable.typeName) {
-            get { return \(underlyingMockedVariableName(variable)) }
-            set(value) { \(underlyingMockedVariableName(variable)) = value }
-        }
-        var \(underlyingMockedVariableName(variable)): \(variable.typeName)!
-    """
-  }
-  func underlyingMockedVariableName(_ variable: SourceryRuntime.Variable) -> String {
-    return "underlying\(upperFirstLetter(variable.name))"
-  }
   func mockedVariableName(_ variable: SourceryRuntime.Variable) -> String {
     return "\(variable.name)"
   }
 
+  enum MockError: Error {
+  case noDefaultValue
+  }
+
+  func defaultValue(_ typeName: SourceryRuntime.TypeName) throws -> String {
+    if typeName.isOptional { return "nil" }
+    if typeName.isVoid { return "()" }
+    if typeName.isArray { return "[]" }
+    if typeName.isDictionary { return "[:]" }
+    if typeName.isTuple, let tuple = typeName.tuple {
+      let joined = try tuple.elements.map { try defaultValue($0.typeName) }.joined(separator: ", ")
+      return "(\(joined))"
+    }
+
+    switch typeName.unwrappedTypeName {
+    case "String": return "\"\""
+    case "Int", "Int32", "Int64", "UInt", "UInt32", "UInt64": return "0"
+    case "Float", "Double": return "0.0"
+    case "CGFloat": return "CGFloat(0)"
+    case "CGPoint", "NSPoint": return "CGPoint.zero"
+    case "CGSize", "NSSize": return "CGSize.zero"
+    case "CGRect", "NSRect": return "CGRect.zero"
+    default:
+      break
+    }
+
+    throw MockError.noDefaultValue
+  }
+
+
   func mockVariable(_ variable: SourceryRuntime.Variable) -> String {
-    return """
-        // MARK: - \(variable.name)
+    var mockedVariableName = "\(variable.name)"
+    var backingMockedVariableName = "\(variable.name)Backing"
+    var mockedVariableHandlers = """
 
-
+        var \(backingMockedVariableName): \(variable.unwrappedTypeName)?
+        var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil
     """
+    var getterImplementation = ""
+    if variable.typeName.isOptional {
+        getterImplementation += """
+
+                get {
+                    return \(mockedVariableName)GetHandler?() ?? \(backingMockedVariableName)
+                }
+        """
+    } else {
+      getterImplementation += """
+
+              get {
+                  if let handler = \(mockedVariableName)GetHandler {
+                      return handler()
+                  }
+                  if let value = \(backingMockedVariableName) {
+                      return value
+                  }
+      """
+      if let defaultValue = try? defaultValue(variable.typeName) {
+          getterImplementation += """
+
+                      return \(defaultValue)
+          """
+      } else {
+          getterImplementation += """
+
+                      fatalError("Either `\(mockedVariableName)GetHandler` or value must be provided!")
+          """
+      }
+
+      getterImplementation += """
+
+              }
+      """
+    }
+
+    var setterImplementation = ""
+    if variable.isMutable {
+        setterImplementation += """
+
+                set {
+                    \(backingMockedVariableName) = newValue
+                    \(mockedVariableName)SetCount += 1
+                    \(mockedVariableName)SetHandler?(newValue)
+                }
+        """
+        mockedVariableHandlers += """
+
+            var \(mockedVariableName)SetCount: Int = 0
+            var \(mockedVariableName)SetHandler: ((_ \(mockedVariableName): \(variable.typeName)) -> ())? = nil
+        """
+    }
+
+    var mockedVariableImplementation = """
+        var \(variable.name): \(variable.typeName) {
+    """
+    if !getterImplementation.isEmpty {
+        mockedVariableImplementation += getterImplementation
+    }
+    if !setterImplementation.isEmpty {
+        mockedVariableImplementation += setterImplementation
+    }
+    mockedVariableImplementation += """
+
+        }
+    """
+
+    if !mockedVariableHandlers.isEmpty {
+        mockedVariableImplementation += """
+            \(mockedVariableHandlers)
+
+
+        """
+    }
+
+    return mockedVariableImplementation
   }
 
   func isObjcProtocol(_ type: Type) -> Bool {

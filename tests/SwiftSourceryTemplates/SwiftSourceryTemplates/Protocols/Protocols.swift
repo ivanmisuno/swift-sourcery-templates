@@ -35,7 +35,12 @@ protocol ImageAttributeProviding {
 }
 
 // sourcery: CreateMock
+protocol AlbumPageSizeProviderDelegate: class {
+}
+
+// sourcery: CreateMock
 protocol AlbumPageSizeProviding {
+    var delegate: AlbumPageSizeProviderDelegate? { get set }
     var pageSize: CGSize { get }
 }
 
@@ -72,6 +77,12 @@ protocol ErrorPopoverPresentableRawRepresentable {
 
 /// sourcery: CreateMock
 @objc protocol TipsManaging: NSObjectProtocol {
+    var tips: [String: String] { get }
+    var tipsOptional: [String: String]? { get }
+    var tupleVariable: (String, Int) { get }
+    var tupleVariable2: (String?, Int?) { get }
+    var tupleOptional: (String, Int)? { get }
+    var arrayVariable: [Double] { get }
 }
 
 /// sourcery: CreateMock
