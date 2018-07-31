@@ -30,9 +30,9 @@ class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
         }
     }    
     var delegateGetHandler: (() -> AlbumPageSizeProviderDelegate?)? = nil
-    var delegateBacking: AlbumPageSizeProviderDelegate?
     var delegateSetCount: Int = 0
     var delegateSetHandler: ((_ delegate: AlbumPageSizeProviderDelegate?) -> ())? = nil
+    var delegateBacking: AlbumPageSizeProviderDelegate?
 
     var pageSize: CGSize {
         get {

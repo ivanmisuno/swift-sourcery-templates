@@ -185,6 +185,7 @@
   func mockVariable(_ variable: SourceryRuntime.Variable) -> String {
     var mockedVariableName = "\(variable.name)"
     var backingMockedVariableName = "\(variable.name)Backing"
+    var needBackingVariable = false
     var mockedVariableHandlers = """
 
         var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil
@@ -198,10 +199,7 @@
                     return \(mockedVariableName)GetHandler?() ?? \(backingMockedVariableName)
                 }
         """
-        mockedVariableHandlers += """
-
-            var \(backingMockedVariableName): \(variable.unwrappedTypeName)?
-        """
+        needBackingVariable = true
     } else {
       getterImplementation += """
 
@@ -227,10 +225,7 @@
                           return value
                       }
           """
-          mockedVariableHandlers += """
-
-              var \(backingMockedVariableName): \(variable.unwrappedTypeName)?
-          """
+          needBackingVariable = true
 
           if let defaultValue = try? defaultValue(variable.typeName) {
               getterImplementation += """
@@ -261,6 +256,7 @@
                     \(mockedVariableName)SetHandler?(newValue)
                 }
         """
+        needBackingVariable = true
         mockedVariableHandlers += """
 
             var \(mockedVariableName)SetCount: Int = 0
@@ -282,6 +278,12 @@
         }
     """
 
+    if needBackingVariable {
+      mockedVariableHandlers += """
+
+          var \(backingMockedVariableName): \(variable.unwrappedTypeName)?
+      """
+    }
     if !mockedVariableHandlers.isEmpty {
         mockedVariableImplementation += """
             \(mockedVariableHandlers)
