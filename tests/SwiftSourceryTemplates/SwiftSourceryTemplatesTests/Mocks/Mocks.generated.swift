@@ -50,6 +50,26 @@ class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
 
 }
 
+// MARK: - DataSource
+class DataSourceMock: DataSource {
+
+    var bindingTarget: AnyObserver<UploadAPI.LocalFile> {
+        get {
+            if let handler = bindingTargetGetHandler {
+                return handler()
+            }
+            return AnyObserver { [weak self] event in
+                self?.bindingTargetCallCount += 1
+                self?.bindingTargetEventHandler?(event)
+            }
+        }
+    }    
+    var bindingTargetGetHandler: (() -> AnyObserver<UploadAPI.LocalFile>)? = nil
+    var bindingTargetCallCount: Int = 0
+    var bindingTargetEventHandler = ((Event<UploadAPI.LocalFile>) -> ())? = nil
+
+}
+
 // MARK: - ErrorPopoverBuildable
 class ErrorPopoverBuildableMock: ErrorPopoverBuildable {
 

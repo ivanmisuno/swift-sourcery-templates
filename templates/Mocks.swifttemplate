@@ -209,15 +209,33 @@
                   }
       """
 
-      if !variable.isMutable, variable.typeName.isGeneric, let generic = variable.typeName.generic, generic.name == "Observable", generic.typeParameters.count == 1 {
-          getterImplementation += """
+      if !variable.isMutable, variable.typeName.isGeneric, let generic = variable.typeName.generic, generic.name == "Observable" || generic.name == "AnyObserver", generic.typeParameters.count == 1 {
+          switch generic.name {
+          case "Observable":
+              getterImplementation += """
 
-                      return \(mockedVariableName)Subject.asObservable()
-          """
-          mockedVariableHandlers += """
+                          return \(mockedVariableName)Subject.asObservable()
+              """
+              mockedVariableHandlers += """
 
-              lazy var \(mockedVariableName)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()
-          """
+                  lazy var \(mockedVariableName)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()
+              """
+          case "AnyObserver":
+              getterImplementation += """
+
+                          return AnyObserver { [weak self] event in
+                              self?.\(mockedVariableName)CallCount += 1
+                              self?.\(mockedVariableName)EventHandler?(event)
+                          }
+              """
+              mockedVariableHandlers += """
+
+                  var \(mockedVariableName)CallCount: Int = 0
+                  var \(mockedVariableName)EventHandler = ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil
+              """
+          default:
+              fatalError("Should not get here.")
+          }
       } else {
           getterImplementation += """
 
