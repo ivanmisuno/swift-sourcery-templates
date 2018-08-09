@@ -141,13 +141,6 @@
     }
 
 
-  func mockOptionalVariable(_ variable: SourceryRuntime.Variable) -> String {
-    return "var \(mockedVariableName(variable)): \(variable.typeName)"
-    }
-  func mockNonOptionalArrayOrDictionaryVariable(_ variable: SourceryRuntime.Variable) -> String {
-    assert(variable.isArray || variable.isDictionary)
-    return "var \(mockedVariableName(variable)): \(variable.typeName) = \(variable.isArray ? "[]" : "[:]")"
-    }
     func mockedVariableName(_ variable: SourceryRuntime.Variable) -> String {
         return "\(variable.name)"
     }
