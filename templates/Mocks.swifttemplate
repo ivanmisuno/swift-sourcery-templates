@@ -1,349 +1,349 @@
 <%- include("_header") -%>
 <%- include("_utility") -%>
 <%
-  func swiftifyMethodName(_ name: String) -> String {
-    let swiftifiedName = name
-      .replacingOccurrences(of: "(", with: "_")
-      .replacingOccurrences(of: ")", with: "")
-      .replacingOccurrences(of: ":", with: "_")
-      .replacingOccurrences(of: "`", with: "")
-    let camelCasedName = snakeToCamelCase(swiftifiedName)
-    let lowercasedFirstWordName = lowerFirstWord(camelCasedName)
-    return lowercasedFirstWordName
-  }
-  func uniques(methods: [SourceryRuntime.Method]) -> [SourceryRuntime.Method] {
-      func returnTypeStripped(_ method: SourceryRuntime.Method) -> String {
-          let returnTypeRaw = "\(method.returnTypeName)"
-          var stripped: String = {
-              guard let range = returnTypeRaw.range(of: "where") else { return returnTypeRaw }
-              var stripped = returnTypeRaw
-              stripped.removeSubrange((range.lowerBound)...)
-              return stripped
-          }()
-          stripped = stripped.trimmingCharacters(in: CharacterSet(charactersIn: " "))
-          return stripped
-      }
-
-      func areSameParams(_ p1: SourceryRuntime.MethodParameter, _ p2: SourceryRuntime.MethodParameter) -> Bool {
-          guard p1.argumentLabel == p2.argumentLabel else { return false }
-          guard p1.name == p2.name else { return false }
-          guard p1.argumentLabel == p2.argumentLabel else { return false }
-          guard p1.typeName.name == p2.typeName.name else { return false }
-          guard p1.actualTypeName?.name == p2.actualTypeName?.name else { return false }
-          return true
-      }
-
-      func areSameMethods(_ m1: SourceryRuntime.Method, _ m2: SourceryRuntime.Method) -> Bool {
-          guard m1.name != m2.name else { return m1.returnTypeName == m2.returnTypeName }
-          guard m1.selectorName == m2.selectorName else { return false }
-          guard m1.parameters.count == m2.parameters.count else { return false }
-
-          let p1 = m1.parameters
-          let p2 = m2.parameters
-
-          for i in 0..<p1.count {
-              if !areSameParams(p1[i],p2[i]) { return false }
-          }
-
-          return m1.returnTypeName == m2.returnTypeName
-      }
-
-      return methods.reduce([], { (result, element) -> [SourceryRuntime.Method] in
-          guard !result.contains(where: { areSameMethods($0,element) }) else { return result }
-          return result + [element]
-      })
-  }
-
-  func uniquesWithoutGenericConstraints(methods: [SourceryRuntime.Method]) -> [SourceryRuntime.Method] {
-      func returnTypeStripped(_ method: SourceryRuntime.Method) -> String {
-          let returnTypeRaw = "\(method.returnTypeName)"
-          var stripped: String = {
-              guard let range = returnTypeRaw.range(of: "where") else { return returnTypeRaw }
-              var stripped = returnTypeRaw
-              stripped.removeSubrange((range.lowerBound)...)
-              return stripped
-          }()
-          stripped = stripped.trimmingCharacters(in: CharacterSet(charactersIn: " "))
-          return stripped
-      }
-
-      func areSameParams(_ p1: SourceryRuntime.MethodParameter, _ p2: SourceryRuntime.MethodParameter) -> Bool {
-          guard p1.argumentLabel == p2.argumentLabel else { return false }
-          guard p1.name == p2.name else { return false }
-          guard p1.argumentLabel == p2.argumentLabel else { return false }
-          guard p1.typeName.name == p2.typeName.name else { return false }
-          guard p1.actualTypeName?.name == p2.actualTypeName?.name else { return false }
-          return true
-      }
-
-      func areSameMethods(_ m1: SourceryRuntime.Method, _ m2: SourceryRuntime.Method) -> Bool {
-          guard m1.name != m2.name else { return returnTypeStripped(m1) == returnTypeStripped(m2) }
-          guard m1.selectorName == m2.selectorName else { return false }
-          guard m1.parameters.count == m2.parameters.count else { return false }
-
-          let p1 = m1.parameters
-          let p2 = m2.parameters
-
-          for i in 0..<p1.count {
-              if !areSameParams(p1[i],p2[i]) { return false }
-          }
-
-          return returnTypeStripped(m1) == returnTypeStripped(m2)
-      }
-
-      return methods.reduce([], { (result, element) -> [SourceryRuntime.Method] in
-          guard !result.contains(where: { areSameMethods($0,element) }) else { return result }
-          return result + [element]
-      })
-  }
-
-  func uniques(variables: [SourceryRuntime.Variable]) -> [SourceryRuntime.Variable] {
-      return variables.reduce([], { (result, element) -> [SourceryRuntime.Variable] in
-          guard !result.contains(where: { $0.name == element.name }) else { return result }
-          return result + [element]
-      })
-  }
-
-  func methodThrowableErrorDeclaration(_ method: SourceryRuntime.Method) -> String {
-    return "var \(swiftifyMethodName(method.selectorName))ThrowableError: Error?"
-  }
-  func methodThrowableErrorUsage(_ method: SourceryRuntime.Method) -> String {
-    return """
-        if let error = \(methodThrowableErrorDeclaration(method))ThrowableError {
-            throw error
+    func swiftifyMethodName(_ name: String) -> String {
+        let swiftifiedName = name
+            .replacingOccurrences(of: "(", with: "_")
+            .replacingOccurrences(of: ")", with: "")
+            .replacingOccurrences(of: ":", with: "_")
+            .replacingOccurrences(of: "`", with: "")
+        let camelCasedName = snakeToCamelCase(swiftifiedName)
+        let lowercasedFirstWordName = lowerFirstWord(camelCasedName)
+        return lowercasedFirstWordName
+    }
+    func uniques(methods: [SourceryRuntime.Method]) -> [SourceryRuntime.Method] {
+        func returnTypeStripped(_ method: SourceryRuntime.Method) -> String {
+            let returnTypeRaw = "\(method.returnTypeName)"
+            var stripped: String = {
+                guard let range = returnTypeRaw.range(of: "where") else { return returnTypeRaw }
+                var stripped = returnTypeRaw
+                stripped.removeSubrange((range.lowerBound)...)
+                return stripped
+            }()
+            stripped = stripped.trimmingCharacters(in: CharacterSet(charactersIn: " "))
+            return stripped
         }
-    """
-  }
-  func methodHandlerName(_ method: SourceryRuntime.Method) -> String {
-    return "\(swiftifyMethodName(method.callName))Handler"
-  }
-  func methodHandlerDeclaration(_ method: SourceryRuntime.Method) -> String {
-    let parameters = method.parameters.map {
-      if let argumentLabel = $0.argumentLabel {
-        return "_ \($0.name): \($0.typeName.name)"
-      } else {
-        return $0.typeName.name
-      }
-    }.joined(separator: ", ")
-    let throwing = method.throws ? " throws" : ""
-    let returnType = method.isInitializer ? "()" : method.returnTypeName.name
-    return "var \(methodHandlerName(method)): ((\(parameters))\(throwing) -> \(returnType))? = nil"
-  }
-  func methodHandlerCallParameters(_ method: SourceryRuntime.Method) -> String {
-    return method.parameters.map { $0.name }.joined(separator: ", ")
-  }
-  func mockMethod(_ method: SourceryRuntime.Method) -> String {
-    return """
-        // MARK: - \(method.name)
-        \(methodHandlerDeclaration(method))
 
-    """
-  }
+        func areSameParams(_ p1: SourceryRuntime.MethodParameter, _ p2: SourceryRuntime.MethodParameter) -> Bool {
+            guard p1.argumentLabel == p2.argumentLabel else { return false }
+            guard p1.name == p2.name else { return false }
+            guard p1.argumentLabel == p2.argumentLabel else { return false }
+            guard p1.typeName.name == p2.typeName.name else { return false }
+            guard p1.actualTypeName?.name == p2.actualTypeName?.name else { return false }
+            return true
+        }
+
+        func areSameMethods(_ m1: SourceryRuntime.Method, _ m2: SourceryRuntime.Method) -> Bool {
+            guard m1.name != m2.name else { return m1.returnTypeName == m2.returnTypeName }
+            guard m1.selectorName == m2.selectorName else { return false }
+            guard m1.parameters.count == m2.parameters.count else { return false }
+
+            let p1 = m1.parameters
+            let p2 = m2.parameters
+
+            for i in 0..<p1.count {
+                if !areSameParams(p1[i],p2[i]) { return false }
+            }
+
+            return m1.returnTypeName == m2.returnTypeName
+        }
+
+        return methods.reduce([], { (result, element) -> [SourceryRuntime.Method] in
+            guard !result.contains(where: { areSameMethods($0,element) }) else { return result }
+            return result + [element]
+        })
+    }
+
+    func uniquesWithoutGenericConstraints(methods: [SourceryRuntime.Method]) -> [SourceryRuntime.Method] {
+        func returnTypeStripped(_ method: SourceryRuntime.Method) -> String {
+            let returnTypeRaw = "\(method.returnTypeName)"
+            var stripped: String = {
+                guard let range = returnTypeRaw.range(of: "where") else { return returnTypeRaw }
+                var stripped = returnTypeRaw
+                stripped.removeSubrange((range.lowerBound)...)
+                return stripped
+            }()
+            stripped = stripped.trimmingCharacters(in: CharacterSet(charactersIn: " "))
+            return stripped
+        }
+
+        func areSameParams(_ p1: SourceryRuntime.MethodParameter, _ p2: SourceryRuntime.MethodParameter) -> Bool {
+            guard p1.argumentLabel == p2.argumentLabel else { return false }
+            guard p1.name == p2.name else { return false }
+            guard p1.argumentLabel == p2.argumentLabel else { return false }
+            guard p1.typeName.name == p2.typeName.name else { return false }
+            guard p1.actualTypeName?.name == p2.actualTypeName?.name else { return false }
+            return true
+        }
+
+        func areSameMethods(_ m1: SourceryRuntime.Method, _ m2: SourceryRuntime.Method) -> Bool {
+            guard m1.name != m2.name else { return returnTypeStripped(m1) == returnTypeStripped(m2) }
+            guard m1.selectorName == m2.selectorName else { return false }
+            guard m1.parameters.count == m2.parameters.count else { return false }
+
+            let p1 = m1.parameters
+            let p2 = m2.parameters
+
+            for i in 0..<p1.count {
+                if !areSameParams(p1[i],p2[i]) { return false }
+            }
+
+            return returnTypeStripped(m1) == returnTypeStripped(m2)
+        }
+
+        return methods.reduce([], { (result, element) -> [SourceryRuntime.Method] in
+            guard !result.contains(where: { areSameMethods($0,element) }) else { return result }
+            return result + [element]
+        })
+        }
+
+        func uniques(variables: [SourceryRuntime.Variable]) -> [SourceryRuntime.Variable] {
+            return variables.reduce([], { (result, element) -> [SourceryRuntime.Variable] in
+                guard !result.contains(where: { $0.name == element.name }) else { return result }
+                return result + [element]
+            })
+        }
+
+        func methodThrowableErrorDeclaration(_ method: SourceryRuntime.Method) -> String {
+            return "var \(swiftifyMethodName(method.selectorName))ThrowableError: Error?"
+        }
+        func methodThrowableErrorUsage(_ method: SourceryRuntime.Method) -> String {
+            return """
+                if let error = \(methodThrowableErrorDeclaration(method))ThrowableError {
+                    throw error
+                }
+            """
+        }
+        func methodHandlerName(_ method: SourceryRuntime.Method) -> String {
+            return "\(swiftifyMethodName(method.callName))Handler"
+        }
+        func methodHandlerDeclaration(_ method: SourceryRuntime.Method) -> String {
+            let parameters = method.parameters.map {
+                if let argumentLabel = $0.argumentLabel {
+                    return "_ \($0.name): \($0.typeName.name)"
+                } else {
+                    return $0.typeName.name
+                }
+            }.joined(separator: ", ")
+            let throwing = method.throws ? " throws" : ""
+            let returnType = method.isInitializer ? "()" : method.returnTypeName.name
+            return "var \(methodHandlerName(method)): ((\(parameters))\(throwing) -> \(returnType))? = nil"
+        }
+        func methodHandlerCallParameters(_ method: SourceryRuntime.Method) -> String {
+            return method.parameters.map { $0.name }.joined(separator: ", ")
+        }
+        func mockMethod(_ method: SourceryRuntime.Method) -> String {
+            return """
+                // MARK: - \(method.name)
+                \(methodHandlerDeclaration(method))
+
+            """
+        }
 
 
   func mockOptionalVariable(_ variable: SourceryRuntime.Variable) -> String {
     return "var \(mockedVariableName(variable)): \(variable.typeName)"
-  }
+    }
   func mockNonOptionalArrayOrDictionaryVariable(_ variable: SourceryRuntime.Variable) -> String {
     assert(variable.isArray || variable.isDictionary)
     return "var \(mockedVariableName(variable)): \(variable.typeName) = \(variable.isArray ? "[]" : "[:]")"
-  }
-  func mockedVariableName(_ variable: SourceryRuntime.Variable) -> String {
-    return "\(variable.name)"
-  }
-
-  enum MockError: Error {
-  case noDefaultValue
-  }
-
-  func defaultValue(_ typeName: SourceryRuntime.TypeName) throws -> String {
-    if typeName.isOptional { return "nil" }
-    if typeName.isVoid { return "()" }
-    if typeName.isArray { return "[]" }
-    if typeName.isDictionary { return "[:]" }
-    if typeName.isTuple, let tuple = typeName.tuple {
-      let joined = try tuple.elements.map { try defaultValue($0.typeName) }.joined(separator: ", ")
-      return "(\(joined))"
+    }
+    func mockedVariableName(_ variable: SourceryRuntime.Variable) -> String {
+        return "\(variable.name)"
     }
 
-    switch typeName.unwrappedTypeName {
-    case "String": return "\"\""
-    case "Int", "Int32", "Int64", "UInt", "UInt32", "UInt64": return "0"
-    case "Float", "Double": return "0.0"
-    case "CGFloat": return "CGFloat(0)"
-    case "CGPoint", "NSPoint": return "CGPoint.zero"
-    case "CGSize", "NSSize": return "CGSize.zero"
-    case "CGRect", "NSRect": return "CGRect.zero"
-    default:
-      break
+    enum MockError: Error {
+    case noDefaultValue
     }
 
-    throw MockError.noDefaultValue
-  }
-
-
-  func mockVariable(_ variable: SourceryRuntime.Variable) -> String {
-    var mockedVariableName = "\(variable.name)"
-    var backingMockedVariableName = "\(variable.name)Backing"
-    var needBackingVariable = false
-    var mockedVariableHandlers = """
-
-        var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil
-    """
-
-    var getterImplementation = ""
-    if variable.typeName.isOptional {
-        getterImplementation += """
-
-                get {
-                    return \(mockedVariableName)GetHandler?() ?? \(backingMockedVariableName)
-                }
-        """
-        needBackingVariable = true
-    } else {
-      getterImplementation += """
-
-              get {
-                  if let handler = \(mockedVariableName)GetHandler {
-                      return handler()
-                  }
-      """
-
-      if !variable.isMutable, variable.typeName.isGeneric, let generic = variable.typeName.generic, generic.name == "Observable" || generic.name == "AnyObserver", generic.typeParameters.count == 1 {
-          switch generic.name {
-          case "Observable":
-              getterImplementation += """
-
-                          return \(mockedVariableName)Subject.asObservable()
-              """
-              mockedVariableHandlers += """
-
-                  lazy var \(mockedVariableName)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()
-              """
-          case "AnyObserver":
-              getterImplementation += """
-
-                          return AnyObserver { [weak self] event in
-                              self?.\(mockedVariableName)CallCount += 1
-                              self?.\(mockedVariableName)EventHandler?(event)
-                          }
-              """
-              mockedVariableHandlers += """
-
-                  var \(mockedVariableName)CallCount: Int = 0
-                  var \(mockedVariableName)EventHandler = ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil
-              """
-          default:
-              fatalError("Should not get here.")
-          }
-      } else {
-          getterImplementation += """
-
-                      if let value = \(backingMockedVariableName) {
-                          return value
-                      }
-          """
-          needBackingVariable = true
-
-          if let defaultValue = try? defaultValue(variable.typeName) {
-              getterImplementation += """
-
-                          return \(defaultValue)
-              """
-          } else {
-              getterImplementation += """
-
-                          fatalError("Either `\(mockedVariableName)GetHandler` or value must be provided!")
-              """
-          }
-      }
-
-      getterImplementation += """
-
-              }
-      """
-    }
-
-    var setterImplementation = ""
-    if variable.isMutable {
-        setterImplementation += """
-
-                set {
-                    \(backingMockedVariableName) = newValue
-                    \(mockedVariableName)SetCount += 1
-                    \(mockedVariableName)SetHandler?(newValue)
-                }
-        """
-        needBackingVariable = true
-        mockedVariableHandlers += """
-
-            var \(mockedVariableName)SetCount: Int = 0
-            var \(mockedVariableName)SetHandler: ((_ \(mockedVariableName): \(variable.typeName)) -> ())? = nil
-        """
-    }
-
-    var mockedVariableImplementation = """
-        var \(variable.name): \(variable.typeName) {
-    """
-    if !getterImplementation.isEmpty {
-        mockedVariableImplementation += getterImplementation
-    }
-    if !setterImplementation.isEmpty {
-        mockedVariableImplementation += setterImplementation
-    }
-    mockedVariableImplementation += """
-
+    func defaultValue(_ typeName: SourceryRuntime.TypeName) throws -> String {
+        if typeName.isOptional { return "nil" }
+        if typeName.isVoid { return "()" }
+        if typeName.isArray { return "[]" }
+        if typeName.isDictionary { return "[:]" }
+        if typeName.isTuple, let tuple = typeName.tuple {
+            let joined = try tuple.elements.map { try defaultValue($0.typeName) }.joined(separator: ", ")
+            return "(\(joined))"
         }
-    """
 
-    if needBackingVariable {
-      mockedVariableHandlers += """
+        switch typeName.unwrappedTypeName {
+        case "String": return "\"\""
+        case "Int", "Int32", "Int64", "UInt", "UInt32", "UInt64": return "0"
+        case "Float", "Double": return "0.0"
+        case "CGFloat": return "CGFloat(0)"
+        case "CGPoint", "NSPoint": return "CGPoint.zero"
+        case "CGSize", "NSSize": return "CGSize.zero"
+        case "CGRect", "NSRect": return "CGRect.zero"
+        default:
+            break
+        }
 
-          var \(backingMockedVariableName): \(variable.unwrappedTypeName)?
-      """
+        throw MockError.noDefaultValue
     }
-    if !mockedVariableHandlers.isEmpty {
-        mockedVariableImplementation += """
-            \(mockedVariableHandlers)
 
 
+    func mockVariable(_ variable: SourceryRuntime.Variable) -> String {
+        var mockedVariableName = "\(variable.name)"
+        var backingMockedVariableName = "\(variable.name)Backing"
+        var needBackingVariable = false
+        var mockedVariableHandlers = """
+
+            var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil
         """
+
+        var getterImplementation = ""
+        if variable.typeName.isOptional {
+            getterImplementation += """
+
+                    get {
+                        return \(mockedVariableName)GetHandler?() ?? \(backingMockedVariableName)
+                    }
+            """
+            needBackingVariable = true
+        } else {
+            getterImplementation += """
+
+                    get {
+                        if let handler = \(mockedVariableName)GetHandler {
+                            return handler()
+                        }
+            """
+
+            if !variable.isMutable, variable.typeName.isGeneric, let generic = variable.typeName.generic, generic.name == "Observable" || generic.name == "AnyObserver", generic.typeParameters.count == 1 {
+                switch generic.name {
+                case "Observable":
+                    getterImplementation += """
+
+                                return \(mockedVariableName)Subject.asObservable()
+                    """
+                    mockedVariableHandlers += """
+
+                        lazy var \(mockedVariableName)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()
+                    """
+                case "AnyObserver":
+                    getterImplementation += """
+
+                                return AnyObserver { [weak self] event in
+                                    self?.\(mockedVariableName)CallCount += 1
+                                    self?.\(mockedVariableName)EventHandler?(event)
+                                }
+                    """
+                    mockedVariableHandlers += """
+
+                        var \(mockedVariableName)CallCount: Int = 0
+                        var \(mockedVariableName)EventHandler = ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil
+                    """
+                default:
+                    fatalError("Should not get here.")
+                }
+            } else {
+                getterImplementation += """
+
+                            if let value = \(backingMockedVariableName) {
+                                return value
+                            }
+                """
+                needBackingVariable = true
+
+                if let defaultValue = try? defaultValue(variable.typeName) {
+                    getterImplementation += """
+
+                                return \(defaultValue)
+                    """
+                } else {
+                    getterImplementation += """
+
+                                fatalError("Either `\(mockedVariableName)GetHandler` or value must be provided!")
+                    """
+                }
+            }
+
+            getterImplementation += """
+
+                    }
+            """
+        }
+
+        var setterImplementation = ""
+        if variable.isMutable {
+            setterImplementation += """
+
+                    set {
+                        \(backingMockedVariableName) = newValue
+                        \(mockedVariableName)SetCount += 1
+                        \(mockedVariableName)SetHandler?(newValue)
+                    }
+            """
+            needBackingVariable = true
+            mockedVariableHandlers += """
+
+                var \(mockedVariableName)SetCount: Int = 0
+                var \(mockedVariableName)SetHandler: ((_ \(mockedVariableName): \(variable.typeName)) -> ())? = nil
+            """
+        }
+
+        var mockedVariableImplementation = """
+            var \(variable.name): \(variable.typeName) {
+        """
+        if !getterImplementation.isEmpty {
+            mockedVariableImplementation += getterImplementation
+        }
+        if !setterImplementation.isEmpty {
+            mockedVariableImplementation += setterImplementation
+        }
+        mockedVariableImplementation += """
+
+            }
+        """
+
+        if needBackingVariable {
+          mockedVariableHandlers += """
+
+              var \(backingMockedVariableName): \(variable.unwrappedTypeName)?
+          """
+        }
+        if !mockedVariableHandlers.isEmpty {
+            mockedVariableImplementation += """
+                \(mockedVariableHandlers)
+
+
+            """
+        }
+
+        return mockedVariableImplementation
     }
 
-    return mockedVariableImplementation
-  }
-
-  func isObjcProtocol(_ type: Type) -> Bool {
+    func isObjcProtocol(_ type: Type) -> Bool {
     return type.annotations["ObjcProtocol"] != nil
-      || type.inheritedTypes.contains("NSObjectProtocol")
-  }
-  let associatedTypePrefix = "Type"
+        || type.inheritedTypes.contains("NSObjectProtocol")
+    }
+    let associatedTypePrefix = "Type"
 -%>
 
 <%# ================================================== SETUP -%><%_ -%>
 <%_
     var typesToProcess = types.protocols.map { $0 }.filter { $0.annotations["CreateMock"] != nil }
     for type in typesToProcess {
-      let associatedTypes: [(associatedType: String, constraints: [String])] = extractAssociatedTypes(type)
-      let genericTypesModifier: String = {
-          let joined = associatedTypes.map { "\(associatedTypePrefix)\($0.associatedType)" }.joined(separator: ", ")
-          return !joined.isEmpty ? "<\(joined)>" : ""
-      }()
-      let genericTypesTypealiases: String = {
-          let joined = associatedTypes.map { "    typealias \($0.associatedType) = \(associatedTypePrefix)\($0.associatedType)\n" }.joined(separator: ", ")
-          return !joined.isEmpty ? "\n\(joined)\n" : ""
-      }()
-      let genericTypesConstraints: String = {
-          let constraints = associatedTypes
-            .flatMap { associatedType in
-              guard !associatedType.constraints.isEmpty else { return nil }
-              return associatedType.constraints.map { "\(associatedTypePrefix)\(associatedType.associatedType): \($0)" }.joined(separator: ", ")
-             }
-            .joined(separator: ", ")
-          return !constraints.isEmpty ? " where \(constraints)" : ""
-      }()
-      let allVariables = uniques(variables: type.allVariables.filter { !$0.isStatic })
-      let allMethods = uniques(methods: type.allMethods.filter { !$0.isStatic })
+        let associatedTypes: [(associatedType: String, constraints: [String])] = extractAssociatedTypes(type)
+        let genericTypesModifier: String = {
+            let joined = associatedTypes.map { "\(associatedTypePrefix)\($0.associatedType)" }.joined(separator: ", ")
+            return !joined.isEmpty ? "<\(joined)>" : ""
+        }()
+        let genericTypesTypealiases: String = {
+            let joined = associatedTypes.map { "    typealias \($0.associatedType) = \(associatedTypePrefix)\($0.associatedType)\n" }.joined(separator: ", ")
+            return !joined.isEmpty ? "\n\(joined)\n" : ""
+        }()
+        let genericTypesConstraints: String = {
+            let constraints = associatedTypes
+                .flatMap { associatedType in
+                    guard !associatedType.constraints.isEmpty else { return nil }
+                    return associatedType.constraints.map { "\(associatedTypePrefix)\(associatedType.associatedType): \($0)" }.joined(separator: ", ")
+                }
+                .joined(separator: ", ")
+                return !constraints.isEmpty ? " where \(constraints)" : ""
+        }()
+        let allVariables = uniques(variables: type.allVariables.filter { !$0.isStatic })
+        let allMethods = uniques(methods: type.allMethods.filter { !$0.isStatic })
 -%>
 
 // MARK: - <%= type.name %>
