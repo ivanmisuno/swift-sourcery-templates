@@ -1,4 +1,5 @@
-<%_
+import Foundation
+
 // Courtesy of https://github.com/SwiftGen/StencilSwiftKit
 
 func lowerFirstLetter(_ string: String) -> String {
@@ -142,4 +143,3 @@ final class FiltersStrings {
     return result.replacingOccurrences(of: "-", with: "_")
   }
 }
--%>

@@ -1,5 +1,6 @@
-<%- include("_utilityStringsLettercase") -%>
-<%_
+import Foundation
+import SourceryRuntime
+
 // MARK: - low-level utility methods
 func trimmingWhitespace(_ string: String) -> String {
   return string.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -36,5 +37,3 @@ func extractAssociatedTypes(_ type: Type) -> [(associatedType: String, constrain
       return (associatedType: associatedType, constraints: constraints)
     }
 }
-
--%>
