@@ -65,6 +65,17 @@ protocol ErrorPopoverBuildableRawRepresentable {
     func buildPopoverPresenter<T: RawRepresentable>(title: String, buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentableRawRepresentable<T>
 }
 
+// sourcery: TypeErase
+public protocol Interactable: class {
+}
+
+// sourcery: TypeErase
+// sourcery: associatedtype = "InteractorType: Interactable"
+public protocol Routing: class {
+    associatedtype InteractorType: Interactable
+    var interactor: InteractorType { get }
+}
+
 /// sourcery: CreateMock
 /// sourcery: TypeErase
 /// sourcery: associatedtype = EventType

@@ -26,24 +26,22 @@
 
   for type in typesToProcess {
     let associatedTypes: [(associatedType: String, constraints: [String])] = extractAssociatedTypes(type)
-    let associatedTypesList: String = associatedTypes.map { $0.associatedType }.joined(separator: ", ")
+    let genericTypesModifier = !associatedTypes.isEmpty ? "<\(associatedTypes.map { $0.associatedType }.joined(separator: ", "))>" : ""
     let genericTypesConstraints: String = {
         let constraints = associatedTypes
           .flatMap { associatedType in
-            guard !associatedType.constraints.isEmpty else { return nil }
-            return associatedType.constraints.map { "\(associatedType.associatedType): \($0)" }.joined(separator: ", ")
+            return associatedType.constraints.map { "\(associatedType.associatedType): \($0)" }
            }
-          .joined(separator: ", ")
-        return !constraints.isEmpty ? " where \(constraints)" : ""
+        return !constraints.isEmpty ? " where \(constraints.joined(separator: ", "))" : ""
     }()
 -%>
 
 // MARK: - Type erasure for `<%=type.name%>`
 
-private class _Any<%=type.name%>Base<<%=associatedTypesList%>>: <%=type.name%><%=genericTypesConstraints%> {
+private class _Any<%=type.name%>Base<%=genericTypesModifier%>: <%=type.name%><%=genericTypesConstraints%> {
     init() {
         guard type(of: self) != _Any<%=type.name%>Base.self else {
-            fatalError("_Any<%=type.name%>Base<<%=associatedTypesList%>> instances can not be created; create a subclass instance instead")
+            fatalError("_Any<%=type.name%>Base<%=genericTypesModifier%> instances can not be created; create a subclass instance instead")
         }
     }
     <%_ if !type.variables.isEmpty { -%>
@@ -65,7 +63,7 @@ private class _Any<%=type.name%>Base<<%=associatedTypesList%>>: <%=type.name%><%
     <%_ } -%>
 }
 
-private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type.name%>Base<<%=associatedTypes.map{"Concrete.\($0.associatedType)"}.joined(separator: ", ")%>> {
+private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type.name%>Base<%=!associatedTypes.isEmpty ? "<\(associatedTypes.map{"Concrete.\($0.associatedType)"}.joined(separator: ", "))>" : ""%> {
     private let concrete: Concrete
     <%_ for a in associatedTypes { -%>
     typealias <%=a.associatedType%> = Concrete.<%=a.associatedType%>
@@ -93,16 +91,16 @@ private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type
     <%_ } -%>
 }
 
-final class Any<%=type.name%><<%=associatedTypesList%>>: <%=type.name%><%=genericTypesConstraints%> {
-    private let box: _Any<%=type.name%>Base<<%=associatedTypesList%>>
+final class Any<%=type.name%><%=genericTypesModifier%>: <%=type.name%><%=genericTypesConstraints%> {
+    private let box: _Any<%=type.name%>Base<%=genericTypesModifier%>
 
-    init<Concrete: <%=type.name%>>(_ concrete: Concrete) where <%=associatedTypes.map {"Concrete.\($0.associatedType) == \($0.associatedType)"}.joined(separator: ", ")%> {
+    init<Concrete: <%=type.name%>>(_ concrete: Concrete)<%=!associatedTypes.isEmpty ? " where \(associatedTypes.map {"Concrete.\($0.associatedType) == \($0.associatedType)"}.joined(separator: ", "))" : ""%> {
         self.box = _Any<%=type.name%>Box(concrete)
     }
     <%_ if !type.variables.isEmpty { -%>
 
     <%_ for p in type.variables { -%>
-    override var <%=p.name%>: <%=p.typeName%> {
+    var <%=p.name%>: <%=p.typeName%> {
         get { return box.<%=p.name%> }
         <% if p.isMutable { %>set { box.<%=p.name%> = newValue }<% } %>
     }

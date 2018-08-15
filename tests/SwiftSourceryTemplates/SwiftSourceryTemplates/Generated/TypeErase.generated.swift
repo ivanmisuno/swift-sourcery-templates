@@ -84,3 +84,71 @@ final class AnyErrorPopoverPresentableRawRepresentable<EventType>: ErrorPopoverP
         return box.show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
     }
 }
+
+// MARK: - Type erasure for `Interactable`
+
+private class _AnyInteractableBase: Interactable {
+    init() {
+        guard type(of: self) != _AnyInteractableBase.self else {
+            fatalError("_AnyInteractableBase instances can not be created; create a subclass instance instead")
+        }
+    }
+}
+
+private final class _AnyInteractableBox<Concrete: Interactable>: _AnyInteractableBase {
+    private let concrete: Concrete
+
+    init(_ concrete: Concrete) {
+        self.concrete = concrete
+    }
+}
+
+final class AnyInteractable: Interactable {
+    private let box: _AnyInteractableBase
+
+    init<Concrete: Interactable>(_ concrete: Concrete) {
+        self.box = _AnyInteractableBox(concrete)
+    }
+}
+
+// MARK: - Type erasure for `Routing`
+
+private class _AnyRoutingBase<InteractorType>: Routing where InteractorType: Interactable {
+    init() {
+        guard type(of: self) != _AnyRoutingBase.self else {
+            fatalError("_AnyRoutingBase<InteractorType> instances can not be created; create a subclass instance instead")
+        }
+    }
+
+    var interactor: InteractorType {
+        get { fatalError("Must override") }
+        
+    }
+}
+
+private final class _AnyRoutingBox<Concrete: Routing>: _AnyRoutingBase<Concrete.InteractorType> {
+    private let concrete: Concrete
+    typealias InteractorType = Concrete.InteractorType
+
+    init(_ concrete: Concrete) {
+        self.concrete = concrete
+    }
+
+    override var interactor: InteractorType {
+        get { return concrete.interactor }
+        
+    }
+}
+
+final class AnyRouting<InteractorType>: Routing where InteractorType: Interactable {
+    private let box: _AnyRoutingBase<InteractorType>
+
+    init<Concrete: Routing>(_ concrete: Concrete) where Concrete.InteractorType == InteractorType {
+        self.box = _AnyRoutingBox(concrete)
+    }
+
+    var interactor: InteractorType {
+        get { return box.interactor }
+        
+    }
+}
