@@ -7,6 +7,7 @@ target 'SwiftSourceryTemplates' do
     use_frameworks!
     project 'SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj'
 
+    pod 'Alamofire'
     pod 'RxSwift'
     pod 'Sourcery', '0.13'
 
