@@ -1,4 +1,4 @@
-// Generated using Sourcery 0.13.0 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 0.13.1 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 
 //swiftlint:disable force_cast
@@ -118,6 +118,25 @@ class ImageAttributeProvidingMock: ImageAttributeProviding {
     var imagePixelSizeHandler: ((_ source: UploadAPI.LocalFile.Source) throws -> CGSize)? = nil
 }
 
+// MARK: - LegacyProtocol
+class LegacyProtocolMock: NSObject, LegacyProtocol {
+
+    var tips: [String: String] {
+        get {
+            if let handler = tipsGetHandler {
+                return handler()
+            }
+            if let value = tipsBacking {
+                return value
+            }
+            return [:]
+        }
+    }    
+    var tipsGetHandler: (() -> [String: String])? = nil
+    var tipsBacking: [String: String]?
+
+}
+
 // MARK: - MutableTipsManaging
 class MutableTipsManagingMock: MutableTipsManaging {
 }
@@ -168,7 +187,7 @@ class TipsManagerBuildingMock: TipsManagerBuilding {
 }
 
 // MARK: - TipsManaging
-class TipsManagingMock: NSObject, TipsManaging {
+class TipsManagingMock: TipsManaging {
 
     var tips: [String: String] {
         get {

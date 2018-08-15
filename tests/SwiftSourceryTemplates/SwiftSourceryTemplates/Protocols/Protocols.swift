@@ -82,13 +82,18 @@ protocol ErrorPopoverPresentableRawRepresentable {
 }
 
 /// sourcery: CreateMock
-@objc protocol TipsManaging: NSObjectProtocol {
+protocol TipsManaging: class {
     var tips: [String: String] { get }
     var tipsOptional: [String: String]? { get }
     var tupleVariable: (String, Int) { get }
     var tupleVariable2: (String?, Int?) { get }
     var tupleOptional: (String, Int)? { get }
     var arrayVariable: [Double] { get }
+}
+
+/// sourcery: CreateMock
+@objc protocol LegacyProtocol: NSObjectProtocol {
+    var tips: [String: String] { get }
 }
 
 /// sourcery: CreateMock
