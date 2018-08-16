@@ -19,6 +19,9 @@ private class _AnyErrorPopoverPresentableBase<EventType>: ErrorPopoverPresentabl
     func show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge) -> Observable<EventType> {
         fatalError("Must override")
     }
+    func setActionSink(_ actionSink: AnyObject?) -> Void {
+        fatalError("Must override")
+    }
 }
 
 private final class _AnyErrorPopoverPresentableBox<Concrete: ErrorPopoverPresentable>: _AnyErrorPopoverPresentableBase<Concrete.EventType> {
@@ -32,6 +35,9 @@ private final class _AnyErrorPopoverPresentableBox<Concrete: ErrorPopoverPresent
     override func show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge) -> Observable<EventType> {
         return concrete.show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
     }
+    override func setActionSink(_ actionSink: AnyObject?) -> Void {
+        return concrete.setActionSink(actionSink)
+    }
 }
 
 final class AnyErrorPopoverPresentable<EventType>: ErrorPopoverPresentable {
@@ -43,6 +49,9 @@ final class AnyErrorPopoverPresentable<EventType>: ErrorPopoverPresentable {
 
     func show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge) -> Observable<EventType> {
         return box.show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
+    }
+    func setActionSink(_ actionSink: AnyObject?) -> Void {
+        return box.setActionSink(actionSink)
     }
 }
 

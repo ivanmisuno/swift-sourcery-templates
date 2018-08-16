@@ -91,6 +91,7 @@ public protocol SomeRouting: Routing {
 protocol ErrorPopoverPresentable {
     associatedtype EventType
     func show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge) -> Observable<EventType>
+    func setActionSink(_ actionSink: AnyObject?)
 }
 
 /// sourcery: CreateMock

@@ -88,7 +88,7 @@ private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type
 
     <%_ for m in allMethods { -%>
     override func <%=m.name%> -> <%=m.returnTypeName%> {
-        return concrete.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel ?? $0.name): \($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
+        return concrete.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel != nil ? "\($0.argumentLabel!): " : "")\($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
     }
     <%_ } -%>
     <%_ } -%>
@@ -113,7 +113,7 @@ final class Any<%=type.name%><%=genericTypesModifier%>: <%=type.name%><%=generic
 
     <%_ for m in allMethods { -%>
     func <%=m.name%> -> <%=m.returnTypeName%> {
-        return box.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel ?? $0.name): \($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
+        return box.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel != nil ? "\($0.argumentLabel!): " : "")\($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
     }
     <%_ } -%>
     <%_ } -%>

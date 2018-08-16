@@ -92,6 +92,8 @@ class ErrorPopoverPresentableMock<TypeEventType>: ErrorPopoverPresentable {
 
     // MARK: - show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge)
     var showHandler: ((_ positioningRect: NSRect, _ positioningView: NSView, _ preferredEdge: NSRectEdge) -> Observable<EventType>)? = nil
+    // MARK: - setActionSink(_ actionSink: AnyObject?)
+    var setActionSinkHandler: ((AnyObject?) -> Void)? = nil
 }
 
 // MARK: - ErrorPopoverPresentableRawRepresentable
