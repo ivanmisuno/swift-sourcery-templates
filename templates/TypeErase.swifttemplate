@@ -34,6 +34,9 @@
            }
         return !constraints.isEmpty ? " where \(constraints.joined(separator: ", "))" : ""
     }()
+
+    let allVariables = type.allVariables.filter { !$0.isStatic }
+    let allMethods = type.allMethods.filter { !$0.isStatic }
 -%>
 
 // MARK: - Type erasure for `<%=type.name%>`
@@ -44,18 +47,18 @@ private class _Any<%=type.name%>Base<%=genericTypesModifier%>: <%=type.name%><%=
             fatalError("_Any<%=type.name%>Base<%=genericTypesModifier%> instances can not be created; create a subclass instance instead")
         }
     }
-    <%_ if !type.variables.isEmpty { -%>
+    <%_ if !allVariables.isEmpty { -%>
 
-    <%_ for p in type.variables { -%>
+    <%_ for p in allVariables { -%>
     var <%=p.name%>: <%=p.typeName%> {
         get { fatalError("Must override") }
         <% if p.isMutable { %>set { fatalError("Must override") }<% } %>
     }
     <%_ } -%>
     <%_ } -%>
-    <%_ if !type.methods.isEmpty { -%>
+    <%_ if !allMethods.isEmpty { -%>
 
-    <%_ for m in type.methods { -%>
+    <%_ for m in allMethods { -%>
     func <%=m.name%> -> <%=m.returnTypeName%> {
         fatalError("Must override")
     }
@@ -72,18 +75,18 @@ private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type
     init(_ concrete: Concrete) {
         self.concrete = concrete
     }
-    <%_ if !type.variables.isEmpty { -%>
+    <%_ if !allVariables.isEmpty { -%>
 
-    <%_ for p in type.variables { -%>
+    <%_ for p in allVariables { -%>
     override var <%=p.name%>: <%=p.typeName%> {
         get { return concrete.<%=p.name%> }
         <% if p.isMutable { %>set { concrete.<%=p.name%> = newValue }<% } %>
     }
     <%_ } -%>
     <%_ } -%>
-    <%_ if !type.methods.isEmpty { -%>
+    <%_ if !allMethods.isEmpty { -%>
 
-    <%_ for m in type.methods { -%>
+    <%_ for m in allMethods { -%>
     override func <%=m.name%> -> <%=m.returnTypeName%> {
         return concrete.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel ?? $0.name): \($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
     }
@@ -97,18 +100,18 @@ final class Any<%=type.name%><%=genericTypesModifier%>: <%=type.name%><%=generic
     init<Concrete: <%=type.name%>>(_ concrete: Concrete)<%=!associatedTypes.isEmpty ? " where \(associatedTypes.map {"Concrete.\($0.associatedType) == \($0.associatedType)"}.joined(separator: ", "))" : ""%> {
         self.box = _Any<%=type.name%>Box(concrete)
     }
-    <%_ if !type.variables.isEmpty { -%>
+    <%_ if !allVariables.isEmpty { -%>
 
-    <%_ for p in type.variables { -%>
+    <%_ for p in allVariables { -%>
     var <%=p.name%>: <%=p.typeName%> {
         get { return box.<%=p.name%> }
         <% if p.isMutable { %>set { box.<%=p.name%> = newValue }<% } %>
     }
     <%_ } -%>
     <%_ } -%>
-    <%_ if !type.methods.isEmpty { -%>
+    <%_ if !allMethods.isEmpty { -%>
 
-    <%_ for m in type.methods { -%>
+    <%_ for m in allMethods { -%>
     func <%=m.name%> -> <%=m.returnTypeName%> {
         return box.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel ?? $0.name): \($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
     }

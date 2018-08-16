@@ -152,3 +152,45 @@ final class AnyRouting<InteractorType>: Routing where InteractorType: Interactab
         
     }
 }
+
+// MARK: - Type erasure for `SomeRouting`
+
+private class _AnySomeRoutingBase<InteractorType>: SomeRouting where InteractorType: SomeInteractable {
+    init() {
+        guard type(of: self) != _AnySomeRoutingBase.self else {
+            fatalError("_AnySomeRoutingBase<InteractorType> instances can not be created; create a subclass instance instead")
+        }
+    }
+
+    var interactor: InteractorType {
+        get { fatalError("Must override") }
+        
+    }
+}
+
+private final class _AnySomeRoutingBox<Concrete: SomeRouting>: _AnySomeRoutingBase<Concrete.InteractorType> {
+    private let concrete: Concrete
+    typealias InteractorType = Concrete.InteractorType
+
+    init(_ concrete: Concrete) {
+        self.concrete = concrete
+    }
+
+    override var interactor: InteractorType {
+        get { return concrete.interactor }
+        
+    }
+}
+
+final class AnySomeRouting<InteractorType>: SomeRouting where InteractorType: SomeInteractable {
+    private let box: _AnySomeRoutingBase<InteractorType>
+
+    init<Concrete: SomeRouting>(_ concrete: Concrete) where Concrete.InteractorType == InteractorType {
+        self.box = _AnySomeRoutingBox(concrete)
+    }
+
+    var interactor: InteractorType {
+        get { return box.interactor }
+        
+    }
+}

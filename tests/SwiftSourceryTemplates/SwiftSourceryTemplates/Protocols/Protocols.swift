@@ -76,6 +76,15 @@ public protocol Routing: class {
     var interactor: InteractorType { get }
 }
 
+public protocol SomeInteractable: Interactable {
+}
+
+// sourcery: TypeErase
+// sourcery: associatedtype = "InteractorType: SomeInteractable"
+public protocol SomeRouting: Routing {
+    associatedtype InteractorType: SomeInteractable
+}
+
 /// sourcery: CreateMock
 /// sourcery: TypeErase
 /// sourcery: associatedtype = EventType
