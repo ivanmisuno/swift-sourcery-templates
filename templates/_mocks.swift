@@ -188,12 +188,6 @@ class TopScope {
     }
 }
 
-extension TopScope: CustomStringConvertible {
-    var description: String {
-        return indentedSourcecode()
-    }
-}
-
 protocol SourceAppendable {
     func nest(_ source: SourceCode)
 }
@@ -443,5 +437,31 @@ extension Collection where Element == GenericTypeInfo {
         result.append("// MARK: - Generic typealiases")
         result.append(contentsOf: map { "typealias \($0.genericType) = \(Constants.genericTypePrefix)\($0.genericType)" })
         return result
+    }
+}
+
+class MockGenerator {
+    static func generate(for types: [Type]) -> String {
+        var topScope = TopScope()
+
+        for type in types {
+            let genericTypes = type.genericTypes
+
+            //let allMethods = uniques(methods: type.allMethods.filter { !$0.isStatic })
+
+            topScope += Constants.NEWL
+            topScope += "// MARK: - \(type.name)"
+
+            var mock = SourceCode("class \(type.name)Mock\(genericTypes.genericTypesModifier): \(type.isObjcProtocol ? "NSObject, " : "")\(type.name)\(genericTypes.genericTypesConstraints)")
+            mock.isBlockMandatory = true
+            mock += genericTypes.typealiasesDeclarations
+
+            let mockVars = MockVar.from(type)
+            mock += mockVars.flatMap { $0.mockImpl }
+
+            topScope += mock
+        }
+
+        return topScope.indentedSourcecode()
     }
 }

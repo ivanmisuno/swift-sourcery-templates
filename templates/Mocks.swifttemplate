@@ -2,27 +2,4 @@
 <%- includeFile("_utility") -%>
 <%- includeFile("_utilityStringsLettercase") -%>
 <%- includeFile("_mocks") -%>
-<%
-    var topScope = TopScope()
-
-    var typesToProcess = types.protocols.map { $0 }.filter { $0.annotations["CreateMock"] != nil }
-    for type in typesToProcess {
-        let genericTypes = type.genericTypes
-
-        //let allMethods = uniques(methods: type.allMethods.filter { !$0.isStatic })
-
-        topScope += Constants.NEWL
-        topScope += "// MARK: - \(type.name)"
-
-        var mock = SourceCode("class \(type.name)Mock\(genericTypes.genericTypesModifier): \(type.isObjcProtocol ? "NSObject, " : "")\(type.name)\(genericTypes.genericTypesConstraints)")
-        mock.isBlockMandatory = true
-        mock += genericTypes.typealiasesDeclarations
-
-        let mockVars = MockVar.from(type)
-        mock += mockVars.flatMap { $0.mockImpl }
-
-        topScope += mock
-    }
-
-    print(topScope)
--%>
+<%= MockGenerator.generate(for: types.protocols.map { $0 }.filter { $0.annotations["CreateMock"] != nil }) %>
