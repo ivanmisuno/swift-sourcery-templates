@@ -233,6 +233,41 @@ extension SourceAppendable {
     }
 }
 
+fileprivate extension SourceryRuntime.TypeName {
+    var isComplexTypeWithSmartDefaultValueImplementation: Bool {
+        guard
+            isGeneric,
+            let generic = generic,
+            generic.name == "Observable" || generic.name == "AnyObserver",
+            generic.typeParameters.count == 1
+        else {
+            return false
+        }
+        return true
+    }
+
+    var smartDefaultValueImplementation: ((String) -> (getterImplementation: SourceCode, mockedVariableHandlers: [SourceCode])?) {
+        return { mockedVariableName in
+            guard self.isComplexTypeWithSmartDefaultValueImplementation, let generic = self.generic else { return nil }
+            switch generic.name {
+            case "Observable":
+                let getterImplementation = SourceCode(line: "return \(mockedVariableName)Subject.asObservable()")
+                let mockedVariableHandlers = [SourceCode(line: "lazy var \(mockedVariableName)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()")]
+                return (getterImplementation, mockedVariableHandlers)
+            case "AnyObserver":
+                let getterImplementation = SourceCode(line: "return AnyObserver { [weak self] event in")
+                getterImplementation += "self?.\(mockedVariableName)CallCount += 1"
+                getterImplementation += "self?.\(mockedVariableName)EventHandler?(event)"
+                let mockedVariableHandlers = [SourceCode(line: "var \(mockedVariableName)CallCount: Int = 0"),
+                                              SourceCode(line: "var \(mockedVariableName)EventHandler = ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil")]
+                return (getterImplementation, mockedVariableHandlers)
+            default:
+                fatalError("Should not get here.")
+            }
+        }
+    }
+}
+
 class MockVar {
     let variable: SourceryRuntime.Variable
 
@@ -241,7 +276,7 @@ class MockVar {
     }
 
     lazy var mockedVariableName = "\(variable.name)"
-    lazy var backingMockedVariableName = "\(variable.name)Backing"
+    var backingMockedVariableName: String { return "\(mockedVariableName)Backing" }
 
     private var needBackingVariable: Bool {
         return variable.isMutable
@@ -250,16 +285,8 @@ class MockVar {
     }
 
     private var isComplexTypeWithSmartDefaultValueImplementation: Bool {
-        guard
-            !variable.isMutable,
-            variable.typeName.isGeneric,
-            let generic = variable.typeName.generic,
-            generic.name == "Observable" || generic.name == "AnyObserver",
-            generic.typeParameters.count == 1
-        else {
-            return false
-        }
-        return true
+        return !variable.isMutable
+            && variable.typeName.isComplexTypeWithSmartDefaultValueImplementation
     }
 
     static func from(_ type: Type) -> [MockVar] {
@@ -281,23 +308,9 @@ class MockVar {
             getterImplementation += impl
             mockedVariableHandlers += "var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil"
 
-            if !variable.isMutable, variable.typeName.isGeneric, let generic = variable.typeName.generic, generic.name == "Observable" || generic.name == "AnyObserver", generic.typeParameters.count == 1 {
-                switch generic.name {
-                case "Observable":
-                    let impl = SourceCode(line: "return \(mockedVariableName)Subject.asObservable()")
-                    getterImplementation += impl
-                    mockedVariableHandlers += "lazy var \(mockedVariableName)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()"
-                case "AnyObserver":
-                    let impl = SourceCode(line: "return AnyObserver { [weak self] event in")
-                    impl += "self?.\(mockedVariableName)CallCount += 1"
-                    impl += "self?.\(mockedVariableName)EventHandler?(event)"
-                    getterImplementation += impl
-
-                    mockedVariableHandlers += "var \(mockedVariableName)CallCount: Int = 0"
-                    mockedVariableHandlers += "var \(mockedVariableName)EventHandler = ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil"
-                default:
-                    fatalError("Should not get here.")
-                }
+            if isComplexTypeWithSmartDefaultValueImplementation, let smartDefaultValueImplementation = variable.typeName.smartDefaultValueImplementation(mockedVariableName) {
+                getterImplementation += smartDefaultValueImplementation.getterImplementation
+                mockedVariableHandlers += smartDefaultValueImplementation.mockedVariableHandlers
             } else {
                 let impl = SourceCode(line: "if let value = \(backingMockedVariableName)")
                 impl += "return value"
@@ -355,10 +368,6 @@ class MockFunc {
 enum MockImpl {
 case Var(MockVar)
 case Func(MockFunc)
-}
-
-func mockedVariableName(_ variable: SourceryRuntime.Variable) -> String {
-    return "\(variable.name)"
 }
 
 enum MockError: Error {
