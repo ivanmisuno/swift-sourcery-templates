@@ -118,7 +118,14 @@ protocol TipsManaging: class {
 }
 
 /// sourcery: CreateMock
-protocol MutableTipsManaging {
+protocol DuplicateRequirements {
+    var tips: [String: String] { get }
+    func updateTips()
+}
+
+/// sourcery: CreateMock
+protocol MutableTipsManaging: TipsManaging, DuplicateRequirements {
+    func updateTips()
 }
 
 /// sourcery: CreateMock

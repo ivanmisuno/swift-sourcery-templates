@@ -60,6 +60,21 @@ class DataSourceMock: DataSource {
     var bindingTargetEventHandler = ((Event<UploadAPI.LocalFile>) -> ())? = nil
 }
 
+// MARK: - DuplicateRequirements
+class DuplicateRequirementsMock: DuplicateRequirements {
+    var tips: [String: String] {
+        if let handler = tipsGetHandler {
+            return handler()
+        }
+        if let value = tipsBacking {
+            return value
+        }
+        return [:]
+    }
+    var tipsGetHandler: (() -> [String: String])? = nil
+    var tipsBacking: [String: String]?
+}
+
 // MARK: - ErrorPopoverBuildable
 class ErrorPopoverBuildableMock: ErrorPopoverBuildable {
 }
@@ -107,6 +122,60 @@ class LegacyProtocolMock: NSObject, LegacyProtocol {
 
 // MARK: - MutableTipsManaging
 class MutableTipsManagingMock: MutableTipsManaging {
+    var tips: [String: String] {
+        if let handler = tipsGetHandler {
+            return handler()
+        }
+        if let value = tipsBacking {
+            return value
+        }
+        return [:]
+    }
+    var tipsGetHandler: (() -> [String: String])? = nil
+    var tipsBacking: [String: String]?
+    var tipsOptional: [String: String]? {
+        return tipsOptionalGetHandler?() ?? tipsOptionalBacking
+    }
+    var tipsOptionalGetHandler: (() -> [String: String]?)? = nil
+    var tipsOptionalBacking: [String: String]?
+    var tupleVariable: (String, Int) {
+        if let handler = tupleVariableGetHandler {
+            return handler()
+        }
+        if let value = tupleVariableBacking {
+            return value
+        }
+        return ("", 0)
+    }
+    var tupleVariableGetHandler: (() -> (String, Int))? = nil
+    var tupleVariableBacking: (String, Int)?
+    var tupleVariable2: (String?, Int?) {
+        if let handler = tupleVariable2GetHandler {
+            return handler()
+        }
+        if let value = tupleVariable2Backing {
+            return value
+        }
+        return (nil, nil)
+    }
+    var tupleVariable2GetHandler: (() -> (String?, Int?))? = nil
+    var tupleVariable2Backing: (String?, Int?)?
+    var tupleOptional: (String, Int)? {
+        return tupleOptionalGetHandler?() ?? tupleOptionalBacking
+    }
+    var tupleOptionalGetHandler: (() -> (String, Int)?)? = nil
+    var tupleOptionalBacking: (String, Int)?
+    var arrayVariable: [Double] {
+        if let handler = arrayVariableGetHandler {
+            return handler()
+        }
+        if let value = arrayVariableBacking {
+            return value
+        }
+        return []
+    }
+    var arrayVariableGetHandler: (() -> [Double])? = nil
+    var arrayVariableBacking: [Double]?
 }
 
 // MARK: - MutableUploadProgressing
