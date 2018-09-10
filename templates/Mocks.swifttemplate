@@ -13,12 +13,15 @@
 
         topScope += Constants.NEWL
         topScope += "// MARK: - \(type.name)"
-        var mock = topScope.append("class \(type.name)Mock\(genericTypes.genericTypesModifier): \(type.isObjcProtocol ? "NSObject, " : "")\(type.name)\(genericTypes.genericTypesConstraints)")
+
+        var mock = SourceCode("class \(type.name)Mock\(genericTypes.genericTypesModifier): \(type.isObjcProtocol ? "NSObject, " : "")\(type.name)\(genericTypes.genericTypesConstraints)")
         mock.isBlockMandatory = true
         mock += genericTypes.typealiasesDeclarations
 
         let mockVars = MockVar.from(type)
         mock += mockVars.flatMap { $0.mockImpl }
+
+        topScope += mock
     }
 
     print(topScope)

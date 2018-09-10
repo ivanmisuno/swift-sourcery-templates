@@ -144,16 +144,15 @@ class SourceCode {
     var nested: [SourceCode]
     var isBlockMandatory: Bool = false // if `true`, always output curly braces after the line, even if nested is empty, e.g., empty class/function declaration.
 
-    init(line: String, nested: [SourceCode] = []) {
+    init(_ line: String, nested: [SourceCode] = []) {
         self.line = line
         self.nested = nested
     }
-
-    func nest(under source: SourceCode) {
-        source.nested.append(self)
+    convenience init(_ line: String, nested: () -> [SourceCode]) {
+        self.init(line, nested: nested())
     }
 
-    func append(_ source: SourceCode) {
+    func nest(_ source: SourceCode) {
         nested.append(source)
     }
 
@@ -180,7 +179,7 @@ class SourceCode {
 class TopScope {
     var nested: [SourceCode] = []
 
-    func append(_ source: SourceCode) {
+    func nest(_ source: SourceCode) {
         nested.append(source)
     }
 
@@ -196,40 +195,40 @@ extension TopScope: CustomStringConvertible {
 }
 
 protocol SourceAppendable {
-    func append(_ source: SourceCode)
+    func nest(_ source: SourceCode)
 }
 extension SourceCode: SourceAppendable {}
 extension TopScope: SourceAppendable {}
 extension SourceAppendable {
     @discardableResult
-    func append(_ line: String) -> SourceCode {
-        let sourceLine = SourceCode(line: line)
-        append(sourceLine)
+    func nest(_ line: String) -> SourceCode {
+        let sourceLine = SourceCode(line)
+        nest(sourceLine)
         return sourceLine
     }
 
-    func append(contentsOf array: [SourceCode]) {
-        array.forEach { append($0) }
+    func nest(contentsOf array: [SourceCode]) {
+        array.forEach { nest($0) }
     }
 
-    func append(contentsOf array: [String]) {
-        array.forEach { append($0) }
+    func nest(contentsOf array: [String]) {
+        array.forEach { nest($0) }
     }
 
     static func +=(_ lhs: Self, _ rhs: SourceCode) {
-        lhs.append(rhs)
+        lhs.nest(rhs)
     }
     static func +=(_ lhs: Self, _ rhs: [SourceCode]) {
-        lhs.append(contentsOf: rhs)
+        lhs.nest(contentsOf: rhs)
     }
 
     @discardableResult
     static func +=(_ lhs: Self, _ line: String) -> SourceCode {
-        return lhs.append(line)
+        return lhs.nest(line)
     }
 
     static func +=(_ lhs: Self, _ lines: [String]) {
-        lhs.append(contentsOf: lines)
+        lhs.nest(contentsOf: lines)
     }
 }
 
@@ -251,15 +250,16 @@ fileprivate extension SourceryRuntime.TypeName {
             guard self.isComplexTypeWithSmartDefaultValueImplementation, let generic = self.generic else { return nil }
             switch generic.name {
             case "Observable":
-                let getterImplementation = SourceCode(line: "return \(mockedVariableName)Subject.asObservable()")
-                let mockedVariableHandlers = [SourceCode(line: "lazy var \(mockedVariableName)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()")]
+                let getterImplementation = SourceCode("return \(mockedVariableName)Subject.asObservable()")
+                let mockedVariableHandlers = [SourceCode("lazy var \(mockedVariableName)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()")]
                 return (getterImplementation, mockedVariableHandlers)
             case "AnyObserver":
-                let getterImplementation = SourceCode(line: "return AnyObserver { [weak self] event in")
-                getterImplementation += "self?.\(mockedVariableName)CallCount += 1"
-                getterImplementation += "self?.\(mockedVariableName)EventHandler?(event)"
-                let mockedVariableHandlers = [SourceCode(line: "var \(mockedVariableName)CallCount: Int = 0"),
-                                              SourceCode(line: "var \(mockedVariableName)EventHandler = ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil")]
+                let getterImplementation = SourceCode("return AnyObserver { [weak self] event in") { [
+                    SourceCode("self?.\(mockedVariableName)CallCount += 1"),
+                    SourceCode("self?.\(mockedVariableName)EventHandler?(event)"),
+                ]}
+                let mockedVariableHandlers = [SourceCode("var \(mockedVariableName)CallCount: Int = 0"),
+                                              SourceCode("var \(mockedVariableName)EventHandler = ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil")]
                 return (getterImplementation, mockedVariableHandlers)
             default:
                 fatalError("Should not get here.")
@@ -297,34 +297,33 @@ class MockVar {
     var mockImpl: [SourceCode] {
         var mockedVariableHandlers = TopScope()
 
-        var getterImplementation = SourceCode(line: "get")
+        var getterImplementation = SourceCode("get")
         if variable.typeName.isOptional {
-            let impl = "return \(mockedVariableName)GetHandler?() ?? \(backingMockedVariableName)"
-            getterImplementation += impl
+            getterImplementation += SourceCode("return \(mockedVariableName)GetHandler?() ?? \(backingMockedVariableName)")
             mockedVariableHandlers += "var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil"
         } else {
-            let impl = SourceCode(line: "if let handler = \(mockedVariableName)GetHandler")
-            impl += "return handler()"
-            getterImplementation += impl
+            getterImplementation += SourceCode("if let handler = \(mockedVariableName)GetHandler") { [
+                SourceCode("return handler()")
+            ]}
             mockedVariableHandlers += "var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil"
 
             if isComplexTypeWithSmartDefaultValueImplementation, let smartDefaultValueImplementation = variable.typeName.smartDefaultValueImplementation(mockedVariableName) {
                 getterImplementation += smartDefaultValueImplementation.getterImplementation
                 mockedVariableHandlers += smartDefaultValueImplementation.mockedVariableHandlers
             } else {
-                let impl = SourceCode(line: "if let value = \(backingMockedVariableName)")
-                impl += "return value"
-                getterImplementation += impl
+                getterImplementation += SourceCode("if let value = \(backingMockedVariableName)") {[
+                    SourceCode("return value")
+                ]}
 
                 if let defaultValue = try? defaultValue(variable.typeName) {
-                    getterImplementation += SourceCode(line: "return \(defaultValue)")
+                    getterImplementation += SourceCode("return \(defaultValue)")
                 } else {
-                    getterImplementation += SourceCode(line: "fatalError(\"Either `\(mockedVariableName)GetHandler` or value must be provided!\")")
+                    getterImplementation += SourceCode("fatalError(\"Either `\(mockedVariableName)GetHandler` or value must be provided!\")")
                 }
             }
         }
 
-        var setterImplementation = SourceCode(line: "set")
+        var setterImplementation = SourceCode("set")
         if variable.isMutable {
             setterImplementation += "\(backingMockedVariableName) = newValue"
             setterImplementation += "\(mockedVariableName)SetCount += 1"
@@ -334,7 +333,7 @@ class MockVar {
             mockedVariableHandlers += "var \(mockedVariableName)SetHandler: ((_ \(mockedVariableName): \(variable.typeName)) -> ())? = nil"
         }
 
-        var mockedVariableImplementation = SourceCode(line: "var \(variable.name): \(variable.typeName)")
+        var mockedVariableImplementation = SourceCode("var \(variable.name): \(variable.typeName)")
         if !setterImplementation.nested.isEmpty {
             mockedVariableImplementation += getterImplementation
             mockedVariableImplementation += setterImplementation
