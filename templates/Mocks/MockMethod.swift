@@ -75,12 +75,26 @@ extension MockMethod {
         let throwing = method.`throws` ? " throws" : method.`rethrows` ? " rethrows" : ""
         let returnTypeDecl = !method.returnTypeName.isVoid ? " -> \(method.returnTypeName.name)" : ""
         let mockCallCount = mockCallCountImpl
+        var mockHandler = mockHandlerImpl
 
         var methodImpl = SourceCode("func \(method.name)\(throwing)\(returnTypeDecl)") {[
             SourceCode("\(mockCallCount.0) += 1"),
         ]}
 
+        methodImpl += mockHandlerCallImpl
+
+        if method.returnTypeName.isVoid {
+            // No return value
+        } else if method.isOptionalReturnType {
+            // Return nil
+            methodImpl += "return nil"
+        } else {
+            // fatal
+            methodImpl += "fatalError(\"\(mockHandler.0) expected to be set.\")"
+        }
+
         mockMethodHandlers += mockCallCount.1
+        mockMethodHandlers += mockHandler.1
 
         var result = TopScope()
         result += methodImpl
@@ -89,8 +103,25 @@ extension MockMethod {
     }
 
     private var mockCallCountImpl: (String, SourceCode) {
-        var mockedVarCallCountName = "\(self.mockedMethodName)CallCount"
+        let mockedVarCallCountName = "\(mockedMethodName)CallCount"
         return (mockedVarCallCountName, SourceCode("var \(mockedVarCallCountName): Int = 0"))
+    }
+
+    private var mockHandlerImpl: (String, SourceCode) {
+        let mockMethodHandlerName = "\(mockedMethodName)Handler"
+        let handlerParameters = method.parameters.map { "_ \($0.name): \($0.typeName.name)" }.joined(separator: ", ")
+        let throwing = method.`throws` || method.`rethrows` ? " throws" : ""
+        let returnType = !method.returnTypeName.isVoid ? method.returnTypeName.name : ""
+        return (mockMethodHandlerName, SourceCode("var \(mockMethodHandlerName): ((\(handlerParameters))\(throwing) -> (\(returnType)))? = nil"))
+    }
+
+    private var mockHandlerCallImpl: SourceCode {
+        let mockMethodHandlerName = "\(mockedMethodName)Handler"
+        let returning = method.returnTypeName.isVoid ? "" : "return "
+        let parameters = method.parameters.map { "\($0.name)" }.joined(separator: ", ")
+        return SourceCode("if let handler = \(mockHandlerImpl.0)") {[
+            SourceCode("\(returning)\(method.`throws` || method.`rethrows` ? "try " : "")handler(\(parameters))")
+        ]}
     }
 }
 

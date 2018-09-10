@@ -56,14 +56,14 @@ protocol ExifImageAttributeProviding {
 }
 
 /// sourcery: CreateMock
-protocol ErrorPopoverBuildable {
-    func buildPopoverPresenter<T>(title: String, buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentable<T>
-}
+// protocol ErrorPopoverBuildable {
+//     func buildPopoverPresenter<T>(title: String, buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentable<T>
+// }
 
 /// sourcery: CreateMock
-protocol ErrorPopoverBuildableRawRepresentable {
-    func buildPopoverPresenter<T: RawRepresentable>(title: String, buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentableRawRepresentable<T>
-}
+// protocol ErrorPopoverBuildableRawRepresentable {
+//     func buildPopoverPresenter<T: RawRepresentable>(title: String, buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentableRawRepresentable<T>
+// }
 
 // sourcery: TypeErase
 public protocol Interactable: class {

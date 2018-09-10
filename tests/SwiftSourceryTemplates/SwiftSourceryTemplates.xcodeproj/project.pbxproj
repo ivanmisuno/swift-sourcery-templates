@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		140442C82146BD50009E7433 /* Mocks.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F12120FF5AFB00CBE106 /* Mocks.generated.swift */; };
 		140E6F6920FF6627008418F1 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140E6F6820FF6627008418F1 /* Protocols.swift */; };
 		140E6F6C20FF6661008418F1 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140E6F6B20FF6661008418F1 /* Types.swift */; };
 		1415F10220FF583700CBE106 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F10120FF583700CBE106 /* AppDelegate.swift */; };
@@ -363,6 +364,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				140442C82146BD50009E7433 /* Mocks.generated.swift in Sources */,
 				1415F11320FF583800CBE106 /* SwiftSourceryTemplatesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
