@@ -2,110 +2,26 @@ import Foundation
 import SourceryRuntime
 
 class MockMethod {
-    static func from(_ type: Type) -> [MockMethod] {
-        //let uniqueMethods = type.allMethods.filter { !$0.isStatic }
-        //return allVariables.map { MockVar(variable: $0) }
+    fileprivate let method: SourceryRuntime.Method
+    fileprivate let useShortName: Bool
 
-        return []
+    init(method: SourceryRuntime.Method, useShortName: Bool) {
+        self.method = method
+        self.useShortName = useShortName
+    }
+
+    static func from(_ type: Type) throws -> [MockMethod] {
+        let allMethods = type.allMethods.filter { !$0.isStatic }.uniquesWithoutGenericConstraints()
+        let mockedMethods = allMethods
+            .map { MockMethod(method: $0, useShortName: true) }
+            .minimumNonConflictingPermutation
+        guard !mockedMethods.hasDuplicateMockedMethodNames else {
+            throw MockError.internalError(message: "Mock generator: not all duplicates resolved!")
+        }
+        return mockedMethods
     }
 
 /*
-    func swiftifyMethodName(_ name: String) -> String {
-        let swiftifiedName = name
-            .replacingOccurrences(of: "(", with: "_")
-            .replacingOccurrences(of: ")", with: "")
-            .replacingOccurrences(of: ":", with: "_")
-            .replacingOccurrences(of: "`", with: "")
-        let camelCasedName = snakeToCamelCase(swiftifiedName)
-        let lowercasedFirstWordName = lowerFirstWord(camelCasedName)
-        return lowercasedFirstWordName
-    }
-    func uniques(methods: [SourceryRuntime.Method]) -> [SourceryRuntime.Method] {
-        func returnTypeStripped(_ method: SourceryRuntime.Method) -> String {
-            let returnTypeRaw = "\(method.returnTypeName)"
-            var stripped: String = {
-                guard let range = returnTypeRaw.range(of: "where") else { return returnTypeRaw }
-                var stripped = returnTypeRaw
-                stripped.removeSubrange((range.lowerBound)...)
-                return stripped
-            }()
-            stripped = stripped.trimmingCharacters(in: CharacterSet(charactersIn: " "))
-            return stripped
-        }
-
-        func areSameParams(_ p1: SourceryRuntime.MethodParameter, _ p2: SourceryRuntime.MethodParameter) -> Bool {
-            guard p1.argumentLabel == p2.argumentLabel else { return false }
-            guard p1.name == p2.name else { return false }
-            guard p1.argumentLabel == p2.argumentLabel else { return false }
-            guard p1.typeName.name == p2.typeName.name else { return false }
-            guard p1.actualTypeName?.name == p2.actualTypeName?.name else { return false }
-            return true
-        }
-
-        func areSameMethods(_ m1: SourceryRuntime.Method, _ m2: SourceryRuntime.Method) -> Bool {
-            guard m1.name != m2.name else { return m1.returnTypeName == m2.returnTypeName }
-            guard m1.selectorName == m2.selectorName else { return false }
-            guard m1.parameters.count == m2.parameters.count else { return false }
-
-            let p1 = m1.parameters
-            let p2 = m2.parameters
-
-            for i in 0..<p1.count {
-                if !areSameParams(p1[i],p2[i]) { return false }
-            }
-
-            return m1.returnTypeName == m2.returnTypeName
-        }
-
-        return methods.reduce([], { (result, element) -> [SourceryRuntime.Method] in
-            guard !result.contains(where: { areSameMethods($0,element) }) else { return result }
-            return result + [element]
-        })
-    }
-
-    func uniquesWithoutGenericConstraints(methods: [SourceryRuntime.Method]) -> [SourceryRuntime.Method] {
-        func returnTypeStripped(_ method: SourceryRuntime.Method) -> String {
-            let returnTypeRaw = "\(method.returnTypeName)"
-            var stripped: String = {
-                guard let range = returnTypeRaw.range(of: "where") else { return returnTypeRaw }
-                var stripped = returnTypeRaw
-                stripped.removeSubrange((range.lowerBound)...)
-                return stripped
-            }()
-            stripped = stripped.trimmingCharacters(in: CharacterSet(charactersIn: " "))
-            return stripped
-        }
-
-        func areSameParams(_ p1: SourceryRuntime.MethodParameter, _ p2: SourceryRuntime.MethodParameter) -> Bool {
-            guard p1.argumentLabel == p2.argumentLabel else { return false }
-            guard p1.name == p2.name else { return false }
-            guard p1.argumentLabel == p2.argumentLabel else { return false }
-            guard p1.typeName.name == p2.typeName.name else { return false }
-            guard p1.actualTypeName?.name == p2.actualTypeName?.name else { return false }
-            return true
-        }
-
-        func areSameMethods(_ m1: SourceryRuntime.Method, _ m2: SourceryRuntime.Method) -> Bool {
-            guard m1.name != m2.name else { return returnTypeStripped(m1) == returnTypeStripped(m2) }
-            guard m1.selectorName == m2.selectorName else { return false }
-            guard m1.parameters.count == m2.parameters.count else { return false }
-
-            let p1 = m1.parameters
-            let p2 = m2.parameters
-
-            for i in 0..<p1.count {
-                if !areSameParams(p1[i],p2[i]) { return false }
-            }
-
-            return returnTypeStripped(m1) == returnTypeStripped(m2)
-        }
-
-        return methods.reduce([], { (result, element) -> [SourceryRuntime.Method] in
-            guard !result.contains(where: { areSameMethods($0,element) }) else { return result }
-            return result + [element]
-        })
-    }
-
     func methodThrowableErrorDeclaration(_ method: SourceryRuntime.Method) -> String {
         return "var \(swiftifyMethodName(method.selectorName))ThrowableError: Error?"
     }
@@ -142,4 +58,195 @@ class MockMethod {
         """
     }
 */
+}
+
+extension MockMethod {
+    fileprivate var mockedMethodName: String {
+        var result: [String] = [method.callName]
+        if !useShortName {
+            result += method.parameters.map { "\($0.argumentLabel?.uppercasedFirstLetter() ?? "")\($0.name.uppercasedFirstLetter())" }
+        }
+        return result.joined().swiftifiedMethodName
+    }
+
+    var mockImpl: [SourceCode] {
+        var mockMethodHandlers = TopScope()
+
+        let throwing = method.`throws` ? " throws" : method.`rethrows` ? " rethrows" : ""
+        let returnTypeDecl = !method.returnTypeName.isVoid ? " -> \(method.returnTypeName.name)" : ""
+        let mockCallCount = mockCallCountImpl
+
+        var methodImpl = SourceCode("func \(method.name)\(throwing)\(returnTypeDecl)") {[
+            SourceCode("\(mockCallCount.0) += 1"),
+        ]}
+
+        mockMethodHandlers += mockCallCount.1
+
+        var result = TopScope()
+        result += methodImpl
+        result += mockMethodHandlers.nested
+        return result.nested
+    }
+
+    private var mockCallCountImpl: (String, SourceCode) {
+        var mockedVarCallCountName = "\(self.mockedMethodName)CallCount"
+        return (mockedVarCallCountName, SourceCode("var \(mockedVarCallCountName): Int = 0"))
+    }
+}
+
+private extension String {
+    var swiftifiedMethodName: String {
+        return self
+            .replacingOccurrences(of: "(", with: "_")
+            .replacingOccurrences(of: ")", with: "")
+            .replacingOccurrences(of: ":", with: "_")
+            .replacingOccurrences(of: "`", with: "")
+            .camelCased()
+            .lowercasedFirstWord()
+    }
+}
+
+private extension MockMethod {
+    var shortNameKey: String {
+        return method.shortName.swiftifiedMethodName
+    }
+}
+
+private extension Collection where Element == MockMethod {
+    /// If all method mocks were created with `useShortName: true`, then the resulting mock might have duplicate backing variable names for methods, e.g.:
+    /// ```
+    /// func updateTips(_ tips: [Tip])
+    /// func updateTips(with: AnySequence<Tip>) throws
+    /// ```
+    /// would both produce `var updateTipsCallCount: Int = 0`, which will break the build.
+    /// This method finds such occurrences and tries to use fully-qualified names of the method to produce mock variables for groups of duplicate methods.
+    /// While doing so, it will try to use `useShortName: true` for the shortest method name, to produce a little bit more readable/deterministic mock class,
+    /// where the existing implementation would not change if new method overrides are added later with more parameters.
+    var minimumNonConflictingPermutation: [MockMethod] {
+        return reduce(into: [:]) { (partialResult: inout [String: [MockMethod]], nextItem: MockMethod) in
+                let key = nextItem.shortNameKey
+                var group = partialResult[key] ?? []
+                group.append(nextItem)
+                partialResult[key] = group
+            }
+            .map { $0.1.makeUniqueByUsingLongNamesExceptForFewestArgumentMethod() }
+            .joined()
+            .map { $0 }
+    }
+
+    private func makeUniqueByUsingLongNamesExceptForFewestArgumentMethod() -> [MockMethod] {
+        guard count != 1 else { return Array(self) }
+        guard let fewestArgumentsMethod = min(by: { $0.method.parameters.count < $1.method.parameters.count }) else { fatalError("Should not happen.") }
+        let copy = map { MockMethod(method: $0.method, useShortName: $0 === fewestArgumentsMethod) }
+        guard !copy.hasDuplicateMockedMethodNames else {
+            return makeUniqueByUsingLongNames()
+        }
+        return copy
+    }
+
+    private func makeUniqueByUsingLongNames() -> [MockMethod] {
+        return map { MockMethod(method: $0.method, useShortName: false) }
+    }
+
+    var hasDuplicateMockedMethodNames: Bool {
+        var mockedMethodNames = Set<String>()
+        for nextItem in self {
+            let key = nextItem.mockedMethodName
+            if mockedMethodNames.contains(key) {
+                return true
+            }
+            mockedMethodNames.insert(key)
+        }
+        return false
+    }
+}
+
+private extension Collection where Element == SourceryRuntime.Method {
+    /// Courtesy of https://github.com/MakeAWishFoundation/SwiftyMocky/blob/develop/Sources/Templates/Mock.swifttemplate
+    func uniques() -> [SourceryRuntime.Method] {
+        func returnTypeStripped(_ method: SourceryRuntime.Method) -> String {
+            let returnTypeRaw = "\(method.returnTypeName)"
+            var stripped: String = {
+                guard let range = returnTypeRaw.range(of: "where") else { return returnTypeRaw }
+                var stripped = returnTypeRaw
+                stripped.removeSubrange((range.lowerBound)...)
+                return stripped
+            }()
+            stripped = stripped.trimmingCharacters(in: CharacterSet(charactersIn: " "))
+            return stripped
+        }
+
+        func areSameParams(_ p1: SourceryRuntime.MethodParameter, _ p2: SourceryRuntime.MethodParameter) -> Bool {
+            guard p1.argumentLabel == p2.argumentLabel else { return false }
+            guard p1.name == p2.name else { return false }
+            guard p1.argumentLabel == p2.argumentLabel else { return false }
+            guard p1.typeName.name == p2.typeName.name else { return false }
+            guard p1.actualTypeName?.name == p2.actualTypeName?.name else { return false }
+            return true
+        }
+
+        func areSameMethods(_ m1: SourceryRuntime.Method, _ m2: SourceryRuntime.Method) -> Bool {
+            guard m1.name != m2.name else { return m1.returnTypeName == m2.returnTypeName }
+            guard m1.selectorName == m2.selectorName else { return false }
+            guard m1.parameters.count == m2.parameters.count else { return false }
+
+            let p1 = m1.parameters
+            let p2 = m2.parameters
+
+            for i in 0..<p1.count {
+                if !areSameParams(p1[i],p2[i]) { return false }
+            }
+
+            return m1.returnTypeName == m2.returnTypeName
+        }
+
+        return reduce([], { (result, element) -> [SourceryRuntime.Method] in
+            guard !result.contains(where: { areSameMethods($0,element) }) else { return result }
+            return result + [element]
+        })
+    }
+
+    /// Courtesy of https://github.com/MakeAWishFoundation/SwiftyMocky/blob/develop/Sources/Templates/Mock.swifttemplate
+    func uniquesWithoutGenericConstraints() -> [SourceryRuntime.Method] {
+        func returnTypeStripped(_ method: SourceryRuntime.Method) -> String {
+            let returnTypeRaw = "\(method.returnTypeName)"
+            var stripped: String = {
+                guard let range = returnTypeRaw.range(of: "where") else { return returnTypeRaw }
+                var stripped = returnTypeRaw
+                stripped.removeSubrange((range.lowerBound)...)
+                return stripped
+            }()
+            stripped = stripped.trimmingCharacters(in: CharacterSet(charactersIn: " "))
+            return stripped
+        }
+
+        func areSameParams(_ p1: SourceryRuntime.MethodParameter, _ p2: SourceryRuntime.MethodParameter) -> Bool {
+            guard p1.argumentLabel == p2.argumentLabel else { return false }
+            guard p1.name == p2.name else { return false }
+            guard p1.argumentLabel == p2.argumentLabel else { return false }
+            guard p1.typeName.name == p2.typeName.name else { return false }
+            guard p1.actualTypeName?.name == p2.actualTypeName?.name else { return false }
+            return true
+        }
+
+        func areSameMethods(_ m1: SourceryRuntime.Method, _ m2: SourceryRuntime.Method) -> Bool {
+            guard m1.name != m2.name else { return returnTypeStripped(m1) == returnTypeStripped(m2) }
+            guard m1.selectorName == m2.selectorName else { return false }
+            guard m1.parameters.count == m2.parameters.count else { return false }
+
+            let p1 = m1.parameters
+            let p2 = m2.parameters
+
+            for i in 0..<p1.count {
+                if !areSameParams(p1[i],p2[i]) { return false }
+            }
+
+            return returnTypeStripped(m1) == returnTypeStripped(m2)
+        }
+
+        return reduce([], { (result, element) -> [SourceryRuntime.Method] in
+            guard !result.contains(where: { areSameMethods($0,element) }) else { return result }
+            return result + [element]
+        })
+    }
 }

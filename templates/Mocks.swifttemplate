@@ -6,4 +6,4 @@
 <%- includeFile("Mocks/MockGenerator") -%>
 <%- includeFile("Mocks/SourceCode") -%>
 <%- includeFile("Mocks/SourceryRuntimeExtensions") -%>
-<%= MockGenerator.generate(for: types.protocols.map { $0 }.filter { $0.annotations["CreateMock"] != nil }) %>
+<%= try MockGenerator.generate(for: types.protocols.map { $0 }.filter { $0.annotations["CreateMock"] != nil }) %>

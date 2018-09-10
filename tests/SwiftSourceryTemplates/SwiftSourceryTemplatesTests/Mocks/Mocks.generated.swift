@@ -17,6 +17,8 @@ class AlbumPageSizeProviderDelegateMock: AlbumPageSizeProviderDelegate {
 
 // MARK: - AlbumPageSizeProviding
 class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
+
+    // MARK: - Variables
     var delegate: AlbumPageSizeProviderDelegate? {
         get {
             return delegateGetHandler?() ?? delegateBacking
@@ -46,6 +48,8 @@ class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
 
 // MARK: - DataSource
 class DataSourceMock: DataSource {
+
+    // MARK: - Variables
     var bindingTarget: AnyObserver<UploadAPI.LocalFile> {
         if let handler = bindingTargetGetHandler {
             return handler()
@@ -62,6 +66,8 @@ class DataSourceMock: DataSource {
 
 // MARK: - DuplicateRequirements
 class DuplicateRequirementsMock: DuplicateRequirements {
+
+    // MARK: - Variables
     var tips: [String: String] {
         if let handler = tipsGetHandler {
             return handler()
@@ -73,14 +79,36 @@ class DuplicateRequirementsMock: DuplicateRequirements {
     }
     var tipsGetHandler: (() -> [String: String])? = nil
     var tipsBacking: [String: String]?
+
+    // MARK: - Methods
+    func updateTips(_ tips: [Tip]) {
+        updateTipsCallCount += 1
+    }
+    var updateTipsCallCount: Int = 0
+    func updateTips(with tips: AnySequence<Tip>) throws {
+        updateTipsWithTipsCallCount += 1
+    }
+    var updateTipsWithTipsCallCount: Int = 0
 }
 
 // MARK: - ErrorPopoverBuildable
 class ErrorPopoverBuildableMock: ErrorPopoverBuildable {
+
+    // MARK: - Methods
+    func buildPopoverPresenter<T>(title: String, buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentable<T> {
+        buildPopoverPresenterCallCount += 1
+    }
+    var buildPopoverPresenterCallCount: Int = 0
 }
 
 // MARK: - ErrorPopoverBuildableRawRepresentable
 class ErrorPopoverBuildableRawRepresentableMock: ErrorPopoverBuildableRawRepresentable {
+
+    // MARK: - Methods
+    func buildPopoverPresenter<T: RawRepresentable>(title: String, buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentableRawRepresentable<T> {
+        buildPopoverPresenterCallCount += 1
+    }
+    var buildPopoverPresenterCallCount: Int = 0
 }
 
 // MARK: - ErrorPopoverPresentable
@@ -88,6 +116,16 @@ class ErrorPopoverPresentableMock<TypeEventType>: ErrorPopoverPresentable {
 
     // MARK: - Generic typealiases
     typealias EventType = TypeEventType
+
+    // MARK: - Methods
+    func setActionSink(_ actionSink: AnyObject?) {
+        setActionSinkCallCount += 1
+    }
+    var setActionSinkCallCount: Int = 0
+    func show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge) -> Observable<EventType> {
+        showCallCount += 1
+    }
+    var showCallCount: Int = 0
 }
 
 // MARK: - ErrorPopoverPresentableRawRepresentable
@@ -95,18 +133,38 @@ class ErrorPopoverPresentableRawRepresentableMock<TypeEventType>: ErrorPopoverPr
 
     // MARK: - Generic typealiases
     typealias EventType = TypeEventType
+
+    // MARK: - Methods
+    func show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge) -> Observable<EventType> {
+        showCallCount += 1
+    }
+    var showCallCount: Int = 0
 }
 
 // MARK: - ExifImageAttributeProviding
 class ExifImageAttributeProvidingMock: ExifImageAttributeProviding {
+
+    // MARK: - Methods
+    func dateTaken(fileUrl: URL) -> Date? {
+        dateTakenCallCount += 1
+    }
+    var dateTakenCallCount: Int = 0
 }
 
 // MARK: - ImageAttributeProviding
 class ImageAttributeProvidingMock: ImageAttributeProviding {
+
+    // MARK: - Methods
+    func imagePixelSize(source: UploadAPI.LocalFile.Source) throws -> CGSize {
+        imagePixelSizeCallCount += 1
+    }
+    var imagePixelSizeCallCount: Int = 0
 }
 
 // MARK: - LegacyProtocol
 class LegacyProtocolMock: NSObject, LegacyProtocol {
+
+    // MARK: - Variables
     var tips: [String: String] {
         if let handler = tipsGetHandler {
             return handler()
@@ -122,6 +180,8 @@ class LegacyProtocolMock: NSObject, LegacyProtocol {
 
 // MARK: - MutableTipsManaging
 class MutableTipsManagingMock: MutableTipsManaging {
+
+    // MARK: - Variables
     var tips: [String: String] {
         if let handler = tipsGetHandler {
             return handler()
@@ -176,10 +236,22 @@ class MutableTipsManagingMock: MutableTipsManaging {
     }
     var arrayVariableGetHandler: (() -> [Double])? = nil
     var arrayVariableBacking: [Double]?
+
+    // MARK: - Methods
+    func updateTips(_ tips: [Tip]) {
+        updateTipsCallCount += 1
+    }
+    var updateTipsCallCount: Int = 0
+    func updateTips(with tips: AnySequence<Tip>) throws {
+        updateTipsWithTipsCallCount += 1
+    }
+    var updateTipsWithTipsCallCount: Int = 0
 }
 
 // MARK: - MutableUploadProgressing
 class MutableUploadProgressingMock: MutableUploadProgressing {
+
+    // MARK: - Variables
     var progress: Observable<Result<Double>> {
         if let handler = progressGetHandler {
             return handler()
@@ -188,18 +260,62 @@ class MutableUploadProgressingMock: MutableUploadProgressing {
     }
     var progressGetHandler: (() -> Observable<Result<Double>>)? = nil
     lazy var progressSubject = PublishSubject<Result<Double>>()
+
+    // MARK: - Methods
+    func fileProgress(_ source: UploadAPI.LocalFile.Source) -> Observable<RxProgress> {
+        fileProgressCallCount += 1
+    }
+    var fileProgressCallCount: Int = 0
+    func filePartProgressed(uploadId: UploadAPI.UploadId, filePart: FilePart, progress: RxProgress) {
+        filePartProgressedCallCount += 1
+    }
+    var filePartProgressedCallCount: Int = 0
+    func downloadUrlsRetrieved() {
+        downloadUrlsRetrievedCallCount += 1
+    }
+    var downloadUrlsRetrievedCallCount: Int = 0
+    func filePartsCreated(uploadId: UploadAPI.UploadId, fileParts: [FilePart]) {
+        filePartsCreatedCallCount += 1
+    }
+    var filePartsCreatedCallCount: Int = 0
+    func setInputFiles(localFiles: [UploadAPI.LocalFile]) {
+        setInputFilesCallCount += 1
+    }
+    var setInputFilesCallCount: Int = 0
+    func uploadIdRetrieved(localFile: UploadAPI.LocalFile, uploadId: UploadAPI.UploadId) {
+        uploadIdRetrievedCallCount += 1
+    }
+    var uploadIdRetrievedCallCount: Int = 0
 }
 
 // MARK: - ThumbCreating
 class ThumbCreatingMock: ThumbCreating {
+
+    // MARK: - Methods
+    func createThumbJpegData(for pictureUrl: URL, fitting size: CGSize, compression: Double) throws -> Data {
+        createThumbJpegDataCallCount += 1
+    }
+    var createThumbJpegDataCallCount: Int = 0
+    func createThumbImage(for pictureUrl: URL, fitting size: CGSize) throws -> NSImage {
+        createThumbImageCallCount += 1
+    }
+    var createThumbImageCallCount: Int = 0
 }
 
 // MARK: - TipsManagerBuilding
 class TipsManagerBuildingMock: TipsManagerBuilding {
+
+    // MARK: - Methods
+    func build() -> TipsManaging & MutableTipsManaging {
+        buildCallCount += 1
+    }
+    var buildCallCount: Int = 0
 }
 
 // MARK: - TipsManaging
 class TipsManagingMock: TipsManaging {
+
+    // MARK: - Variables
     var tips: [String: String] {
         if let handler = tipsGetHandler {
             return handler()
@@ -258,6 +374,8 @@ class TipsManagingMock: TipsManaging {
 
 // MARK: - UploadProgressing
 class UploadProgressingMock: UploadProgressing {
+
+    // MARK: - Variables
     var progress: Observable<Result<Double>> {
         if let handler = progressGetHandler {
             return handler()
@@ -266,4 +384,10 @@ class UploadProgressingMock: UploadProgressing {
     }
     var progressGetHandler: (() -> Observable<Result<Double>>)? = nil
     lazy var progressSubject = PublishSubject<Result<Double>>()
+
+    // MARK: - Methods
+    func fileProgress(_ source: UploadAPI.LocalFile.Source) -> Observable<RxProgress> {
+        fileProgressCallCount += 1
+    }
+    var fileProgressCallCount: Int = 0
 }

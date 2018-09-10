@@ -1,10 +1,6 @@
 import Foundation
 import SourceryRuntime
 
-enum MockError: Error {
-case noDefaultValue
-}
-
 extension SourceryRuntime.TypeName {
     func defaultValue() throws -> String {
         if isOptional { return "nil" }
@@ -28,6 +24,6 @@ extension SourceryRuntime.TypeName {
             break
         }
 
-        throw MockError.noDefaultValue
+        throw MockError.noDefaultValue(typeName: self)
     }
 }

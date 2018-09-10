@@ -2,23 +2,25 @@ import Foundation
 
 // Courtesy of https://github.com/SwiftGen/StencilSwiftKit
 
-func lowerFirstLetter(_ string: String) -> String {
-  return FiltersStrings.lowerFirstLetter(string)
-}
-func lowerFirstWord(_ string: String) -> String {
-  return FiltersStrings.lowerFirstWord(string)
-}
-func upperFirstLetter(_ string: String) -> String {
-  return FiltersStrings.upperFirstLetter(string)
-}
-func camelToSnakeCase(_ string: String, toLower: Bool = true) -> String {
-  return FiltersStrings.camelToSnakeCase(string, toLower: toLower)
-}
-func snakeToCamelCase(_ string: String, stripLeading: Bool = false) -> String {
-  return FiltersStrings.snakeToCamelCase(string, stripLeading: stripLeading)
+extension String {
+    func lowercasedFirstLetter() -> String {
+      return FiltersStrings.lowerFirstLetter(self)
+    }
+    func lowercasedFirstWord() -> String {
+      return FiltersStrings.lowerFirstWord(self)
+    }
+    func uppercasedFirstLetter() -> String {
+      return FiltersStrings.upperFirstLetter(self)
+    }
+    func snakeCased(toLower: Bool = true) -> String {
+      return FiltersStrings.camelToSnakeCase(self, toLower: toLower)
+    }
+    func camelCased(stripLeading: Bool = false) -> String {
+      return FiltersStrings.snakeToCamelCase(self, stripLeading: stripLeading)
+    }
 }
 
-final class FiltersStrings {
+private final class FiltersStrings {
   /// Lowers the first letter of the string
   /// e.g. "People picker" gives "people picker", "Sports Stats" gives "sports Stats"
   static func lowerFirstLetter(_ string: String) -> String {

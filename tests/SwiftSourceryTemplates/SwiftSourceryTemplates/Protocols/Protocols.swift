@@ -120,12 +120,14 @@ protocol TipsManaging: class {
 /// sourcery: CreateMock
 protocol DuplicateRequirements {
     var tips: [String: String] { get }
-    func updateTips()
+    func updateTips(_ tips: [Tip])
+    func updateTips(with tips: AnySequence<Tip>) throws
 }
 
 /// sourcery: CreateMock
 protocol MutableTipsManaging: TipsManaging, DuplicateRequirements {
-    func updateTips()
+    func updateTips(_ tips: [Tip])
+    func updateTips(with tips: AnySequence<Tip>) throws
 }
 
 /// sourcery: CreateMock

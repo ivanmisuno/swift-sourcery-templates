@@ -8,7 +8,7 @@
 
 struct UploadAPI {
     typealias UploadId = String
-    
+
     struct LocalFile {
         enum Source {
         }
@@ -19,4 +19,7 @@ struct FilePart {
 }
 
 struct RxProgress {
+}
+
+struct Tip {
 }
