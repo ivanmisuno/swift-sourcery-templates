@@ -1,5 +1,9 @@
 <%- include("_header") -%>
-<%- includeFile("_utility") -%>
-<%- includeFile("_utilityStringsLettercase") -%>
-<%- includeFile("_mocks") -%>
+<%- includeFile("Utility/Utility") -%>
+<%- includeFile("Utility/StringsLettercase") -%>
+<%- includeFile("Mocks/MockFunc") -%>
+<%- includeFile("Mocks/MockVar") -%>
+<%- includeFile("Mocks/MockGenerator") -%>
+<%- includeFile("Mocks/SourceCode") -%>
+<%- includeFile("Mocks/SourceryRuntimeExtensions") -%>
 <%= MockGenerator.generate(for: types.protocols.map { $0 }.filter { $0.annotations["CreateMock"] != nil }) %>
