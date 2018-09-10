@@ -124,7 +124,7 @@ private extension SourceryRuntime.TypeName {
                     SourceCode("self?.\(mockedVariableName)EventHandler?(event)"),
                 ]}
                 let mockedVariableHandlers = [SourceCode("var \(mockedVariableName)CallCount: Int = 0"),
-                                              SourceCode("var \(mockedVariableName)EventHandler = ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil")]
+                                              SourceCode("var \(mockedVariableName)EventHandler: ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil")]
                 return (getterImplementation, mockedVariableHandlers)
             default:
                 fatalError("Should not get here.")

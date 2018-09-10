@@ -61,7 +61,7 @@ class DataSourceMock: DataSource {
     }
     var bindingTargetGetHandler: (() -> AnyObserver<UploadAPI.LocalFile>)? = nil
     var bindingTargetCallCount: Int = 0
-    var bindingTargetEventHandler = ((Event<UploadAPI.LocalFile>) -> ())? = nil
+    var bindingTargetEventHandler: ((Event<UploadAPI.LocalFile>) -> ())? = nil
 }
 
 // MARK: - DuplicateRequirements
