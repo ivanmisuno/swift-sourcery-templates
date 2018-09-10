@@ -136,7 +136,21 @@ private extension Collection where Element == MockMethod {
 
     private func makeUniqueByUsingLongNamesExceptForFewestArgumentMethod() -> [MockMethod] {
         guard count != 1 else { return Array(self) }
-        guard let fewestArgumentsMethod = min(by: { $0.method.parameters.count < $1.method.parameters.count }) else { fatalError("Should not happen.") }
+        func areInAscendingOrder(lhs: MockMethod, rhs: MockMethod) -> Bool {
+            if lhs.method.parameters.count < rhs.method.parameters.count {
+                // Use the method with the fewest number of parameters
+                return true
+            }
+            if lhs.method.parameters.count == rhs.method.parameters.count,
+                let firstParameterLhs = lhs.method.parameters.first,
+                let firstParameterRhs = rhs.method.parameters.first {
+                // If two methods have the same number of parameters, but one has shorter syntax by not requiring parameter label, use it instead.
+                return firstParameterLhs.argumentLabel == nil && firstParameterRhs.argumentLabel != nil
+            }
+            // Otherwise, use the other one.
+            return false
+        }
+        guard let fewestArgumentsMethod = min(by: areInAscendingOrder) else { fatalError("Should not happen.") }
         let copy = map { MockMethod(method: $0.method, useShortName: $0 === fewestArgumentsMethod) }
         guard !copy.hasDuplicateMockedMethodNames else {
             return makeUniqueByUsingLongNames()
