@@ -1,8 +1,8 @@
 import Foundation
 import SourceryRuntime
 
-class MockFunc {
-    static func from(_ type: Type) -> [MockFunc] {
+class MockMethod {
+    static func from(_ type: Type) -> [MockMethod] {
         //let uniqueMethods = type.allMethods.filter { !$0.isStatic }
         //return allVariables.map { MockVar(variable: $0) }
 

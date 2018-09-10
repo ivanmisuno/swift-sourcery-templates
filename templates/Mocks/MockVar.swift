@@ -2,16 +2,24 @@ import Foundation
 import SourceryRuntime
 
 class MockVar {
-    let variable: SourceryRuntime.Variable
+    fileprivate let variable: SourceryRuntime.Variable
+
+    fileprivate lazy var mockedVariableName = "\(variable.name)"
 
     init(variable: SourceryRuntime.Variable) {
         self.variable = variable
     }
 
-    lazy var mockedVariableName = "\(variable.name)"
-    var backingMockedVariableName: String { return "\(mockedVariableName)Backing" }
+    static func from(_ type: Type) -> [MockVar] {
+        let allVariables = type.allVariables.filter { !$0.isStatic }.uniqueVariables
+        return allVariables.map { MockVar(variable: $0) }
+    }
+}
 
-    private var needBackingVariable: Bool {
+extension MockVar {
+    private var backingMockedVariableName: String { return "\(mockedVariableName)Backing" }
+
+    private var needsBackingVariable: Bool {
         return variable.isMutable
             || variable.typeName.isOptional
             || !isComplexTypeWithSmartDefaultValueImplementation
@@ -20,11 +28,6 @@ class MockVar {
     private var isComplexTypeWithSmartDefaultValueImplementation: Bool {
         return !variable.isMutable
             && variable.typeName.isComplexTypeWithSmartDefaultValueImplementation
-    }
-
-    static func from(_ type: Type) -> [MockVar] {
-        let allVariables = type.allVariables.filter { !$0.isStatic }.uniqueVariables
-        return allVariables.map { MockVar(variable: $0) }
     }
 
     var mockImpl: [SourceCode] {
@@ -74,7 +77,7 @@ class MockVar {
             mockedVariableImplementation += getterImplementation.nested
         }
 
-        if needBackingVariable {
+        if needsBackingVariable {
             mockedVariableHandlers += "var \(backingMockedVariableName): \(variable.unwrappedTypeName)?"
         }
 
@@ -94,7 +97,7 @@ private extension Collection where Element: SourceryRuntime.Variable {
     }
 }
 
-fileprivate extension SourceryRuntime.TypeName {
+private extension SourceryRuntime.TypeName {
     var isComplexTypeWithSmartDefaultValueImplementation: Bool {
         guard
             isGeneric,
