@@ -2,10 +2,12 @@ import Foundation
 import SourceryRuntime
 
 class MockMethod {
+    fileprivate let type: SourceryRuntime.`Type`
     fileprivate let method: SourceryRuntime.Method
     fileprivate let useShortName: Bool
 
-    init(method: SourceryRuntime.Method, useShortName: Bool) {
+    init(type: SourceryRuntime.`Type`, method: SourceryRuntime.Method, useShortName: Bool) {
+        self.type = type
         self.method = method
         self.useShortName = useShortName
     }
@@ -13,51 +15,13 @@ class MockMethod {
     static func from(_ type: Type) throws -> [MockMethod] {
         let allMethods = type.allMethods.filter { !$0.isStatic }.uniquesWithoutGenericConstraints()
         let mockedMethods = allMethods
-            .map { MockMethod(method: $0, useShortName: true) }
+            .map { MockMethod(type: type, method: $0, useShortName: true) }
             .minimumNonConflictingPermutation
         guard !mockedMethods.hasDuplicateMockedMethodNames else {
             throw MockError.internalError(message: "Mock generator: not all duplicates resolved!")
         }
         return mockedMethods
     }
-
-/*
-    func methodThrowableErrorDeclaration(_ method: SourceryRuntime.Method) -> String {
-        return "var \(swiftifyMethodName(method.selectorName))ThrowableError: Error?"
-    }
-    func methodThrowableErrorUsage(_ method: SourceryRuntime.Method) -> String {
-        return """
-            if let error = \(methodThrowableErrorDeclaration(method))ThrowableError {
-                throw error
-            }
-        """
-    }
-    func methodHandlerName(_ method: SourceryRuntime.Method) -> String {
-        return "\(swiftifyMethodName(method.callName))Handler"
-    }
-    func methodHandlerDeclaration(_ method: SourceryRuntime.Method) -> String {
-        let parameters = method.parameters.map {
-            if let argumentLabel = $0.argumentLabel {
-                return "_ \($0.name): \($0.typeName.name)"
-            } else {
-                return $0.typeName.name
-            }
-        }.joined(separator: ", ")
-        let throwing = method.throws ? " throws" : ""
-        let returnType = method.isInitializer ? "()" : method.returnTypeName.name
-        return "var \(methodHandlerName(method)): ((\(parameters))\(throwing) -> \(returnType))? = nil"
-    }
-    func methodHandlerCallParameters(_ method: SourceryRuntime.Method) -> String {
-        return method.parameters.map { $0.name }.joined(separator: ", ")
-    }
-    func mockMethod(_ method: SourceryRuntime.Method) -> String {
-        return """
-            // MARK: - \(method.name)
-            \(methodHandlerDeclaration(method))
-
-        """
-    }
-*/
 }
 
 extension MockMethod {
@@ -195,7 +159,7 @@ private extension Collection where Element == MockMethod {
             return false
         }
         guard let fewestArgumentsMethod = min(by: areInAscendingOrder) else { fatalError("Should not happen.") }
-        let copy = map { MockMethod(method: $0.method, useShortName: $0 === fewestArgumentsMethod) }
+        let copy = map { MockMethod(type: $0.type, method: $0.method, useShortName: $0 === fewestArgumentsMethod) }
         guard !copy.hasDuplicateMockedMethodNames else {
             return makeUniqueByUsingLongNames()
         }
@@ -203,7 +167,7 @@ private extension Collection where Element == MockMethod {
     }
 
     private func makeUniqueByUsingLongNames() -> [MockMethod] {
-        return map { MockMethod(method: $0.method, useShortName: false) }
+        return map { MockMethod(type: $0.type, method: $0.method, useShortName: false) }
     }
 
     var hasDuplicateMockedMethodNames: Bool {

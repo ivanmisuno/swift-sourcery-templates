@@ -50,17 +50,14 @@ class MockGenerator {
     }
 }
 
-private struct GenericTypeInfo {
-    let genericType: String
-    let constraints: [String]
-}
-
 private extension SourceryRuntime.`Type` {
     var isObjcProtocol: Bool {
         return annotations["ObjcProtocol"] != nil
             || inheritedTypes.contains("NSObjectProtocol")
     }
+}
 
+private extension SourceryRuntime.`Type` {
     var genericTypes: [GenericTypeInfo] {
         let genericTypes = extractAssociatedTypes(self).map { GenericTypeInfo(genericType: $0.associatedType, constraints: $0.constraints) }
         return genericTypes

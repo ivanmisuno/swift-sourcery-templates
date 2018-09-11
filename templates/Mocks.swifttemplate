@@ -1,6 +1,7 @@
 <%- include("_header") -%>
 <%- includeFile("Utility/Utility") -%>
 <%- includeFile("Utility/StringsLettercase") -%>
+<%- includeFile("Mocks/GenericTypeInfo") -%>
 <%- includeFile("Mocks/MockMethod") -%>
 <%- includeFile("Mocks/MockVar") -%>
 <%- includeFile("Mocks/MockGenerator") -%>
