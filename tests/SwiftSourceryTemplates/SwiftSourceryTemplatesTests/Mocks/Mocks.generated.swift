@@ -168,7 +168,7 @@ class ImageAttributeProvidingMock: ImageAttributeProviding {
         if let handler = imagePixelSizeHandler {
             return try handler(source)
         }
-        fatalError("imagePixelSizeHandler expected to be set.")
+        return CGSize.zero
     }
     var imagePixelSizeCallCount: Int = 0
     var imagePixelSizeHandler: ((_ source: UploadAPI.LocalFile.Source) throws -> (CGSize))? = nil

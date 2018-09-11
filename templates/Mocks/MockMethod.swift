@@ -77,20 +77,28 @@ extension MockMethod {
         let mockCallCount = mockCallCountImpl
         var mockHandler = mockHandlerImpl
 
+        // Increment usage call count.
         var methodImpl = SourceCode("func \(method.name)\(throwing)\(returnTypeDecl)") {[
             SourceCode("\(mockCallCount.0) += 1"),
         ]}
 
+        // Call the handler.
         methodImpl += mockHandlerCallImpl
 
+        // Fallback return value.
         if method.returnTypeName.isVoid {
             // No return value
         } else if method.isOptionalReturnType {
             // Return nil
             methodImpl += "return nil"
         } else {
-            // fatal
-            methodImpl += "fatalError(\"\(mockHandler.0) expected to be set.\")"
+            // Do something smart
+            if let defaultValue = try? method.returnTypeName.defaultValue() {
+                methodImpl += SourceCode("return \(defaultValue)")
+            } else {
+                // fatal
+                methodImpl += "fatalError(\"\(mockHandler.0) expected to be set.\")"
+            }
         }
 
         mockMethodHandlers += mockCallCount.1
