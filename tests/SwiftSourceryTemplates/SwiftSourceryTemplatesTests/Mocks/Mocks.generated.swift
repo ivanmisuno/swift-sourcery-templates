@@ -120,10 +120,11 @@ class ErrorPopoverPresentableMock<TypeEventType>: ErrorPopoverPresentable {
         if let handler = showHandler {
             return handler(positioningRect, positioningView, preferredEdge)
         }
-        fatalError("showHandler expected to be set.")
+        return showSubject.asObservable()
     }
     var showCallCount: Int = 0
     var showHandler: ((_ positioningRect: NSRect, _ positioningView: NSView, _ preferredEdge: NSRectEdge) -> (Observable<EventType>))? = nil
+    lazy var showSubject = PublishSubject<EventType>()
 }
 
 // MARK: - ErrorPopoverPresentableRawRepresentable
@@ -138,10 +139,11 @@ class ErrorPopoverPresentableRawRepresentableMock<TypeEventType>: ErrorPopoverPr
         if let handler = showHandler {
             return handler(positioningRect, positioningView, preferredEdge)
         }
-        fatalError("showHandler expected to be set.")
+        return showSubject.asObservable()
     }
     var showCallCount: Int = 0
     var showHandler: ((_ positioningRect: NSRect, _ positioningView: NSView, _ preferredEdge: NSRectEdge) -> (Observable<EventType>))? = nil
+    lazy var showSubject = PublishSubject<EventType>()
 }
 
 // MARK: - ExifImageAttributeProviding
@@ -288,10 +290,11 @@ class MutableUploadProgressingMock: MutableUploadProgressing {
         if let handler = fileProgressHandler {
             return handler(source)
         }
-        fatalError("fileProgressHandler expected to be set.")
+        return fileProgressSubject.asObservable()
     }
     var fileProgressCallCount: Int = 0
     var fileProgressHandler: ((_ source: UploadAPI.LocalFile.Source) -> (Observable<RxProgress>))? = nil
+    lazy var fileProgressSubject = PublishSubject<RxProgress>()
     func filePartProgressed(uploadId: UploadAPI.UploadId, filePart: FilePart, progress: RxProgress) {
         filePartProgressedCallCount += 1
         if let handler = filePartProgressedHandler {
@@ -452,8 +455,9 @@ class UploadProgressingMock: UploadProgressing {
         if let handler = fileProgressHandler {
             return handler(source)
         }
-        fatalError("fileProgressHandler expected to be set.")
+        return fileProgressSubject.asObservable()
     }
     var fileProgressCallCount: Int = 0
     var fileProgressHandler: ((_ source: UploadAPI.LocalFile.Source) -> (Observable<RxProgress>))? = nil
+    lazy var fileProgressSubject = PublishSubject<RxProgress>()
 }

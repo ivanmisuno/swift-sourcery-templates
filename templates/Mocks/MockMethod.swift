@@ -97,11 +97,11 @@ extension MockMethod {
             methodImpl += "return nil"
         } else {
             // Do something smart
-            /*if method.returnTypeName.isComplexTypeWithSmartDefaultValue, let smartDefaultValueImplementation = method.returnTypeName.smartDefaultValueImplementation(isProperty: false, mockVariablePrefix: mockedMethodName) {
+            if method.returnTypeName.isComplexTypeWithSmartDefaultValue {
+                let smartDefaultValueImplementation = try method.returnTypeName.smartDefaultValueImplementation(isProperty: false, mockVariablePrefix: mockedMethodName)
                 methodImpl += smartDefaultValueImplementation.0
                 mockMethodHandlers += smartDefaultValueImplementation.1
-            } else*/
-            if method.returnTypeName.hasDefaultValue, let defaultValue = try? method.returnTypeName.defaultValue() {
+            } else if method.returnTypeName.hasDefaultValue, let defaultValue = try? method.returnTypeName.defaultValue() {
                 methodImpl += SourceCode("return \(defaultValue)")
             } else {
                 // fatal
