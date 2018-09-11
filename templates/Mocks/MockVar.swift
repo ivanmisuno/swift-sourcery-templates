@@ -22,15 +22,15 @@ extension MockVar {
     private var needsBackingVariable: Bool {
         return variable.isMutable
             || variable.typeName.isOptional
-            || !isComplexTypeWithSmartDefaultValueImplementation
+            || !isComplexTypeWithSmartDefaultValue
     }
 
-    private var isComplexTypeWithSmartDefaultValueImplementation: Bool {
+    private var isComplexTypeWithSmartDefaultValue: Bool {
         return !variable.isMutable
-            && variable.typeName.isComplexTypeWithSmartDefaultValueImplementation
+            && variable.typeName.isComplexTypeWithSmartDefaultValue
     }
 
-    var mockImpl: [SourceCode] {
+    func mockImpl() throws -> [SourceCode] {
         var mockedVariableHandlers = TopScope()
 
         var getterImplementation = SourceCode("get")
@@ -43,7 +43,8 @@ extension MockVar {
             ]}
             mockedVariableHandlers += "var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil"
 
-            if isComplexTypeWithSmartDefaultValueImplementation, let smartDefaultValueImplementation = variable.typeName.smartDefaultValueImplementation(mockedVariableName) {
+            if isComplexTypeWithSmartDefaultValue {
+                let smartDefaultValueImplementation = try variable.typeName.smartDefaultValueImplementation(isProperty: true, mockVariablePrefix: mockedVariableName)
                 getterImplementation += smartDefaultValueImplementation.getterImplementation
                 mockedVariableHandlers += smartDefaultValueImplementation.mockedVariableHandlers
             } else {
@@ -51,7 +52,7 @@ extension MockVar {
                     SourceCode("return value")
                 ]}
 
-                if let defaultValue = try? variable.typeName.defaultValue() {
+                if variable.typeName.hasDefaultValue, let defaultValue = try? variable.typeName.defaultValue() {
                     getterImplementation += SourceCode("return \(defaultValue)")
                 } else {
                     getterImplementation += SourceCode("fatalError(\"Either `\(mockedVariableName)GetHandler` or value must be provided!\")")
@@ -94,41 +95,5 @@ private extension Collection where Element: SourceryRuntime.Variable {
             guard !result.contains(where: { $0.name == element.name }) else { return }
             result.append(element)
         })
-    }
-}
-
-private extension SourceryRuntime.TypeName {
-    var isComplexTypeWithSmartDefaultValueImplementation: Bool {
-        guard
-            isGeneric,
-            let generic = generic,
-            generic.name == "Observable" || generic.name == "AnyObserver",
-            generic.typeParameters.count == 1
-        else {
-            return false
-        }
-        return true
-    }
-
-    var smartDefaultValueImplementation: ((String) -> (getterImplementation: SourceCode, mockedVariableHandlers: [SourceCode])?) {
-        return { mockedVariableName in
-            guard self.isComplexTypeWithSmartDefaultValueImplementation, let generic = self.generic else { return nil }
-            switch generic.name {
-            case "Observable":
-                let getterImplementation = SourceCode("return \(mockedVariableName)Subject.asObservable()")
-                let mockedVariableHandlers = [SourceCode("lazy var \(mockedVariableName)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()")]
-                return (getterImplementation, mockedVariableHandlers)
-            case "AnyObserver":
-                let getterImplementation = SourceCode("return AnyObserver { [weak self] event in") { [
-                    SourceCode("self?.\(mockedVariableName)CallCount += 1"),
-                    SourceCode("self?.\(mockedVariableName)EventHandler?(event)"),
-                ]}
-                let mockedVariableHandlers = [SourceCode("var \(mockedVariableName)CallCount: Int = 0"),
-                                              SourceCode("var \(mockedVariableName)EventHandler: ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil")]
-                return (getterImplementation, mockedVariableHandlers)
-            default:
-                fatalError("Should not get here.")
-            }
-        }
     }
 }

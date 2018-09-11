@@ -69,13 +69,17 @@ extension MockMethod {
         return result.joined().swiftifiedMethodName
     }
 
-    var mockImpl: [SourceCode] {
+    func mockImpl() throws -> [SourceCode] {
         var mockMethodHandlers = TopScope()
 
         let throwing = method.`throws` ? " throws" : method.`rethrows` ? " rethrows" : ""
         let returnTypeDecl = !method.returnTypeName.isVoid ? " -> \(method.returnTypeName.name)" : ""
+
         let mockCallCount = mockCallCountImpl
+        mockMethodHandlers += mockCallCount.1
+
         var mockHandler = mockHandlerImpl
+        mockMethodHandlers += mockHandler.1
 
         // Increment usage call count.
         var methodImpl = SourceCode("func \(method.name)\(throwing)\(returnTypeDecl)") {[
@@ -93,16 +97,17 @@ extension MockMethod {
             methodImpl += "return nil"
         } else {
             // Do something smart
-            if let defaultValue = try? method.returnTypeName.defaultValue() {
+            /*if method.returnTypeName.isComplexTypeWithSmartDefaultValue, let smartDefaultValueImplementation = method.returnTypeName.smartDefaultValueImplementation(isProperty: false, mockVariablePrefix: mockedMethodName) {
+                methodImpl += smartDefaultValueImplementation.0
+                mockMethodHandlers += smartDefaultValueImplementation.1
+            } else*/
+            if method.returnTypeName.hasDefaultValue, let defaultValue = try? method.returnTypeName.defaultValue() {
                 methodImpl += SourceCode("return \(defaultValue)")
             } else {
                 // fatal
                 methodImpl += "fatalError(\"\(mockHandler.0) expected to be set.\")"
             }
         }
-
-        mockMethodHandlers += mockCallCount.1
-        mockMethodHandlers += mockHandler.1
 
         var result = TopScope()
         result += methodImpl

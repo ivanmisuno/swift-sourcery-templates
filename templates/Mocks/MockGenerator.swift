@@ -28,7 +28,7 @@ class MockGenerator {
             mock += genericTypes.typealiasesDeclarations
 
             let mockVars = MockVar.from(type)
-            let mockVarsFlattened = mockVars.flatMap { $0.mockImpl }
+            let mockVarsFlattened = try mockVars.flatMap { try $0.mockImpl() }
             if !mockVarsFlattened.isEmpty {
                 mock += Constants.NEWL
                 mock += "// MARK: - Variables"
@@ -36,7 +36,7 @@ class MockGenerator {
             }
 
             let mockMethods = try MockMethod.from(type)
-            let mockMethodsFlattened = mockMethods.flatMap { $0.mockImpl }
+            let mockMethodsFlattened = try mockMethods.flatMap { try $0.mockImpl() }
             if !mockMethodsFlattened.isEmpty {
                 mock += Constants.NEWL
                 mock += "// MARK: - Methods"
