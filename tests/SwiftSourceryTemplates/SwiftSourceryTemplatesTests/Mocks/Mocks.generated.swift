@@ -100,6 +100,12 @@ class DuplicateRequirementsMock: DuplicateRequirements {
     var updateTipsWithTipsHandler: ((_ tips: AnySequence<Tip>) throws -> ())? = nil
 }
 
+// MARK: - ErrorPopoverBuildable
+// This type contains generic methods, which is not supported a.t.m.
+
+// MARK: - ErrorPopoverBuildableRawRepresentable
+// This type contains generic methods, which is not supported a.t.m.
+
 // MARK: - ErrorPopoverPresentable
 class ErrorPopoverPresentableMock<TypeEventType>: ErrorPopoverPresentable {
 

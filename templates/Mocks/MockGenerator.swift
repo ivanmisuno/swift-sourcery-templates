@@ -16,18 +16,23 @@ class MockGenerator {
         var topScope = TopScope()
 
         for type in types {
-            let genericTypes = type.genericTypes
-
-            //let allMethods = uniques(methods: type.allMethods.filter { !$0.isStatic })
+            let mockVars = MockVar.from(type)
+            let mockMethods = try MockMethod.from(type)
 
             topScope += Constants.NEWL
             topScope += "// MARK: - \(type.name)"
+
+            if mockMethods.contains(where: { $0.isGeneric }) {
+                topScope += "// This type contains generic methods, which is not supported a.t.m."
+                continue
+            }
+
+            let genericTypes = type.genericTypes
 
             var mock = SourceCode("class \(type.name)Mock\(genericTypes.genericTypesModifier): \(type.isObjcProtocol ? "NSObject, " : "")\(type.name)\(genericTypes.genericTypesConstraints)")
             mock.isBlockMandatory = true
             mock += genericTypes.typealiasesDeclarations
 
-            let mockVars = MockVar.from(type)
             let mockVarsFlattened = try mockVars.flatMap { try $0.mockImpl() }
             if !mockVarsFlattened.isEmpty {
                 mock += Constants.NEWL
@@ -35,7 +40,6 @@ class MockGenerator {
                 mock += mockVarsFlattened
             }
 
-            let mockMethods = try MockMethod.from(type)
             let mockMethodsFlattened = try mockMethods.flatMap { try $0.mockImpl() }
             if !mockMethodsFlattened.isEmpty {
                 mock += Constants.NEWL

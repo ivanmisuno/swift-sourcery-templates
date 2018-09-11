@@ -25,6 +25,12 @@ class MockMethod {
 }
 
 extension MockMethod {
+    var isGeneric: Bool {
+        return method.isGeneric
+    }
+}
+
+extension MockMethod {
     fileprivate var mockedMethodName: String {
         var result: [String] = [method.callName]
         if !useShortName {
