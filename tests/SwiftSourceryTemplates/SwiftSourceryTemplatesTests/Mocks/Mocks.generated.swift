@@ -22,6 +22,7 @@ class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
     // MARK: - Variables
     var delegate: AlbumPageSizeProviderDelegate? {
         get {
+            delegateGetCount += 1
             return delegateGetHandler?() ?? delegateBacking
         }
         set {
@@ -30,11 +31,13 @@ class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
             delegateSetHandler?(newValue)
         }
     }
+    var delegateGetCount: Int = 0
     var delegateGetHandler: (() -> AlbumPageSizeProviderDelegate?)? = nil
     var delegateSetCount: Int = 0
     var delegateSetHandler: ((_ delegate: AlbumPageSizeProviderDelegate?) -> ())? = nil
     var delegateBacking: AlbumPageSizeProviderDelegate?
     var pageSize: CGSize {
+        pageSizeGetCount += 1
         if let handler = pageSizeGetHandler {
             return handler()
         }
@@ -43,6 +46,7 @@ class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
         }
         return CGSize.zero
     }
+    var pageSizeGetCount: Int = 0
     var pageSizeGetHandler: (() -> CGSize)? = nil
     var pageSizeBacking: CGSize?
 }
@@ -52,6 +56,7 @@ class DataSourceMock: DataSource {
 
     // MARK: - Variables
     var bindingTarget: AnyObserver<UploadAPI.LocalFile> {
+        bindingTargetGetCount += 1
         if let handler = bindingTargetGetHandler {
             return handler()
         }
@@ -60,6 +65,7 @@ class DataSourceMock: DataSource {
             self?.bindingTargetEventHandler?(event)
         }
     }
+    var bindingTargetGetCount: Int = 0
     var bindingTargetGetHandler: (() -> AnyObserver<UploadAPI.LocalFile>)? = nil
     var bindingTargetCallCount: Int = 0
     var bindingTargetEventHandler: ((Event<UploadAPI.LocalFile>) -> ())? = nil
@@ -73,6 +79,7 @@ class DuplicateRequirementsMock: DuplicateRequirements {
 
     // MARK: - Variables
     var tips: [String: String] {
+        tipsGetCount += 1
         if let handler = tipsGetHandler {
             return handler()
         }
@@ -81,6 +88,7 @@ class DuplicateRequirementsMock: DuplicateRequirements {
         }
         return [:]
     }
+    var tipsGetCount: Int = 0
     var tipsGetHandler: (() -> [String: String])? = nil
     var tipsBacking: [String: String]?
 
@@ -230,6 +238,7 @@ class LegacyProtocolMock: NSObject, LegacyProtocol {
 
     // MARK: - Variables
     var tips: [String: String] {
+        tipsGetCount += 1
         if let handler = tipsGetHandler {
             return handler()
         }
@@ -238,6 +247,7 @@ class LegacyProtocolMock: NSObject, LegacyProtocol {
         }
         return [:]
     }
+    var tipsGetCount: Int = 0
     var tipsGetHandler: (() -> [String: String])? = nil
     var tipsBacking: [String: String]?
 
@@ -258,6 +268,7 @@ class MutableTipsManagingMock: MutableTipsManaging {
 
     // MARK: - Variables
     var tips: [String: String] {
+        tipsGetCount += 1
         if let handler = tipsGetHandler {
             return handler()
         }
@@ -266,14 +277,18 @@ class MutableTipsManagingMock: MutableTipsManaging {
         }
         return [:]
     }
+    var tipsGetCount: Int = 0
     var tipsGetHandler: (() -> [String: String])? = nil
     var tipsBacking: [String: String]?
     var tipsOptional: [String: String]? {
+        tipsOptionalGetCount += 1
         return tipsOptionalGetHandler?() ?? tipsOptionalBacking
     }
+    var tipsOptionalGetCount: Int = 0
     var tipsOptionalGetHandler: (() -> [String: String]?)? = nil
     var tipsOptionalBacking: [String: String]?
     var tupleVariable: (String, Int) {
+        tupleVariableGetCount += 1
         if let handler = tupleVariableGetHandler {
             return handler()
         }
@@ -282,9 +297,11 @@ class MutableTipsManagingMock: MutableTipsManaging {
         }
         return ("", 0)
     }
+    var tupleVariableGetCount: Int = 0
     var tupleVariableGetHandler: (() -> (String, Int))? = nil
     var tupleVariableBacking: (String, Int)?
     var tupleVariable2: (String?, Int?) {
+        tupleVariable2GetCount += 1
         if let handler = tupleVariable2GetHandler {
             return handler()
         }
@@ -293,14 +310,18 @@ class MutableTipsManagingMock: MutableTipsManaging {
         }
         return (nil, nil)
     }
+    var tupleVariable2GetCount: Int = 0
     var tupleVariable2GetHandler: (() -> (String?, Int?))? = nil
     var tupleVariable2Backing: (String?, Int?)?
     var tupleOptional: (String, Int)? {
+        tupleOptionalGetCount += 1
         return tupleOptionalGetHandler?() ?? tupleOptionalBacking
     }
+    var tupleOptionalGetCount: Int = 0
     var tupleOptionalGetHandler: (() -> (String, Int)?)? = nil
     var tupleOptionalBacking: (String, Int)?
     var arrayVariable: [Double] {
+        arrayVariableGetCount += 1
         if let handler = arrayVariableGetHandler {
             return handler()
         }
@@ -309,6 +330,7 @@ class MutableTipsManagingMock: MutableTipsManaging {
         }
         return []
     }
+    var arrayVariableGetCount: Int = 0
     var arrayVariableGetHandler: (() -> [Double])? = nil
     var arrayVariableBacking: [Double]?
 
@@ -336,11 +358,13 @@ class MutableUploadProgressingMock: MutableUploadProgressing {
 
     // MARK: - Variables
     var progress: Observable<Result<Double>> {
+        progressGetCount += 1
         if let handler = progressGetHandler {
             return handler()
         }
         return progressSubject.asObservable()
     }
+    var progressGetCount: Int = 0
     var progressGetHandler: (() -> Observable<Result<Double>>)? = nil
     lazy var progressSubject = PublishSubject<Result<Double>>()
 
@@ -441,6 +465,7 @@ class TipsManagingMock: TipsManaging {
 
     // MARK: - Variables
     var tips: [String: String] {
+        tipsGetCount += 1
         if let handler = tipsGetHandler {
             return handler()
         }
@@ -449,14 +474,18 @@ class TipsManagingMock: TipsManaging {
         }
         return [:]
     }
+    var tipsGetCount: Int = 0
     var tipsGetHandler: (() -> [String: String])? = nil
     var tipsBacking: [String: String]?
     var tipsOptional: [String: String]? {
+        tipsOptionalGetCount += 1
         return tipsOptionalGetHandler?() ?? tipsOptionalBacking
     }
+    var tipsOptionalGetCount: Int = 0
     var tipsOptionalGetHandler: (() -> [String: String]?)? = nil
     var tipsOptionalBacking: [String: String]?
     var tupleVariable: (String, Int) {
+        tupleVariableGetCount += 1
         if let handler = tupleVariableGetHandler {
             return handler()
         }
@@ -465,9 +494,11 @@ class TipsManagingMock: TipsManaging {
         }
         return ("", 0)
     }
+    var tupleVariableGetCount: Int = 0
     var tupleVariableGetHandler: (() -> (String, Int))? = nil
     var tupleVariableBacking: (String, Int)?
     var tupleVariable2: (String?, Int?) {
+        tupleVariable2GetCount += 1
         if let handler = tupleVariable2GetHandler {
             return handler()
         }
@@ -476,14 +507,18 @@ class TipsManagingMock: TipsManaging {
         }
         return (nil, nil)
     }
+    var tupleVariable2GetCount: Int = 0
     var tupleVariable2GetHandler: (() -> (String?, Int?))? = nil
     var tupleVariable2Backing: (String?, Int?)?
     var tupleOptional: (String, Int)? {
+        tupleOptionalGetCount += 1
         return tupleOptionalGetHandler?() ?? tupleOptionalBacking
     }
+    var tupleOptionalGetCount: Int = 0
     var tupleOptionalGetHandler: (() -> (String, Int)?)? = nil
     var tupleOptionalBacking: (String, Int)?
     var arrayVariable: [Double] {
+        arrayVariableGetCount += 1
         if let handler = arrayVariableGetHandler {
             return handler()
         }
@@ -492,6 +527,7 @@ class TipsManagingMock: TipsManaging {
         }
         return []
     }
+    var arrayVariableGetCount: Int = 0
     var arrayVariableGetHandler: (() -> [Double])? = nil
     var arrayVariableBacking: [Double]?
 }
@@ -501,11 +537,13 @@ class UploadProgressingMock: UploadProgressing {
 
     // MARK: - Variables
     var progress: Observable<Result<Double>> {
+        progressGetCount += 1
         if let handler = progressGetHandler {
             return handler()
         }
         return progressSubject.asObservable()
     }
+    var progressGetCount: Int = 0
     var progressGetHandler: (() -> Observable<Result<Double>>)? = nil
     lazy var progressSubject = PublishSubject<Result<Double>>()
 

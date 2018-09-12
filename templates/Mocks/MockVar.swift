@@ -34,6 +34,8 @@ extension MockVar {
         var mockedVariableHandlers = TopScope()
 
         var getterImplementation = SourceCode("get")
+        getterImplementation += "\(mockedVariableName)GetCount += 1"
+        mockedVariableHandlers += "var \(mockedVariableName)GetCount: Int = 0"
         if variable.typeName.isOptional {
             getterImplementation += SourceCode("return \(mockedVariableName)GetHandler?() ?? \(backingMockedVariableName)")
             mockedVariableHandlers += "var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil"
