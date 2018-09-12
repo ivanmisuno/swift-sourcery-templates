@@ -8,7 +8,7 @@
 <%# ================================================== IMPORTS -%><%_ -%>
 <%_
 func generateAdditionalImports(_ types: [Type]) {
-  let additionalImports = Set(types.flatMap { extractAnnotations($0, annotationName: "import") })
+  let additionalImports = Set(types.flatMap { $0.annotations(for: ["import"]) })
   let existingImports = Set(extractImports())
   let missingImports = additionalImports.subtracting(existingImports).sorted()
   guard !missingImports.isEmpty else { return }

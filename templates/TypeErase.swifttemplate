@@ -19,19 +19,20 @@
   The pattern implemented here follows this article: https://www.bignerdranch.com/blog/breaking-down-type-erasures-in-swift/
 -%>
 <%- include("_header") -%>
-<%- includeFile("Utility/Utility") -%>
+<%- includeFile("Utility/Annotations") -%>
+<%- includeFile("Utility/Generics") -%>
 <%- includeFile("Utility/StringsLettercase") -%>
 <%_
   let typesToProcess = types.protocols.filter { $0.annotations["TypeErase"] != nil }
   generateAdditionalImports(typesToProcess)
 
   for type in typesToProcess {
-    let associatedTypes: [(associatedType: String, constraints: [String])] = extractAssociatedTypes(type)
-    let genericTypesModifier = !associatedTypes.isEmpty ? "<\(associatedTypes.map { $0.associatedType }.joined(separator: ", "))>" : ""
+    let associatedTypes: [GenericTypeInfo] = type.annotatedAssociatedTypes()
+    let genericTypesModifier = !associatedTypes.isEmpty ? "<\(associatedTypes.map { $0.genericType }.joined(separator: ", "))>" : ""
     let genericTypesConstraints: String = {
         let constraints = associatedTypes
           .flatMap { associatedType in
-            return associatedType.constraints.map { "\(associatedType.associatedType): \($0)" }
+            return associatedType.constraints.map { "\(associatedType.genericType): \($0)" }
            }
         return !constraints.isEmpty ? " where \(constraints.joined(separator: ", "))" : ""
     }()
@@ -67,10 +68,10 @@ private class _Any<%=type.name%>Base<%=genericTypesModifier%>: <%=type.name%><%=
     <%_ } -%>
 }
 
-private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type.name%>Base<%=!associatedTypes.isEmpty ? "<\(associatedTypes.map{"Concrete.\($0.associatedType)"}.joined(separator: ", "))>" : ""%> {
+private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type.name%>Base<%=!associatedTypes.isEmpty ? "<\(associatedTypes.map{"Concrete.\($0.genericType)"}.joined(separator: ", "))>" : ""%> {
     private let concrete: Concrete
     <%_ for a in associatedTypes { -%>
-    typealias <%=a.associatedType%> = Concrete.<%=a.associatedType%>
+    typealias <%=a.genericType%> = Concrete.<%=a.genericType%>
     <%_ } -%>
 
     init(_ concrete: Concrete) {
@@ -98,7 +99,7 @@ private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type
 final class Any<%=type.name%><%=genericTypesModifier%>: <%=type.name%><%=genericTypesConstraints%> {
     private let box: _Any<%=type.name%>Base<%=genericTypesModifier%>
 
-    init<Concrete: <%=type.name%>>(_ concrete: Concrete)<%=!associatedTypes.isEmpty ? " where \(associatedTypes.map {"Concrete.\($0.associatedType) == \($0.associatedType)"}.joined(separator: ", "))" : ""%> {
+    init<Concrete: <%=type.name%>>(_ concrete: Concrete)<%=!associatedTypes.isEmpty ? " where \(associatedTypes.map {"Concrete.\($0.genericType) == \($0.genericType)"}.joined(separator: ", "))" : ""%> {
         self.box = _Any<%=type.name%>Box(concrete)
     }
     <%_ if !allVariables.isEmpty { -%>

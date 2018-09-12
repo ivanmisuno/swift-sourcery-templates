@@ -63,8 +63,8 @@ private extension SourceryRuntime.`Type` {
 
 private extension SourceryRuntime.`Type` {
     var genericTypes: [GenericTypeInfo] {
-        let genericTypes = extractAssociatedTypes(self).map { GenericTypeInfo(genericType: $0.associatedType, constraints: $0.constraints) }
-        return genericTypes
+        let associatedTypes = annotatedAssociatedTypes()
+        return associatedTypes
     }
 }
 
