@@ -4,18 +4,20 @@ import SourceryRuntime
 class MockMethod {
     fileprivate let type: SourceryRuntime.`Type`
     let method: SourceryRuntime.Method
+    fileprivate let genericTypePrefix: String
     fileprivate let useShortName: Bool
 
-    init(type: SourceryRuntime.`Type`, method: SourceryRuntime.Method, useShortName: Bool) {
+    init(type: SourceryRuntime.`Type`, method: SourceryRuntime.Method, genericTypePrefix: String, useShortName: Bool) {
         self.type = type
         self.method = method
+        self.genericTypePrefix = genericTypePrefix
         self.useShortName = useShortName
     }
 
-    static func from(_ type: Type) throws -> [MockMethod] {
+    static func from(_ type: Type, genericTypePrefix: String) throws -> [MockMethod] {
         let allMethods = type.allMethods.filter { !$0.isStatic }.uniquesWithoutGenericConstraints()
         let mockedMethods = allMethods
-            .map { MockMethod(type: type, method: $0, useShortName: true) }
+            .map { MockMethod(type: type, method: $0, genericTypePrefix: genericTypePrefix, useShortName: true) }
             .minimumNonConflictingPermutation
         guard !mockedMethods.hasDuplicateMockedMethodNames else {
             throw MockError.internalError(message: "Mock generator: not all duplicates resolved!")
@@ -109,7 +111,7 @@ extension MockMethod {
         let parameters = method.parameters
             .map {
                 if isGeneric, let extractedAnnotatedGenericTypesPlaceholder = $0.annotations(for: ["annotatedGenericTypes"]).first {
-                    let forceCastingToGenericParameterType = " as! \(extractedAnnotatedGenericTypesPlaceholder)"
+                    let forceCastingToGenericParameterType = " as! \(extractedAnnotatedGenericTypesPlaceholder.resolvingGenericPlaceholders(prefix: genericTypePrefix))"
                     return "\($0.name)\(forceCastingToGenericParameterType)"
                 }
                 return "\($0.name)"
@@ -120,6 +122,10 @@ extension MockMethod {
             SourceCode("\(returning)\(method.`throws` || method.`rethrows` ? "try " : "")handler(\(parameters))\(forceCastingToGenericReturnValue)")
         ]}
     }
+}
+
+private struct Regex {
+    static let placeholderPattern = "\\{([^\\}]+)\\}"
 }
 
 private extension String {
@@ -138,6 +144,10 @@ private extension String {
             return String(self[..<rangeOfWhereClause.lowerBound]).trimmingWhitespace()
         }
         return self
+    }
+
+    func resolvingGenericPlaceholders(prefix genericTypePrefix: String) -> String {
+        return replacingOccurrences(of: Regex.placeholderPattern, with: "\(genericTypePrefix)$1", options: .regularExpression)
     }
 }
 
@@ -205,7 +215,7 @@ private extension Collection where Element == MockMethod {
             return false
         }
         guard let fewestArgumentsMethod = min(by: areInAscendingOrder) else { fatalError("Should not happen.") }
-        let copy = map { MockMethod(type: $0.type, method: $0.method, useShortName: $0 === fewestArgumentsMethod) }
+        let copy = map { MockMethod(type: $0.type, method: $0.method, genericTypePrefix: $0.genericTypePrefix, useShortName: $0 === fewestArgumentsMethod) }
         guard !copy.hasDuplicateMockedMethodNames else {
             return makeUniqueByUsingLongNames()
         }
@@ -213,7 +223,7 @@ private extension Collection where Element == MockMethod {
     }
 
     private func makeUniqueByUsingLongNames() -> [MockMethod] {
-        return map { MockMethod(type: $0.type, method: $0.method, useShortName: false) }
+        return map { MockMethod(type: $0.type, method: $0.method, genericTypePrefix: $0.genericTypePrefix, useShortName: false) }
     }
 
     var hasDuplicateMockedMethodNames: Bool {

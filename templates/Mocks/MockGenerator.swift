@@ -18,7 +18,7 @@ class MockGenerator {
 
         for type in types {
             let mockVars = MockVar.from(type)
-            let mockMethods = try MockMethod.from(type)
+            let mockMethods = try MockMethod.from(type, genericTypePrefix: Constants.genericTypePrefix)
 
             topScope += Constants.NEWL
             topScope += "// MARK: - \(type.name)"

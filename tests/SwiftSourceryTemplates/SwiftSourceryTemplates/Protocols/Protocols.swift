@@ -70,7 +70,7 @@ protocol ErrorPopoverBuildable {
     // sourcery: generictype = T2
     func buildPopoverPresenter<T2>(
         title: String,
-        // sourcery: annotatedGenericTypes = "[(title: String, identifier: _T2, handler: ()->())]"
+        // sourcery: annotatedGenericTypes = "[(title: String, identifier: {T2}, handler: ()->())]"
         buttons: [(title: String, identifier: T2, handler: ()->())]) -> AnyErrorPopoverPresentable<T2>
 }
 
@@ -79,7 +79,7 @@ protocol ErrorPopoverBuildableRawRepresentable {
     // sourcery: generictype = "T: RawRepresentable, Hashable"
     func buildPopoverPresenter<T>(
         title: String,
-        // sourcery: annotatedGenericTypes = "[(title: String, identifier: _T, handler: ()->())]"
+        // sourcery: annotatedGenericTypes = "[(title: String, identifier: {T}, handler: ()->())]"
         buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentableRawRepresentable<T> where T: RawRepresentable, T: Hashable
 }
 
