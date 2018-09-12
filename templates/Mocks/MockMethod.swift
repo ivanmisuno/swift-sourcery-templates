@@ -3,7 +3,7 @@ import SourceryRuntime
 
 class MockMethod {
     fileprivate let type: SourceryRuntime.`Type`
-    fileprivate let method: SourceryRuntime.Method
+    let method: SourceryRuntime.Method
     fileprivate let useShortName: Bool
 
     init(type: SourceryRuntime.`Type`, method: SourceryRuntime.Method, useShortName: Bool) {
@@ -25,8 +25,16 @@ class MockMethod {
 }
 
 extension MockMethod {
+    var isVoid: Bool {
+        return method.returnTypeName.isVoid
+    }
+
     var isGeneric: Bool {
         return method.isGeneric
+    }
+
+    var genericTypes: [GenericTypeInfo] {
+        return method.annotatedGenericTypes()
     }
 }
 
@@ -42,25 +50,23 @@ extension MockMethod {
     func mockImpl() throws -> [SourceCode] {
         var mockMethodHandlers = TopScope()
 
-        let throwing = method.`throws` ? " throws" : method.`rethrows` ? " rethrows" : ""
-        let returnTypeDecl = !method.returnTypeName.isVoid ? " -> \(method.returnTypeName.name)" : ""
-
         let mockCallCount = mockCallCountImpl
         mockMethodHandlers += mockCallCount.1
 
         var mockHandler = mockHandlerImpl
         mockMethodHandlers += mockHandler.1
 
+        // func declaration
+        var methodImpl = SourceCode("func \(method.shortName)(\(method.methodParametersDecl))\(method.throwingDecl)\(method.returnTypeDecl)")
+
         // Increment usage call count.
-        var methodImpl = SourceCode("func \(method.name)\(throwing)\(returnTypeDecl)") {[
-            SourceCode("\(mockCallCount.0) += 1"),
-        ]}
+        methodImpl += "\(mockCallCount.0) += 1"
 
         // Call the handler.
         methodImpl += mockHandlerCallImpl
 
         // Fallback return value.
-        if method.returnTypeName.isVoid {
+        if isVoid {
             // No return value
         } else if method.isOptionalReturnType {
             // Return nil
@@ -93,17 +99,25 @@ extension MockMethod {
     private var mockHandlerImpl: (String, SourceCode) {
         let mockMethodHandlerName = "\(mockedMethodName)Handler"
         let handlerParameters = method.parameters.map { "_ \($0.name): \($0.typeName.name)" }.joined(separator: ", ")
-        let throwing = method.`throws` || method.`rethrows` ? " throws" : ""
-        let returnType = !method.returnTypeName.isVoid ? method.returnTypeName.name : ""
-        return (mockMethodHandlerName, SourceCode("var \(mockMethodHandlerName): ((\(handlerParameters))\(throwing) -> (\(returnType)))? = nil"))
+        let returnType = !isVoid ? method.actualReturnTypeName.name.trimmingWhereClause() : ""
+        return (mockMethodHandlerName, SourceCode("var \(mockMethodHandlerName): ((\(handlerParameters))\(method.throwingDecl) -> (\(returnType)))? = nil"))
     }
 
     private var mockHandlerCallImpl: SourceCode {
         let mockMethodHandlerName = "\(mockedMethodName)Handler"
-        let returning = method.returnTypeName.isVoid ? "" : "return "
-        let parameters = method.parameters.map { "\($0.name)" }.joined(separator: ", ")
+        let returning = isVoid ? "" : "return "
+        let parameters = method.parameters
+            .map {
+                if isGeneric, let extractedAnnotatedGenericTypesPlaceholder = $0.annotations(for: ["annotatedGenericTypes"]).first {
+                    let forceCastingToGenericParameterType = " as! \(extractedAnnotatedGenericTypesPlaceholder)"
+                    return "\($0.name)\(forceCastingToGenericParameterType)"
+                }
+                return "\($0.name)"
+            }
+            .joined(separator: ", ")
+        let forceCastingToGenericReturnValue = isGeneric && !isVoid ? " as! \(method.actualReturnTypeName.name.trimmingWhereClause())" : ""
         return SourceCode("if let handler = \(mockHandlerImpl.0)") {[
-            SourceCode("\(returning)\(method.`throws` || method.`rethrows` ? "try " : "")handler(\(parameters))")
+            SourceCode("\(returning)\(method.`throws` || method.`rethrows` ? "try " : "")handler(\(parameters))\(forceCastingToGenericReturnValue)")
         ]}
     }
 }
@@ -118,11 +132,37 @@ private extension String {
             .camelCased()
             .lowercasedFirstWord()
     }
+
+    func trimmingWhereClause() -> String {
+        if let rangeOfWhereClause = range(of: " where ") {
+            return String(self[..<rangeOfWhereClause.lowerBound]).trimmingWhitespace()
+        }
+        return self
+    }
 }
 
 private extension MockMethod {
     var shortNameKey: String {
         return method.shortName.swiftifiedMethodName
+    }
+}
+
+private extension SourceryRuntime.Method {
+    var methodParametersDecl: String {
+        return parameters
+            .map {
+                let argumentLabel = $0.argumentLabel == nil ? "_ " : $0.argumentLabel != $0.name ? "\($0.argumentLabel!) " : ""
+                return "\(argumentLabel)\($0.name): \($0.typeName.name)"
+            }
+            .joined(separator: ", ")
+    }
+
+    var throwingDecl: String {
+        return self.`throws` ? " throws" : self.`rethrows` ? " rethrows" : ""
+    }
+
+    var returnTypeDecl: String {
+        return !returnTypeName.isVoid ? " -> \(returnTypeName.name)" : ""
     }
 }
 

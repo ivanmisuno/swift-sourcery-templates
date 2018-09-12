@@ -3,12 +3,13 @@ import SourceryRuntime
 
 enum MockError: Error {
 case noDefaultValue(typeName: TypeName)
+case duplicateGenericTypeName(context: String)
 case internalError(message: String)
 }
 
 private struct Constants {
     static let NEWL = ""
-    static let genericTypePrefix = "Type"
+    static let genericTypePrefix = "_"
 }
 
 class MockGenerator {
@@ -22,12 +23,20 @@ class MockGenerator {
             topScope += Constants.NEWL
             topScope += "// MARK: - \(type.name)"
 
-            if mockMethods.contains(where: { $0.isGeneric }) {
-                topScope += "// This type contains generic methods, which is not supported a.t.m."
+            let genericTypes: [GenericTypeInfo]
+            do {
+                genericTypes = try mockMethods.reduce(into: type.genericTypes) { (partialResult: inout [GenericTypeInfo], mockMethod: MockMethod) in
+                    try mockMethod.genericTypes.forEach { genericType in
+                        guard !partialResult.contains(where: { $0.genericType == genericType.genericType }) else {
+                            throw MockError.duplicateGenericTypeName(context: "`func \(mockMethod.method.name)` has generic type name `\(genericType.genericType)` which is not unique across all generic types for the protocol (\(partialResult.map { $0.genericType })). Please change protocol declaration so that generic types have unique names!")
+                        }
+                        partialResult.append(genericType)
+                    }
+                }
+            } catch {
+                topScope += "// \(error)"
                 continue
             }
-
-            let genericTypes = type.genericTypes
 
             var mock = SourceCode("class \(type.name)Mock\(genericTypes.genericTypesModifier): \(type.isObjcProtocol ? "NSObject, " : "")\(type.name)\(genericTypes.genericTypesConstraints)")
             mock.isBlockMandatory = true
@@ -98,6 +107,7 @@ extension MockError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noDefaultValue(let typeName): return "Unable to generate default value for \(typeName)"
+        case .duplicateGenericTypeName(let context): return "Duplicate generic type name found while generating mock implementation: \(context)"
         case .internalError(let message): return "Internal error: \(message)"
         }
     }

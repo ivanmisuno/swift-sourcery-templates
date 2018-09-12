@@ -65,6 +65,9 @@ class DataSourceMock: DataSource {
     var bindingTargetEventHandler: ((Event<UploadAPI.LocalFile>) -> ())? = nil
 }
 
+// MARK: - DuplicateGenericTypeNames
+// Duplicate generic type name found while generating mock implementation: `func action<T>(_: T)` has generic type name `T` which is not unique across all generic types for the protocol (["T"]). Please change protocol declaration so that generic types have unique names!
+
 // MARK: - DuplicateRequirements
 class DuplicateRequirementsMock: DuplicateRequirements {
 
@@ -101,16 +104,56 @@ class DuplicateRequirementsMock: DuplicateRequirements {
 }
 
 // MARK: - ErrorPopoverBuildable
-// This type contains generic methods, which is not supported a.t.m.
-
-// MARK: - ErrorPopoverBuildableRawRepresentable
-// This type contains generic methods, which is not supported a.t.m.
-
-// MARK: - ErrorPopoverPresentable
-class ErrorPopoverPresentableMock<TypeEventType>: ErrorPopoverPresentable {
+class ErrorPopoverBuildableMock<_T1, _T2>: ErrorPopoverBuildable {
 
     // MARK: - Generic typealiases
-    typealias EventType = TypeEventType
+    typealias T1 = _T1
+    typealias T2 = _T2
+
+    // MARK: - Methods
+    func buildDefaultPopoverPresenter<T1>(title: String) -> AnyErrorPopoverPresentable<T1> {
+        buildDefaultPopoverPresenterCallCount += 1
+        if let handler = buildDefaultPopoverPresenterHandler {
+            return handler(title) as! AnyErrorPopoverPresentable<T1>
+        }
+        fatalError("buildDefaultPopoverPresenterHandler expected to be set.")
+    }
+    var buildDefaultPopoverPresenterCallCount: Int = 0
+    var buildDefaultPopoverPresenterHandler: ((_ title: String) -> (AnyErrorPopoverPresentable<T1>))? = nil
+    func buildPopoverPresenter<T2>(title: String, buttons: [(title: String, identifier: T2, handler: ()->())]) -> AnyErrorPopoverPresentable<T2> {
+        buildPopoverPresenterCallCount += 1
+        if let handler = buildPopoverPresenterHandler {
+            return handler(title, buttons as! [(title: String, identifier: _T2, handler: ()->())]) as! AnyErrorPopoverPresentable<T2>
+        }
+        fatalError("buildPopoverPresenterHandler expected to be set.")
+    }
+    var buildPopoverPresenterCallCount: Int = 0
+    var buildPopoverPresenterHandler: ((_ title: String, _ buttons: [(title: String, identifier: T2, handler: ()->())]) -> (AnyErrorPopoverPresentable<T2>))? = nil
+}
+
+// MARK: - ErrorPopoverBuildableRawRepresentable
+class ErrorPopoverBuildableRawRepresentableMock<_T>: ErrorPopoverBuildableRawRepresentable where _T: RawRepresentable, _T: Hashable {
+
+    // MARK: - Generic typealiases
+    typealias T = _T
+
+    // MARK: - Methods
+    func buildPopoverPresenter<T>(title: String, buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentableRawRepresentable<T> where T: RawRepresentable, T: Hashable {
+        buildPopoverPresenterCallCount += 1
+        if let handler = buildPopoverPresenterHandler {
+            return handler(title, buttons as! [(title: String, identifier: _T, handler: ()->())]) as! AnyErrorPopoverPresentableRawRepresentable<T>
+        }
+        fatalError("buildPopoverPresenterHandler expected to be set.")
+    }
+    var buildPopoverPresenterCallCount: Int = 0
+    var buildPopoverPresenterHandler: ((_ title: String, _ buttons: [(title: String, identifier: T, handler: ()->())]) -> (AnyErrorPopoverPresentableRawRepresentable<T>))? = nil
+}
+
+// MARK: - ErrorPopoverPresentable
+class ErrorPopoverPresentableMock<_EventType>: ErrorPopoverPresentable {
+
+    // MARK: - Generic typealiases
+    typealias EventType = _EventType
 
     // MARK: - Methods
     func setActionSink(_ actionSink: AnyObject?) {
@@ -134,10 +177,10 @@ class ErrorPopoverPresentableMock<TypeEventType>: ErrorPopoverPresentable {
 }
 
 // MARK: - ErrorPopoverPresentableRawRepresentable
-class ErrorPopoverPresentableRawRepresentableMock<TypeEventType>: ErrorPopoverPresentableRawRepresentable where TypeEventType: RawRepresentable, TypeEventType: Hashable {
+class ErrorPopoverPresentableRawRepresentableMock<_EventType>: ErrorPopoverPresentableRawRepresentable where _EventType: RawRepresentable, _EventType: Hashable {
 
     // MARK: - Generic typealiases
-    typealias EventType = TypeEventType
+    typealias EventType = _EventType
 
     // MARK: - Methods
     func show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge) -> Observable<EventType> {
@@ -197,6 +240,17 @@ class LegacyProtocolMock: NSObject, LegacyProtocol {
     }
     var tipsGetHandler: (() -> [String: String])? = nil
     var tipsBacking: [String: String]?
+
+    // MARK: - Methods
+    func compare(_ lhs: CGSize, _ rhs: CGSize) -> ComparisonResult {
+        compareCallCount += 1
+        if let handler = compareHandler {
+            return handler(lhs, rhs)
+        }
+        fatalError("compareHandler expected to be set.")
+    }
+    var compareCallCount: Int = 0
+    var compareHandler: ((_ lhs: CGSize, _ rhs: CGSize) -> (ComparisonResult))? = nil
 }
 
 // MARK: - MutableTipsManaging

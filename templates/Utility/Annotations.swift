@@ -26,12 +26,6 @@ private extension Dictionary where Key == String {
     }
 }
 
-private extension String {
-    func trimmingWhitespace() -> String {
-        return trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-}
-
 private extension Array where Element: Hashable {
     func removeDuplicates() -> [Element] {
       return Array(Set(self))

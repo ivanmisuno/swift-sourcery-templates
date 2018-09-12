@@ -21,7 +21,8 @@
 <%- include("_header") -%>
 <%- includeFile("Utility/Annotations") -%>
 <%- includeFile("Utility/Generics") -%>
-<%- includeFile("Utility/StringsLettercase") -%>
+<%- includeFile("Utility/String") -%>
+<%- includeFile("Utility/StringLettercase") -%>
 <%_
   let typesToProcess = types.protocols.filter { $0.annotations["TypeErase"] != nil }
   generateAdditionalImports(typesToProcess)

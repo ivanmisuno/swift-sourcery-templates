@@ -56,13 +56,31 @@ protocol ExifImageAttributeProviding {
 }
 
 /// sourcery: CreateMock
+protocol DuplicateGenericTypeNames {
+    // sourcery: generictype = T
+    func action<T>(_: T)
+    // sourcery: generictype = T
+    func action2<T>(_: T)
+}
+
+/// sourcery: CreateMock
 protocol ErrorPopoverBuildable {
-    func buildPopoverPresenter<T>(title: String, buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentable<T>
+    // sourcery: generictype = T1
+    func buildDefaultPopoverPresenter<T1>(title: String) -> AnyErrorPopoverPresentable<T1>
+    // sourcery: generictype = T2
+    func buildPopoverPresenter<T2>(
+        title: String,
+        // sourcery: annotatedGenericTypes = "[(title: String, identifier: _T2, handler: ()->())]"
+        buttons: [(title: String, identifier: T2, handler: ()->())]) -> AnyErrorPopoverPresentable<T2>
 }
 
 /// sourcery: CreateMock
 protocol ErrorPopoverBuildableRawRepresentable {
-    func buildPopoverPresenter<T: RawRepresentable>(title: String, buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentableRawRepresentable<T>
+    // sourcery: generictype = "T: RawRepresentable, Hashable"
+    func buildPopoverPresenter<T>(
+        title: String,
+        // sourcery: annotatedGenericTypes = "[(title: String, identifier: _T, handler: ()->())]"
+        buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentableRawRepresentable<T> where T: RawRepresentable, T: Hashable
 }
 
 // sourcery: TypeErase
@@ -115,6 +133,7 @@ protocol TipsManaging: class {
 /// sourcery: CreateMock
 @objc protocol LegacyProtocol: NSObjectProtocol {
     var tips: [String: String] { get }
+    func compare(_ lhs: CGSize, _ rhs: CGSize) -> ComparisonResult
 }
 
 /// sourcery: CreateMock
