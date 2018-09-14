@@ -19,6 +19,7 @@ extension SourceryRuntime.TypeName {
 
         switch unwrappedTypeName {
         case "String": return "\"\""
+        case "Bool": return "false"
         case "Int", "Int32", "Int64", "UInt", "UInt32", "UInt64": return "0"
         case "Float", "Double": return "0.0"
         case "CGFloat": return "CGFloat(0)"
