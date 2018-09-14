@@ -319,6 +319,39 @@ class MutableUploadProgressingMock: MutableUploadProgressing {
     var uploadIdRetrievedHandler: ((_ localFile: UploadAPI.LocalFile, _ uploadId: UploadAPI.UploadId) -> ())? = nil
 }
 
+// MARK: - ObjectManupulating
+class ObjectManupulatingMock: ObjectManupulating {
+
+    // MARK: - Methods
+    func removeObject() -> Int {
+        removeObjectCallCount += 1
+        if let handler = removeObjectHandler {
+            return handler()
+        }
+        return 0
+    }
+    var removeObjectCallCount: Int = 0
+    var removeObjectHandler: (() -> (Int))? = nil
+    func removeObject(where matchPredicate: @escaping (Any) throws -> (Bool)) rethrows -> Int {
+        removeObjectWhereMatchPredicateCallCount += 1
+        if let handler = removeObjectWhereMatchPredicateHandler {
+            return try! handler(matchPredicate)
+        }
+        return 0
+    }
+    var removeObjectWhereMatchPredicateCallCount: Int = 0
+    var removeObjectWhereMatchPredicateHandler: ((_ matchPredicate: @escaping (Any) throws -> (Bool)) throws -> (Int))? = nil
+    func removeObject(_ object: @autoclosure () throws -> Any) rethrows -> Int {
+        removeObjectObjectCallCount += 1
+        if let handler = removeObjectObjectHandler {
+            return try! handler(object)
+        }
+        return 0
+    }
+    var removeObjectObjectCallCount: Int = 0
+    var removeObjectObjectHandler: ((_ object: @autoclosure () throws -> Any) throws -> (Int))? = nil
+}
+
 // MARK: - Routing
 class RoutingMock<_InteractorType>: Routing where _InteractorType: Interactable {
 

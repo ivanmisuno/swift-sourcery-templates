@@ -102,7 +102,7 @@ extension MockMethod {
         let mockMethodHandlerName = "\(mockedMethodName)Handler"
         let handlerParameters = method.parameters.map { "_ \($0.name): \($0.typeName.name)" }.joined(separator: ", ")
         let returnType = !isVoid ? method.actualReturnTypeName.name.trimmingWhereClause() : ""
-        return (mockMethodHandlerName, SourceCode("var \(mockMethodHandlerName): ((\(handlerParameters))\(method.throwingDecl) -> (\(returnType)))? = nil"))
+        return (mockMethodHandlerName, SourceCode("var \(mockMethodHandlerName): ((\(handlerParameters))\(method.throwingHandlerDecl) -> (\(returnType)))? = nil"))
     }
 
     private var mockHandlerCallImpl: SourceCode {
@@ -118,8 +118,9 @@ extension MockMethod {
             }
             .joined(separator: ", ")
         let forceCastingToGenericReturnValue = isGeneric && !isVoid ? " as! \(method.actualReturnTypeName.name.trimmingWhereClause())" : ""
+        let invocationThrowing = method.`throws` ? "try " : method.`rethrows` ? "try! " : ""
         return SourceCode("if let handler = \(mockHandlerImpl.0)") {[
-            SourceCode("\(returning)\(method.`throws` || method.`rethrows` ? "try " : "")handler(\(parameters))\(forceCastingToGenericReturnValue)")
+            SourceCode("\(returning)\(invocationThrowing)handler(\(parameters))\(forceCastingToGenericReturnValue)")
         ]}
     }
 }
@@ -169,6 +170,10 @@ private extension SourceryRuntime.Method {
 
     var throwingDecl: String {
         return self.`throws` ? " throws" : self.`rethrows` ? " rethrows" : ""
+    }
+
+    var throwingHandlerDecl: String {
+        return self.`throws` || self.`rethrows` ? " throws" : ""
     }
 
     var returnTypeDecl: String {

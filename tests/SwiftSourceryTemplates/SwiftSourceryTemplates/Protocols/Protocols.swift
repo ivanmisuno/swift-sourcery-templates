@@ -157,3 +157,15 @@ protocol MutableTipsManaging: TipsManaging, DuplicateRequirements {
 protocol TipsManagerBuilding {
     func build() -> TipsManaging & MutableTipsManaging
 }
+
+/// sourcery: CreateMock
+protocol ObjectManupulating {
+    @discardableResult
+    func removeObject() -> Int
+
+    @discardableResult
+    func removeObject(where matchPredicate: @escaping (Any) throws -> (Bool)) rethrows -> Int
+
+    @discardableResult
+    func removeObject(_ object: @autoclosure () throws -> Any) rethrows -> Int
+}
