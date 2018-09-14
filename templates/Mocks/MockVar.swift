@@ -2,9 +2,11 @@ import Foundation
 import SourceryRuntime
 
 class MockVar {
-    fileprivate let variable: SourceryRuntime.Variable
+    let variable: SourceryRuntime.Variable
 
-    fileprivate lazy var mockedVariableName = "\(variable.name)"
+    var mockedVariableName: String {
+        return "\(variable.name)"
+    }
 
     init(variable: SourceryRuntime.Variable) {
         self.variable = variable
@@ -17,77 +19,43 @@ class MockVar {
 }
 
 extension MockVar {
-    private var backingMockedVariableName: String { return "\(mockedVariableName)Backing" }
-
-    private var needsBackingVariable: Bool {
-        return variable.isMutable
-            || variable.typeName.isOptional
-            || !isComplexTypeWithSmartDefaultValue
-    }
-
-    private var isComplexTypeWithSmartDefaultValue: Bool {
-        return !variable.isMutable
-            && variable.typeName.isComplexTypeWithSmartDefaultValue
+    var isDefaultValueAvailable: Bool {
+        return (!variable.isMutable && variable.typeName.isComplexTypeWithSmartDefaultValue)
+            || variable.typeName.hasDefaultValue
     }
 
     func mockImpl() throws -> [SourceCode] {
-        var mockedVariableHandlers = TopScope()
-
-        var getterImplementation = SourceCode("get")
-        getterImplementation += "\(mockedVariableName)GetCount += 1"
-        mockedVariableHandlers += "var \(mockedVariableName)GetCount: Int = 0"
-        if variable.typeName.isOptional {
-            getterImplementation += SourceCode("return \(mockedVariableName)GetHandler?() ?? \(backingMockedVariableName)")
-            mockedVariableHandlers += "var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil"
-        } else {
-            getterImplementation += SourceCode("if let handler = \(mockedVariableName)GetHandler") { [
+        let mockedVariableImplementation: SourceCode
+        let mockedVariableHandlers = TopScope()
+        if !variable.isMutable, variable.typeName.isComplexTypeWithSmartDefaultValue, let smartDefaultValueImplementation = try? variable.typeName.smartDefaultValueImplementation(isProperty: true, mockVariablePrefix: mockedVariableName) {
+            mockedVariableImplementation = SourceCode("var \(variable.name): \(variable.typeName)")
+            mockedVariableImplementation += SourceCode("\(mockedVariableName)GetCount += 1")
+            mockedVariableImplementation += SourceCode("if let handler = \(mockedVariableName)GetHandler") { [
                 SourceCode("return handler()")
             ]}
+            mockedVariableHandlers += "var \(mockedVariableName)GetCount: Int = 0"
             mockedVariableHandlers += "var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil"
-
-            if isComplexTypeWithSmartDefaultValue {
-                let smartDefaultValueImplementation = try variable.typeName.smartDefaultValueImplementation(isProperty: true, mockVariablePrefix: mockedVariableName)
-                getterImplementation += smartDefaultValueImplementation.getterImplementation
-                mockedVariableHandlers += smartDefaultValueImplementation.mockedVariableHandlers
+            mockedVariableImplementation += smartDefaultValueImplementation.getterImplementation
+            mockedVariableHandlers += smartDefaultValueImplementation.mockedVariableHandlers
+        } else {
+            if variable.typeName.hasDefaultValue, let defaultValue = try? variable.typeName.defaultValue() {
+                // Default value can be guessed.
+                mockedVariableImplementation = SourceCode("var \(variable.name): \(variable.typeName) = \(defaultValue)")
             } else {
-                getterImplementation += SourceCode("if let value = \(backingMockedVariableName)") {[
-                    SourceCode("return value")
+                // No default value, the value must be provided to the mock class's initializer.
+                mockedVariableImplementation = SourceCode("var \(variable.name): \(variable.typeName)")
+            }
+            if variable.isMutable {
+                mockedVariableImplementation += SourceCode("didSet") {[
+                    SourceCode("\(mockedVariableName)SetCount += 1")
                 ]}
-
-                if variable.typeName.hasDefaultValue, let defaultValue = try? variable.typeName.defaultValue() {
-                    getterImplementation += SourceCode("return \(defaultValue)")
-                } else {
-                    getterImplementation += SourceCode("fatalError(\"Either `\(mockedVariableName)GetHandler` or value must be provided!\")")
-                }
+                mockedVariableHandlers += "var \(mockedVariableName)SetCount: Int = 0"
             }
         }
-
-        var setterImplementation = SourceCode("set")
-        if variable.isMutable {
-            setterImplementation += "\(backingMockedVariableName) = newValue"
-            setterImplementation += "\(mockedVariableName)SetCount += 1"
-            setterImplementation += "\(mockedVariableName)SetHandler?(newValue)"
-
-            mockedVariableHandlers += "var \(mockedVariableName)SetCount: Int = 0"
-            mockedVariableHandlers += "var \(mockedVariableName)SetHandler: ((_ \(mockedVariableName): \(variable.typeName)) -> ())? = nil"
-        }
-
-        var mockedVariableImplementation = SourceCode("var \(variable.name): \(variable.typeName)")
-        if !setterImplementation.nested.isEmpty {
-            mockedVariableImplementation += getterImplementation
-            mockedVariableImplementation += setterImplementation
-        } else {
-            mockedVariableImplementation += getterImplementation.nested
-        }
-
-        if needsBackingVariable {
-            mockedVariableHandlers += "var \(backingMockedVariableName): \(variable.unwrappedTypeName)?"
-        }
-
-        var result = TopScope()
-        result += mockedVariableImplementation
-        result += mockedVariableHandlers.nested
-        return result.nested
+        var topScope = TopScope()
+        topScope += mockedVariableImplementation
+        topScope += mockedVariableHandlers.nested
+        return topScope.nested
     }
 }
 

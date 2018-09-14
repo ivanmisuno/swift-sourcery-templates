@@ -18,6 +18,7 @@ class MockGenerator {
 
         for type in types {
             let mockVars = MockVar.from(type)
+            let variablesWithNoDefaultValues = mockVars.filter { !$0.isDefaultValueAvailable }.map { (mockedVariableName: $0.mockedVariableName, variable: $0.variable) }
             let mockMethods = try MockMethod.from(type, genericTypePrefix: Constants.genericTypePrefix)
 
             topScope += Constants.NEWL
@@ -40,8 +41,11 @@ class MockGenerator {
 
             var mock = SourceCode("class \(type.name)Mock\(genericTypes.genericTypesModifier): \(type.isObjcProtocol ? "NSObject, " : "")\(type.name)\(genericTypes.genericTypesConstraints)")
             mock.isBlockMandatory = true
+
+            // generic typealiases
             mock += genericTypes.typealiasesDeclarations
 
+            // variables
             let mockVarsFlattened = try mockVars.flatMap { try $0.mockImpl() }
             if !mockVarsFlattened.isEmpty {
                 mock += Constants.NEWL
@@ -49,6 +53,16 @@ class MockGenerator {
                 mock += mockVarsFlattened
             }
 
+            // initializer
+            if !variablesWithNoDefaultValues.isEmpty {
+                let argumentList = variablesWithNoDefaultValues.map { "\($0.mockedVariableName): \($0.variable.typeName)" }.joined(separator: ", ")
+                let initImpl = SourceCode("init(\(argumentList))")
+                initImpl += variablesWithNoDefaultValues.map { "self.\($0.mockedVariableName) = \($0.mockedVariableName)" }
+                mock += "// MARK: - Initializer"
+                mock += initImpl
+            }
+
+            // methods
             let mockMethodsFlattened = try mockMethods.flatMap { try $0.mockImpl() }
             if !mockMethodsFlattened.isEmpty {
                 mock += Constants.NEWL

@@ -83,10 +83,12 @@ protocol ErrorPopoverBuildableRawRepresentable {
         buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentableRawRepresentable<T> where T: RawRepresentable, T: Hashable
 }
 
+// sourcery: CreateMock
 // sourcery: TypeErase
 public protocol Interactable: class {
 }
 
+// sourcery: CreateMock
 // sourcery: TypeErase
 // sourcery: associatedtype = "InteractorType: Interactable"
 public protocol Routing: class {
@@ -94,9 +96,11 @@ public protocol Routing: class {
     var interactor: InteractorType { get }
 }
 
+// sourcery: CreateMock
 public protocol SomeInteractable: Interactable {
 }
 
+// sourcery: CreateMock
 // sourcery: TypeErase
 // sourcery: associatedtype = "InteractorType: SomeInteractable"
 public protocol SomeRouting: Routing {

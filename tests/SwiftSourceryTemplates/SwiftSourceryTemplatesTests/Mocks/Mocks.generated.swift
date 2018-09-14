@@ -20,35 +20,13 @@ class AlbumPageSizeProviderDelegateMock: AlbumPageSizeProviderDelegate {
 class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
 
     // MARK: - Variables
-    var delegate: AlbumPageSizeProviderDelegate? {
-        get {
-            delegateGetCount += 1
-            return delegateGetHandler?() ?? delegateBacking
-        }
-        set {
-            delegateBacking = newValue
+    var delegate: AlbumPageSizeProviderDelegate? = nil {
+        didSet {
             delegateSetCount += 1
-            delegateSetHandler?(newValue)
         }
     }
-    var delegateGetCount: Int = 0
-    var delegateGetHandler: (() -> AlbumPageSizeProviderDelegate?)? = nil
     var delegateSetCount: Int = 0
-    var delegateSetHandler: ((_ delegate: AlbumPageSizeProviderDelegate?) -> ())? = nil
-    var delegateBacking: AlbumPageSizeProviderDelegate?
-    var pageSize: CGSize {
-        pageSizeGetCount += 1
-        if let handler = pageSizeGetHandler {
-            return handler()
-        }
-        if let value = pageSizeBacking {
-            return value
-        }
-        return CGSize.zero
-    }
-    var pageSizeGetCount: Int = 0
-    var pageSizeGetHandler: (() -> CGSize)? = nil
-    var pageSizeBacking: CGSize?
+    var pageSize: CGSize = CGSize.zero
 }
 
 // MARK: - DataSource
@@ -78,19 +56,7 @@ class DataSourceMock: DataSource {
 class DuplicateRequirementsMock: DuplicateRequirements {
 
     // MARK: - Variables
-    var tips: [String: String] {
-        tipsGetCount += 1
-        if let handler = tipsGetHandler {
-            return handler()
-        }
-        if let value = tipsBacking {
-            return value
-        }
-        return [:]
-    }
-    var tipsGetCount: Int = 0
-    var tipsGetHandler: (() -> [String: String])? = nil
-    var tipsBacking: [String: String]?
+    var tips: [String: String] = [:]
 
     // MARK: - Methods
     func updateTips(_ tips: [Tip]) {
@@ -233,23 +199,15 @@ class ImageAttributeProvidingMock: ImageAttributeProviding {
     var imagePixelSizeHandler: ((_ source: UploadAPI.LocalFile.Source) throws -> (CGSize))? = nil
 }
 
+// MARK: - Interactable
+class InteractableMock: Interactable {
+}
+
 // MARK: - LegacyProtocol
 class LegacyProtocolMock: NSObject, LegacyProtocol {
 
     // MARK: - Variables
-    var tips: [String: String] {
-        tipsGetCount += 1
-        if let handler = tipsGetHandler {
-            return handler()
-        }
-        if let value = tipsBacking {
-            return value
-        }
-        return [:]
-    }
-    var tipsGetCount: Int = 0
-    var tipsGetHandler: (() -> [String: String])? = nil
-    var tipsBacking: [String: String]?
+    var tips: [String: String] = [:]
 
     // MARK: - Methods
     func compare(_ lhs: CGSize, _ rhs: CGSize) -> ComparisonResult {
@@ -267,72 +225,12 @@ class LegacyProtocolMock: NSObject, LegacyProtocol {
 class MutableTipsManagingMock: MutableTipsManaging {
 
     // MARK: - Variables
-    var tips: [String: String] {
-        tipsGetCount += 1
-        if let handler = tipsGetHandler {
-            return handler()
-        }
-        if let value = tipsBacking {
-            return value
-        }
-        return [:]
-    }
-    var tipsGetCount: Int = 0
-    var tipsGetHandler: (() -> [String: String])? = nil
-    var tipsBacking: [String: String]?
-    var tipsOptional: [String: String]? {
-        tipsOptionalGetCount += 1
-        return tipsOptionalGetHandler?() ?? tipsOptionalBacking
-    }
-    var tipsOptionalGetCount: Int = 0
-    var tipsOptionalGetHandler: (() -> [String: String]?)? = nil
-    var tipsOptionalBacking: [String: String]?
-    var tupleVariable: (String, Int) {
-        tupleVariableGetCount += 1
-        if let handler = tupleVariableGetHandler {
-            return handler()
-        }
-        if let value = tupleVariableBacking {
-            return value
-        }
-        return ("", 0)
-    }
-    var tupleVariableGetCount: Int = 0
-    var tupleVariableGetHandler: (() -> (String, Int))? = nil
-    var tupleVariableBacking: (String, Int)?
-    var tupleVariable2: (String?, Int?) {
-        tupleVariable2GetCount += 1
-        if let handler = tupleVariable2GetHandler {
-            return handler()
-        }
-        if let value = tupleVariable2Backing {
-            return value
-        }
-        return (nil, nil)
-    }
-    var tupleVariable2GetCount: Int = 0
-    var tupleVariable2GetHandler: (() -> (String?, Int?))? = nil
-    var tupleVariable2Backing: (String?, Int?)?
-    var tupleOptional: (String, Int)? {
-        tupleOptionalGetCount += 1
-        return tupleOptionalGetHandler?() ?? tupleOptionalBacking
-    }
-    var tupleOptionalGetCount: Int = 0
-    var tupleOptionalGetHandler: (() -> (String, Int)?)? = nil
-    var tupleOptionalBacking: (String, Int)?
-    var arrayVariable: [Double] {
-        arrayVariableGetCount += 1
-        if let handler = arrayVariableGetHandler {
-            return handler()
-        }
-        if let value = arrayVariableBacking {
-            return value
-        }
-        return []
-    }
-    var arrayVariableGetCount: Int = 0
-    var arrayVariableGetHandler: (() -> [Double])? = nil
-    var arrayVariableBacking: [Double]?
+    var tips: [String: String] = [:]
+    var tipsOptional: [String: String]? = nil
+    var tupleVariable: (String, Int) = ("", 0)
+    var tupleVariable2: (String?, Int?) = (nil, nil)
+    var tupleOptional: (String, Int)? = nil
+    var arrayVariable: [Double] = []
 
     // MARK: - Methods
     func updateTips(_ tips: [Tip]) {
@@ -421,6 +319,38 @@ class MutableUploadProgressingMock: MutableUploadProgressing {
     var uploadIdRetrievedHandler: ((_ localFile: UploadAPI.LocalFile, _ uploadId: UploadAPI.UploadId) -> ())? = nil
 }
 
+// MARK: - Routing
+class RoutingMock<_InteractorType>: Routing where _InteractorType: Interactable {
+
+    // MARK: - Generic typealiases
+    typealias InteractorType = _InteractorType
+
+    // MARK: - Variables
+    var interactor: InteractorType
+    // MARK: - Initializer
+    init(interactor: InteractorType) {
+        self.interactor = interactor
+    }
+}
+
+// MARK: - SomeInteractable
+class SomeInteractableMock: SomeInteractable {
+}
+
+// MARK: - SomeRouting
+class SomeRoutingMock<_InteractorType>: SomeRouting where _InteractorType: SomeInteractable {
+
+    // MARK: - Generic typealiases
+    typealias InteractorType = _InteractorType
+
+    // MARK: - Variables
+    var interactor: InteractorType
+    // MARK: - Initializer
+    init(interactor: InteractorType) {
+        self.interactor = interactor
+    }
+}
+
 // MARK: - ThumbCreating
 class ThumbCreatingMock: ThumbCreating {
 
@@ -464,72 +394,12 @@ class TipsManagerBuildingMock: TipsManagerBuilding {
 class TipsManagingMock: TipsManaging {
 
     // MARK: - Variables
-    var tips: [String: String] {
-        tipsGetCount += 1
-        if let handler = tipsGetHandler {
-            return handler()
-        }
-        if let value = tipsBacking {
-            return value
-        }
-        return [:]
-    }
-    var tipsGetCount: Int = 0
-    var tipsGetHandler: (() -> [String: String])? = nil
-    var tipsBacking: [String: String]?
-    var tipsOptional: [String: String]? {
-        tipsOptionalGetCount += 1
-        return tipsOptionalGetHandler?() ?? tipsOptionalBacking
-    }
-    var tipsOptionalGetCount: Int = 0
-    var tipsOptionalGetHandler: (() -> [String: String]?)? = nil
-    var tipsOptionalBacking: [String: String]?
-    var tupleVariable: (String, Int) {
-        tupleVariableGetCount += 1
-        if let handler = tupleVariableGetHandler {
-            return handler()
-        }
-        if let value = tupleVariableBacking {
-            return value
-        }
-        return ("", 0)
-    }
-    var tupleVariableGetCount: Int = 0
-    var tupleVariableGetHandler: (() -> (String, Int))? = nil
-    var tupleVariableBacking: (String, Int)?
-    var tupleVariable2: (String?, Int?) {
-        tupleVariable2GetCount += 1
-        if let handler = tupleVariable2GetHandler {
-            return handler()
-        }
-        if let value = tupleVariable2Backing {
-            return value
-        }
-        return (nil, nil)
-    }
-    var tupleVariable2GetCount: Int = 0
-    var tupleVariable2GetHandler: (() -> (String?, Int?))? = nil
-    var tupleVariable2Backing: (String?, Int?)?
-    var tupleOptional: (String, Int)? {
-        tupleOptionalGetCount += 1
-        return tupleOptionalGetHandler?() ?? tupleOptionalBacking
-    }
-    var tupleOptionalGetCount: Int = 0
-    var tupleOptionalGetHandler: (() -> (String, Int)?)? = nil
-    var tupleOptionalBacking: (String, Int)?
-    var arrayVariable: [Double] {
-        arrayVariableGetCount += 1
-        if let handler = arrayVariableGetHandler {
-            return handler()
-        }
-        if let value = arrayVariableBacking {
-            return value
-        }
-        return []
-    }
-    var arrayVariableGetCount: Int = 0
-    var arrayVariableGetHandler: (() -> [Double])? = nil
-    var arrayVariableBacking: [Double]?
+    var tips: [String: String] = [:]
+    var tipsOptional: [String: String]? = nil
+    var tupleVariable: (String, Int) = ("", 0)
+    var tupleVariable2: (String?, Int?) = (nil, nil)
+    var tupleOptional: (String, Int)? = nil
+    var arrayVariable: [Double] = []
 }
 
 // MARK: - UploadProgressing
