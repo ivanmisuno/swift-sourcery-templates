@@ -18,7 +18,7 @@ class MockGenerator {
 
         for type in types {
             let mockVars = MockVar.from(type)
-            let variablesWithNoDefaultValues = mockVars.filter { !$0.isDefaultValueAvailable }.map { (mockedVariableName: $0.mockedVariableName, variable: $0.variable) }
+            let variablesToInit = mockVars.filter { $0.provideValueInInitializer }.map { (mockedVariableName: $0.mockedVariableName, variable: $0.variable, defaultValue: try? $0.variable.typeName.defaultValue()) }
             let mockMethods = try MockMethod.from(type, genericTypePrefix: Constants.genericTypePrefix)
 
             topScope += Constants.NEWL
@@ -54,10 +54,14 @@ class MockGenerator {
             }
 
             // initializer
-            if !variablesWithNoDefaultValues.isEmpty {
-                let argumentList = variablesWithNoDefaultValues.map { "\($0.mockedVariableName): \($0.variable.typeName)" }.joined(separator: ", ")
+            if !variablesToInit.isEmpty {
+                let argumentList = variablesToInit.map {
+                    let defaultValue = $0.defaultValue != nil ? " = \($0.defaultValue!)" : ""
+                    return "\($0.mockedVariableName): \($0.variable.typeName)\(defaultValue)"
+                }.joined(separator: ", ")
                 let initImpl = SourceCode("init(\(argumentList))")
-                initImpl += variablesWithNoDefaultValues.map { "self.\($0.mockedVariableName) = \($0.mockedVariableName)" }
+                initImpl += variablesToInit.map { "self.\($0.mockedVariableName) = \($0.mockedVariableName)" }
+                mock += Constants.NEWL
                 mock += "// MARK: - Initializer"
                 mock += initImpl
             }

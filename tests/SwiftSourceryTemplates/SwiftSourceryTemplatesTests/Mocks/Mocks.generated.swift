@@ -29,6 +29,20 @@ class AlbumPageSizeProvidingMock: AlbumPageSizeProviding {
     var pageSize: CGSize = CGSize.zero
 }
 
+// MARK: - AppKitEvent
+class AppKitEventMock: AppKitEvent {
+
+    // MARK: - Variables
+    let locationInWindow: NSPoint
+    let modifierFlags: NSEvent.ModifierFlags
+
+    // MARK: - Initializer
+    init(locationInWindow: NSPoint = CGPoint.zero, modifierFlags: NSEvent.ModifierFlags) {
+        self.locationInWindow = locationInWindow
+        self.modifierFlags = modifierFlags
+    }
+}
+
 // MARK: - DataSource
 class DataSourceMock: DataSource {
 
@@ -360,6 +374,7 @@ class RoutingMock<_InteractorType>: Routing where _InteractorType: Interactable 
 
     // MARK: - Variables
     var interactor: InteractorType
+
     // MARK: - Initializer
     init(interactor: InteractorType) {
         self.interactor = interactor
@@ -378,6 +393,7 @@ class SomeRoutingMock<_InteractorType>: SomeRouting where _InteractorType: SomeI
 
     // MARK: - Variables
     var interactor: InteractorType
+
     // MARK: - Initializer
     init(interactor: InteractorType) {
         self.interactor = interactor

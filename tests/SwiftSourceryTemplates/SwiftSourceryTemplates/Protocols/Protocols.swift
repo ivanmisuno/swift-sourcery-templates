@@ -169,3 +169,11 @@ protocol ObjectManupulating {
     @discardableResult
     func removeObject(_ object: @autoclosure () throws -> Any) rethrows -> Int
 }
+
+/// sourcery: CreateMock
+@objc public protocol AppKitEvent {
+    // sourcery: const, init
+    var locationInWindow: NSPoint { get }
+    // sourcery: const, init
+    var modifierFlags: NSEvent.ModifierFlags { get }
+}

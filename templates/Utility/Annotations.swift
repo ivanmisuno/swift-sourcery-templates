@@ -18,6 +18,17 @@ extension SourceryRuntime.Annotated {
             return []
         }
     }
+
+    // `get`-only variable requirements in protocols are considered mutable and are mocked using `var` declarations by default.
+    // To generate a `let` declaration, annotate with `sourcery: const`.
+    var isAnnotatedConst: Bool {
+        return annotations[caseInsensitive: "const"] != nil
+    }
+
+    // For a 'get'-only variable requirement in the protocol, determine if it should be included in the mock class' initializer list.
+    var isAnnotatedInit: Bool {
+        return annotations[caseInsensitive: "init"] != nil
+    }
 }
 
 private extension Dictionary where Key == String {

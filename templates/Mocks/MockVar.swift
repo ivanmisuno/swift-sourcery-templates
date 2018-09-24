@@ -19,31 +19,35 @@ class MockVar {
 }
 
 extension MockVar {
-    var isDefaultValueAvailable: Bool {
-        return (!variable.isMutable && variable.typeName.isComplexTypeWithSmartDefaultValue)
-            || variable.typeName.hasDefaultValue
+
+    // Does this variable require init()?
+    var provideValueInInitializer: Bool {
+        return !variable.typeName.isComplexTypeWithSmartDefaultValue
+            && (variable.isAnnotatedInit || !variable.typeName.hasDefaultValue)
     }
 
     func mockImpl() throws -> [SourceCode] {
         let mockedVariableImplementation: SourceCode
         let mockedVariableHandlers = TopScope()
         if !variable.isMutable, variable.typeName.isComplexTypeWithSmartDefaultValue, let smartDefaultValueImplementation = try? variable.typeName.smartDefaultValueImplementation(isProperty: true, mockVariablePrefix: mockedVariableName) {
-            mockedVariableImplementation = SourceCode("var \(variable.name): \(variable.typeName)")
-            mockedVariableImplementation += SourceCode("\(mockedVariableName)GetCount += 1")
-            mockedVariableImplementation += SourceCode("if let handler = \(mockedVariableName)GetHandler") { [
-                SourceCode("return handler()")
+            mockedVariableImplementation = SourceCode("var \(variable.name): \(variable.typeName)") {[
+                SourceCode("\(mockedVariableName)GetCount += 1"),
+                SourceCode("if let handler = \(mockedVariableName)GetHandler") {[
+                    SourceCode("return handler()")
+                ]},
+                smartDefaultValueImplementation.getterImplementation
             ]}
             mockedVariableHandlers += "var \(mockedVariableName)GetCount: Int = 0"
             mockedVariableHandlers += "var \(mockedVariableName)GetHandler: (() -> \(variable.typeName))? = nil"
-            mockedVariableImplementation += smartDefaultValueImplementation.getterImplementation
             mockedVariableHandlers += smartDefaultValueImplementation.mockedVariableHandlers
         } else {
-            if variable.typeName.hasDefaultValue, let defaultValue = try? variable.typeName.defaultValue() {
+            let variableDecl = !variable.isMutable && variable.isAnnotatedConst ? "let" : "var"
+            if !variable.isAnnotatedInit, variable.typeName.hasDefaultValue, let defaultValue = try? variable.typeName.defaultValue() {
                 // Default value can be guessed.
-                mockedVariableImplementation = SourceCode("var \(variable.name): \(variable.typeName) = \(defaultValue)")
+                mockedVariableImplementation = SourceCode("\(variableDecl) \(variable.name): \(variable.typeName) = \(defaultValue)")
             } else {
                 // No default value, the value must be provided to the mock class's initializer.
-                mockedVariableImplementation = SourceCode("var \(variable.name): \(variable.typeName)")
+                mockedVariableImplementation = SourceCode("\(variableDecl) \(variable.name): \(variable.typeName)")
             }
             if variable.isMutable {
                 mockedVariableImplementation += SourceCode("didSet") {[
