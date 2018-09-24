@@ -20,7 +20,7 @@ class MockMethod {
             .map { MockMethod(type: type, method: $0, genericTypePrefix: genericTypePrefix, useShortName: true) }
             .minimumNonConflictingPermutation
         guard !mockedMethods.hasDuplicateMockedMethodNames else {
-            throw MockError.internalError(message: "Mock generator: not all duplicates resolved!")
+            throw MockError.internalError(message: "Mock generator: not all duplicates resolved: \(mockedMethods.map { $0.mockedMethodName })!")
         }
         return mockedMethods.sorted { $0.mockedMethodName < $1.mockedMethodName }
     }
