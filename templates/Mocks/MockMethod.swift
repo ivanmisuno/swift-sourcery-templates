@@ -119,8 +119,9 @@ extension MockMethod {
             .joined(separator: ", ")
         let forceCastingToGenericReturnValue = isGeneric && !isVoid ? " as! \(method.actualReturnTypeName.name.trimmingWhereClause())" : ""
         let invocationThrowing = method.`throws` ? "try " : method.`rethrows` ? "try! " : ""
-        return SourceCode("if let handler = \(mockHandlerImpl.0)") {[
-            SourceCode("\(returning)\(invocationThrowing)handler(\(parameters))\(forceCastingToGenericReturnValue)")
+        let handlerName = mockHandlerImpl.0
+        return SourceCode("if let __\(handlerName) = self.\(handlerName)") {[
+            SourceCode("\(returning)\(invocationThrowing)__\(handlerName)(\(parameters))\(forceCastingToGenericReturnValue)")
         ]}
     }
 }
