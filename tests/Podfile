@@ -9,7 +9,7 @@ target 'SwiftSourceryTemplates' do
 
     pod 'Alamofire'
     pod 'RxSwift'
-    pod 'Sourcery', '~> 0.14.0'
+    pod 'Sourcery', '~> 0.15.0'
 
     target 'SwiftSourceryTemplatesTests' do
       inherit! :search_paths
