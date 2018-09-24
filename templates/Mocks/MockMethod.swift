@@ -44,7 +44,10 @@ extension MockMethod {
     fileprivate var mockedMethodName: String {
         var result: [String] = [method.callName]
         if !useShortName {
-            result += method.parameters.map { "\($0.argumentLabel?.uppercasedFirstLetter() ?? "")\($0.name.uppercasedFirstLetter())" }
+            result += method.parameters.map {
+                let argumentLabel = $0.argumentLabel == nil ? "" : $0.argumentLabel != $0.name ? $0.argumentLabel!.uppercasedFirstLetter() : ""
+                return "\(argumentLabel)\($0.name.uppercasedFirstLetter())"
+            }
         }
         return result.joined().swiftifiedMethodName
     }
@@ -220,7 +223,12 @@ private extension Collection where Element == MockMethod {
             // Otherwise, use the other one.
             return false
         }
-        guard let fewestArgumentsMethod = min(by: areInAscendingOrder) else { fatalError("Should not happen.") }
+        guard let fewestArgumentsMethod = min(by: areInAscendingOrder), let largestArgumentsMethod = max(by: areInAscendingOrder) else { fatalError("Should not happen.") }
+        if fewestArgumentsMethod.method.parameters.parametersCountAppendingOneForArgumentLabel == largestArgumentsMethod.method.parameters.parametersCountAppendingOneForArgumentLabel {
+            // min and max methods in the collection have exactly the same number of parameters, we can't choose one over another,
+            // so use long form for all.
+            return makeUniqueByUsingLongNames()
+        }
         let copy = map { MockMethod(type: $0.type, method: $0.method, genericTypePrefix: $0.genericTypePrefix, useShortName: $0 === fewestArgumentsMethod) }
         guard !copy.hasDuplicateMockedMethodNames else {
             return makeUniqueByUsingLongNames()
@@ -242,6 +250,12 @@ private extension Collection where Element == MockMethod {
             mockedMethodNames.insert(key)
         }
         return false
+    }
+}
+
+private extension Collection where Element == SourceryRuntime.MethodParameter {
+    var parametersCountAppendingOneForArgumentLabel: Int {
+        return (first?.argumentLabel != nil ? 1 : 0) + count
     }
 }
 

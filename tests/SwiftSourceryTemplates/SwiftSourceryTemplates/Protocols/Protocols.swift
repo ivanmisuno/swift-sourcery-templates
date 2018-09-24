@@ -148,6 +148,13 @@ protocol DuplicateRequirements {
 }
 
 /// sourcery: CreateMock
+protocol DuplicateRequirementsSameLevel {
+    func update(cropRect: CGRect)
+    func update(cropHandles: [CGPoint])
+    func update(effects: [String])
+}
+
+/// sourcery: CreateMock
 protocol MutableTipsManaging: TipsManaging, DuplicateRequirements {
     func updateTips(_ tips: [Tip])
     func updateTips(with tips: AnySequence<Tip>) throws

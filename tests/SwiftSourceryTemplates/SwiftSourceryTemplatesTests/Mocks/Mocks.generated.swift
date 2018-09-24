@@ -91,6 +91,36 @@ class DuplicateRequirementsMock: DuplicateRequirements {
     var updateTipsWithTipsHandler: ((_ tips: AnySequence<Tip>) throws -> ())? = nil
 }
 
+// MARK: - DuplicateRequirementsSameLevel
+class DuplicateRequirementsSameLevelMock: DuplicateRequirementsSameLevel {
+
+    // MARK: - Methods
+    func update(cropHandles: [CGPoint]) {
+        updateCropHandlesCallCount += 1
+        if let __updateCropHandlesHandler = self.updateCropHandlesHandler {
+            __updateCropHandlesHandler(cropHandles)
+        }
+    }
+    var updateCropHandlesCallCount: Int = 0
+    var updateCropHandlesHandler: ((_ cropHandles: [CGPoint]) -> ())? = nil
+    func update(cropRect: CGRect) {
+        updateCropRectCallCount += 1
+        if let __updateCropRectHandler = self.updateCropRectHandler {
+            __updateCropRectHandler(cropRect)
+        }
+    }
+    var updateCropRectCallCount: Int = 0
+    var updateCropRectHandler: ((_ cropRect: CGRect) -> ())? = nil
+    func update(effects: [String]) {
+        updateEffectsCallCount += 1
+        if let __updateEffectsHandler = self.updateEffectsHandler {
+            __updateEffectsHandler(effects)
+        }
+    }
+    var updateEffectsCallCount: Int = 0
+    var updateEffectsHandler: ((_ effects: [String]) -> ())? = nil
+}
+
 // MARK: - ErrorPopoverBuildable
 class ErrorPopoverBuildableMock<_T1, _T2>: ErrorPopoverBuildable {
 
