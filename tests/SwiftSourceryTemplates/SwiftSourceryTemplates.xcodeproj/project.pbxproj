@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		140442C82146BD50009E7433 /* Mocks.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F12120FF5AFB00CBE106 /* Mocks.generated.swift */; };
 		140E6F6920FF6627008418F1 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140E6F6820FF6627008418F1 /* Protocols.swift */; };
 		140E6F6C20FF6661008418F1 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 140E6F6B20FF6661008418F1 /* Types.swift */; };
 		1415F10220FF583700CBE106 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F10120FF583700CBE106 /* AppDelegate.swift */; };
@@ -15,6 +14,7 @@
 		1415F10720FF583800CBE106 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1415F10520FF583800CBE106 /* MainMenu.xib */; };
 		1415F11320FF583800CBE106 /* SwiftSourceryTemplatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F11220FF583800CBE106 /* SwiftSourceryTemplatesTests.swift */; };
 		1415F11F20FF5AF400CBE106 /* TypeErase.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F11E20FF5AF400CBE106 /* TypeErase.generated.swift */; };
+		143CDB632158DA5F00C345B1 /* Mocks.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1415F12120FF5AFB00CBE106 /* Mocks.generated.swift */; };
 		A3D0FA61B99D54EF2239F9E7 /* Pods_SwiftSourceryTemplates.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E5046829ACFBDBE51FCC68D /* Pods_SwiftSourceryTemplates.framework */; };
 		A51399099FC204276D34F886 /* Pods_SwiftSourceryTemplatesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91253CD4368FBF69C7FFC00 /* Pods_SwiftSourceryTemplatesTests.framework */; };
 /* End PBXBuildFile section */
@@ -364,7 +364,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				140442C82146BD50009E7433 /* Mocks.generated.swift in Sources */,
+				143CDB632158DA5F00C345B1 /* Mocks.generated.swift in Sources */,
 				1415F11320FF583800CBE106 /* SwiftSourceryTemplatesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -510,8 +510,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SwiftSourceryTemplates/SwiftSourceryTemplates.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = XBN7J4RR42;
 				INFOPLIST_FILE = SwiftSourceryTemplates/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -519,6 +521,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.albumprinter.SwiftSourceryTemplates;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -529,8 +532,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SwiftSourceryTemplates/SwiftSourceryTemplates.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = XBN7J4RR42;
 				INFOPLIST_FILE = SwiftSourceryTemplates/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -538,6 +543,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.albumprinter.SwiftSourceryTemplates;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
@@ -547,8 +553,10 @@
 			baseConfigurationReference = 90AA27DA09BD2D0CA17E26F1 /* Pods-SwiftSourceryTemplatesTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = XBN7J4RR42;
 				INFOPLIST_FILE = SwiftSourceryTemplatesTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -557,6 +565,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.albumprinter.SwiftSourceryTemplatesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SwiftSourceryTemplates.app/Contents/MacOS/SwiftSourceryTemplates";
 			};
@@ -567,8 +576,10 @@
 			baseConfigurationReference = 62BCC70E6F64ED26E8F1AFAD /* Pods-SwiftSourceryTemplatesTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = XBN7J4RR42;
 				INFOPLIST_FILE = SwiftSourceryTemplatesTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -577,6 +588,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.albumprinter.SwiftSourceryTemplatesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SwiftSourceryTemplates.app/Contents/MacOS/SwiftSourceryTemplates";
 			};
