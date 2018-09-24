@@ -15,7 +15,7 @@ class MockMethod {
     }
 
     static func from(_ type: Type, genericTypePrefix: String) throws -> [MockMethod] {
-        let allMethods = type.allMethods.filter { !$0.isStatic }.uniquesWithoutGenericConstraints()
+        let allMethods = type.allMethods.filter { !$0.isStatic && $0.definedInType != nil && $0.definedInType?.isExtension == false }.uniquesWithoutGenericConstraints()
         let mockedMethods = allMethods
             .map { MockMethod(type: type, method: $0, genericTypePrefix: genericTypePrefix, useShortName: true) }
             .minimumNonConflictingPermutation

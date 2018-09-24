@@ -366,6 +366,23 @@ class ObjectManupulatingMock: ObjectManupulating {
     var removeObjectWhereMatchPredicateHandler: ((_ matchPredicate: @escaping (Any) throws -> (Bool)) throws -> (Int))? = nil
 }
 
+// MARK: - ProtocolWithExtensions
+class ProtocolWithExtensionsMock: ProtocolWithExtensions {
+
+    // MARK: - Variables
+    var protocolRequirement: Int = 0
+
+    // MARK: - Methods
+    func requiredInProtocol() {
+        requiredInProtocolCallCount += 1
+        if let __requiredInProtocolHandler = self.requiredInProtocolHandler {
+            __requiredInProtocolHandler()
+        }
+    }
+    var requiredInProtocolCallCount: Int = 0
+    var requiredInProtocolHandler: (() -> ())? = nil
+}
+
 // MARK: - Routing
 class RoutingMock<_InteractorType>: Routing where _InteractorType: Interactable {
 

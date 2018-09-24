@@ -177,3 +177,19 @@ protocol ObjectManupulating {
     // sourcery: const, init
     var modifierFlags: NSEvent.ModifierFlags { get }
 }
+
+/// sourcery: CreateMock
+protocol ProtocolWithExtensions {
+    var protocolRequirement: Int { get }
+    func requiredInProtocol()
+}
+
+extension ProtocolWithExtensions {
+    var implementedInExtension: Int {
+        return 5
+    }
+
+    func extended(completionCallback callback: (@escaping () -> ())?) {
+        callback?()
+    }
+}
