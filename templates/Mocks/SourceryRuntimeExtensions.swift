@@ -22,7 +22,7 @@ extension SourceryRuntime.TypeName {
         case "Bool": return "false"
         case "Int", "Int32", "Int64", "UInt", "UInt32", "UInt64": return "0"
         case "Float", "Double": return "0.0"
-        case "NSTimeInterval": return "0.0"
+        case "NSTimeInterval", "TimeInterval": return "0.0"
         case "CGFloat": return "CGFloat(0)"
         case "CGPoint", "NSPoint": return "CGPoint.zero"
         case "CGSize", "NSSize": return "CGSize.zero"
