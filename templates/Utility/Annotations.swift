@@ -26,8 +26,8 @@ private extension Dictionary where Key == String {
     }
 }
 
-private extension Array where Element: Hashable {
+private extension Array where Element: Hashable, Element: Comparable {
     func removeDuplicates() -> [Element] {
-      return Array(Set(self))
+        return Array(Set(self)).sorted()
     }
 }

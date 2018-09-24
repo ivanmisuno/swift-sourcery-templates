@@ -39,18 +39,18 @@ class DataSourceMock: DataSource {
             return handler()
         }
         return AnyObserver { [weak self] event in
-            self?.bindingTargetCallCount += 1
+            self?.bindingTargetEventCallCount += 1
             self?.bindingTargetEventHandler?(event)
         }
     }
     var bindingTargetGetCount: Int = 0
     var bindingTargetGetHandler: (() -> AnyObserver<UploadAPI.LocalFile>)? = nil
-    var bindingTargetCallCount: Int = 0
+    var bindingTargetEventCallCount: Int = 0
     var bindingTargetEventHandler: ((Event<UploadAPI.LocalFile>) -> ())? = nil
 }
 
 // MARK: - DuplicateGenericTypeNames
-// Duplicate generic type name found while generating mock implementation: `func action<T>(_: T)` has generic type name `T` which is not unique across all generic types for the protocol (["T"]). Please change protocol declaration so that generic types have unique names!
+// Duplicate generic type name found while generating mock implementation: `func action2<T>(_: T)` has generic type name `T` which is not unique across all generic types for the protocol (["T"]). Please change protocol declaration so that generic types have unique names!
 
 // MARK: - DuplicateRequirements
 class DuplicateRequirementsMock: DuplicateRequirements {
@@ -106,7 +106,7 @@ class ErrorPopoverBuildableMock<_T1, _T2>: ErrorPopoverBuildable {
 }
 
 // MARK: - ErrorPopoverBuildableRawRepresentable
-class ErrorPopoverBuildableRawRepresentableMock<_T>: ErrorPopoverBuildableRawRepresentable where _T: RawRepresentable, _T: Hashable {
+class ErrorPopoverBuildableRawRepresentableMock<_T>: ErrorPopoverBuildableRawRepresentable where _T: Hashable, _T: RawRepresentable {
 
     // MARK: - Generic typealiases
     typealias T = _T
@@ -151,7 +151,7 @@ class ErrorPopoverPresentableMock<_EventType>: ErrorPopoverPresentable {
 }
 
 // MARK: - ErrorPopoverPresentableRawRepresentable
-class ErrorPopoverPresentableRawRepresentableMock<_EventType>: ErrorPopoverPresentableRawRepresentable where _EventType: RawRepresentable, _EventType: Hashable {
+class ErrorPopoverPresentableRawRepresentableMock<_EventType>: ErrorPopoverPresentableRawRepresentable where _EventType: Hashable, _EventType: RawRepresentable {
 
     // MARK: - Generic typealiases
     typealias EventType = _EventType
@@ -225,12 +225,12 @@ class LegacyProtocolMock: NSObject, LegacyProtocol {
 class MutableTipsManagingMock: MutableTipsManaging {
 
     // MARK: - Variables
+    var arrayVariable: [Double] = []
     var tips: [String: String] = [:]
     var tipsOptional: [String: String]? = nil
+    var tupleOptional: (String, Int)? = nil
     var tupleVariable: (String, Int) = ("", 0)
     var tupleVariable2: (String?, Int?) = (nil, nil)
-    var tupleOptional: (String, Int)? = nil
-    var arrayVariable: [Double] = []
 
     // MARK: - Methods
     func updateTips(_ tips: [Tip]) {
@@ -267,6 +267,30 @@ class MutableUploadProgressingMock: MutableUploadProgressing {
     lazy var progressSubject = PublishSubject<Result<Double>>()
 
     // MARK: - Methods
+    func downloadUrlsRetrieved() {
+        downloadUrlsRetrievedCallCount += 1
+        if let handler = downloadUrlsRetrievedHandler {
+            handler()
+        }
+    }
+    var downloadUrlsRetrievedCallCount: Int = 0
+    var downloadUrlsRetrievedHandler: (() -> ())? = nil
+    func filePartProgressed(uploadId: UploadAPI.UploadId, filePart: FilePart, progress: RxProgress) {
+        filePartProgressedCallCount += 1
+        if let handler = filePartProgressedHandler {
+            handler(uploadId, filePart, progress)
+        }
+    }
+    var filePartProgressedCallCount: Int = 0
+    var filePartProgressedHandler: ((_ uploadId: UploadAPI.UploadId, _ filePart: FilePart, _ progress: RxProgress) -> ())? = nil
+    func filePartsCreated(uploadId: UploadAPI.UploadId, fileParts: [FilePart]) {
+        filePartsCreatedCallCount += 1
+        if let handler = filePartsCreatedHandler {
+            handler(uploadId, fileParts)
+        }
+    }
+    var filePartsCreatedCallCount: Int = 0
+    var filePartsCreatedHandler: ((_ uploadId: UploadAPI.UploadId, _ fileParts: [FilePart]) -> ())? = nil
     func fileProgress(_ source: UploadAPI.LocalFile.Source) -> Observable<RxProgress> {
         fileProgressCallCount += 1
         if let handler = fileProgressHandler {
@@ -277,30 +301,6 @@ class MutableUploadProgressingMock: MutableUploadProgressing {
     var fileProgressCallCount: Int = 0
     var fileProgressHandler: ((_ source: UploadAPI.LocalFile.Source) -> (Observable<RxProgress>))? = nil
     lazy var fileProgressSubject = PublishSubject<RxProgress>()
-    func filePartProgressed(uploadId: UploadAPI.UploadId, filePart: FilePart, progress: RxProgress) {
-        filePartProgressedCallCount += 1
-        if let handler = filePartProgressedHandler {
-            handler(uploadId, filePart, progress)
-        }
-    }
-    var filePartProgressedCallCount: Int = 0
-    var filePartProgressedHandler: ((_ uploadId: UploadAPI.UploadId, _ filePart: FilePart, _ progress: RxProgress) -> ())? = nil
-    func downloadUrlsRetrieved() {
-        downloadUrlsRetrievedCallCount += 1
-        if let handler = downloadUrlsRetrievedHandler {
-            handler()
-        }
-    }
-    var downloadUrlsRetrievedCallCount: Int = 0
-    var downloadUrlsRetrievedHandler: (() -> ())? = nil
-    func filePartsCreated(uploadId: UploadAPI.UploadId, fileParts: [FilePart]) {
-        filePartsCreatedCallCount += 1
-        if let handler = filePartsCreatedHandler {
-            handler(uploadId, fileParts)
-        }
-    }
-    var filePartsCreatedCallCount: Int = 0
-    var filePartsCreatedHandler: ((_ uploadId: UploadAPI.UploadId, _ fileParts: [FilePart]) -> ())? = nil
     func setInputFiles(localFiles: [UploadAPI.LocalFile]) {
         setInputFilesCallCount += 1
         if let handler = setInputFilesHandler {
@@ -332,15 +332,6 @@ class ObjectManupulatingMock: ObjectManupulating {
     }
     var removeObjectCallCount: Int = 0
     var removeObjectHandler: (() -> (Int))? = nil
-    func removeObject(where matchPredicate: @escaping (Any) throws -> (Bool)) rethrows -> Int {
-        removeObjectWhereMatchPredicateCallCount += 1
-        if let handler = removeObjectWhereMatchPredicateHandler {
-            return try! handler(matchPredicate)
-        }
-        return 0
-    }
-    var removeObjectWhereMatchPredicateCallCount: Int = 0
-    var removeObjectWhereMatchPredicateHandler: ((_ matchPredicate: @escaping (Any) throws -> (Bool)) throws -> (Int))? = nil
     func removeObject(_ object: @autoclosure () throws -> Any) rethrows -> Int {
         removeObjectObjectCallCount += 1
         if let handler = removeObjectObjectHandler {
@@ -350,6 +341,15 @@ class ObjectManupulatingMock: ObjectManupulating {
     }
     var removeObjectObjectCallCount: Int = 0
     var removeObjectObjectHandler: ((_ object: @autoclosure () throws -> Any) throws -> (Int))? = nil
+    func removeObject(where matchPredicate: @escaping (Any) throws -> (Bool)) rethrows -> Int {
+        removeObjectWhereMatchPredicateCallCount += 1
+        if let handler = removeObjectWhereMatchPredicateHandler {
+            return try! handler(matchPredicate)
+        }
+        return 0
+    }
+    var removeObjectWhereMatchPredicateCallCount: Int = 0
+    var removeObjectWhereMatchPredicateHandler: ((_ matchPredicate: @escaping (Any) throws -> (Bool)) throws -> (Int))? = nil
 }
 
 // MARK: - Routing
@@ -388,15 +388,6 @@ class SomeRoutingMock<_InteractorType>: SomeRouting where _InteractorType: SomeI
 class ThumbCreatingMock: ThumbCreating {
 
     // MARK: - Methods
-    func createThumbJpegData(for pictureUrl: URL, fitting size: CGSize, compression: Double) throws -> Data {
-        createThumbJpegDataCallCount += 1
-        if let handler = createThumbJpegDataHandler {
-            return try handler(pictureUrl, size, compression)
-        }
-        fatalError("createThumbJpegDataHandler expected to be set.")
-    }
-    var createThumbJpegDataCallCount: Int = 0
-    var createThumbJpegDataHandler: ((_ pictureUrl: URL, _ size: CGSize, _ compression: Double) throws -> (Data))? = nil
     func createThumbImage(for pictureUrl: URL, fitting size: CGSize) throws -> NSImage {
         createThumbImageCallCount += 1
         if let handler = createThumbImageHandler {
@@ -406,6 +397,15 @@ class ThumbCreatingMock: ThumbCreating {
     }
     var createThumbImageCallCount: Int = 0
     var createThumbImageHandler: ((_ pictureUrl: URL, _ size: CGSize) throws -> (NSImage))? = nil
+    func createThumbJpegData(for pictureUrl: URL, fitting size: CGSize, compression: Double) throws -> Data {
+        createThumbJpegDataCallCount += 1
+        if let handler = createThumbJpegDataHandler {
+            return try handler(pictureUrl, size, compression)
+        }
+        fatalError("createThumbJpegDataHandler expected to be set.")
+    }
+    var createThumbJpegDataCallCount: Int = 0
+    var createThumbJpegDataHandler: ((_ pictureUrl: URL, _ size: CGSize, _ compression: Double) throws -> (Data))? = nil
 }
 
 // MARK: - TipsManagerBuilding
@@ -427,12 +427,12 @@ class TipsManagerBuildingMock: TipsManagerBuilding {
 class TipsManagingMock: TipsManaging {
 
     // MARK: - Variables
+    var arrayVariable: [Double] = []
     var tips: [String: String] = [:]
     var tipsOptional: [String: String]? = nil
+    var tupleOptional: (String, Int)? = nil
     var tupleVariable: (String, Int) = ("", 0)
     var tupleVariable2: (String?, Int?) = (nil, nil)
-    var tupleOptional: (String, Int)? = nil
-    var arrayVariable: [Double] = []
 }
 
 // MARK: - UploadProgressing

@@ -20,7 +20,7 @@ extension SourceryRuntime.Annotated {
                 let split = $0.replacingOccurrences(of: " ", with: "").split(separator: ":").map(String.init)
                 let associatedType = split[0]
                 let constraints = split.count == 2 ? split[1].split(separator: ",").map(String.init) : []
-                return GenericTypeInfo(genericType: associatedType, constraints: constraints)
+                return GenericTypeInfo(genericType: associatedType, constraints: constraints.sorted())
             }
     }
 }

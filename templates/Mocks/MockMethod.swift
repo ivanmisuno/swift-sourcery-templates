@@ -22,7 +22,7 @@ class MockMethod {
         guard !mockedMethods.hasDuplicateMockedMethodNames else {
             throw MockError.internalError(message: "Mock generator: not all duplicates resolved!")
         }
-        return mockedMethods
+        return mockedMethods.sorted { $0.mockedMethodName < $1.mockedMethodName }
     }
 }
 

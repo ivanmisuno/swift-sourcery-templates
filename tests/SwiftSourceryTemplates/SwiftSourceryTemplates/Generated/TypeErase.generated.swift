@@ -57,7 +57,7 @@ final class AnyErrorPopoverPresentable<EventType>: ErrorPopoverPresentable {
 
 // MARK: - Type erasure for `ErrorPopoverPresentableRawRepresentable`
 
-private class _AnyErrorPopoverPresentableRawRepresentableBase<EventType>: ErrorPopoverPresentableRawRepresentable where EventType: RawRepresentable, EventType: Hashable {
+private class _AnyErrorPopoverPresentableRawRepresentableBase<EventType>: ErrorPopoverPresentableRawRepresentable where EventType: Hashable, EventType: RawRepresentable {
     init() {
         guard type(of: self) != _AnyErrorPopoverPresentableRawRepresentableBase.self else {
             fatalError("_AnyErrorPopoverPresentableRawRepresentableBase<EventType> instances can not be created; create a subclass instance instead")
@@ -82,7 +82,7 @@ private final class _AnyErrorPopoverPresentableRawRepresentableBox<Concrete: Err
     }
 }
 
-final class AnyErrorPopoverPresentableRawRepresentable<EventType>: ErrorPopoverPresentableRawRepresentable where EventType: RawRepresentable, EventType: Hashable {
+final class AnyErrorPopoverPresentableRawRepresentable<EventType>: ErrorPopoverPresentableRawRepresentable where EventType: Hashable, EventType: RawRepresentable {
     private let box: _AnyErrorPopoverPresentableRawRepresentableBase<EventType>
 
     init<Concrete: ErrorPopoverPresentableRawRepresentable>(_ concrete: Concrete) where Concrete.EventType == EventType {

@@ -14,7 +14,7 @@ class MockVar {
 
     static func from(_ type: Type) -> [MockVar] {
         let allVariables = type.allVariables.filter { !$0.isStatic }.uniqueVariables
-        return allVariables.map { MockVar(variable: $0) }
+        return allVariables.map { MockVar(variable: $0) }.sorted { $0.mockedVariableName < $1.mockedVariableName }
     }
 }
 

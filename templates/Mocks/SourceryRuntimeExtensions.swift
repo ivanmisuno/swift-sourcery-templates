@@ -52,14 +52,13 @@ extension SourceryRuntime.TypeName {
             return (getterImplementation, mockedVariableHandlers)
         case "AnyObserver":
             let getterImplementation = SourceCode("return AnyObserver { [weak self] event in") { [
-                SourceCode("self?.\(mockVariablePrefix)CallCount += 1"),
+                SourceCode("self?.\(mockVariablePrefix)EventCallCount += 1"),
                 SourceCode("self?.\(mockVariablePrefix)EventHandler?(event)"),
             ]}
-            var mockedVariableHandlers: [SourceCode] = []
-            if isProperty {
-                mockedVariableHandlers.append(SourceCode("var \(mockVariablePrefix)CallCount: Int = 0"))
-            }
-            mockedVariableHandlers.append(SourceCode("var \(mockVariablePrefix)EventHandler: ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil"))
+            let mockedVariableHandlers: [SourceCode] = [
+                SourceCode("var \(mockVariablePrefix)EventCallCount: Int = 0"),
+                SourceCode("var \(mockVariablePrefix)EventHandler: ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil"),
+            ]
             return (getterImplementation, mockedVariableHandlers)
         default:
             fatalError("Should not happen")
