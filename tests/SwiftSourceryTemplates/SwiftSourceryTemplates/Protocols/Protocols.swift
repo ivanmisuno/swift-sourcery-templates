@@ -21,6 +21,11 @@ protocol UploadProgressing {
 }
 
 // sourcery: CreateMock
+protocol FileService {
+    func upload(fileUrl: URL) -> Single<()>
+}
+
+// sourcery: CreateMock
 protocol MutableUploadProgressing: UploadProgressing {
     func setInputFiles(localFiles: [UploadAPI.LocalFile])
     func uploadIdRetrieved(localFile: UploadAPI.LocalFile, uploadId: UploadAPI.UploadId)
@@ -42,6 +47,7 @@ protocol ImageAttributeProviding {
 
 // sourcery: CreateMock
 protocol AlbumPageSizeProviderDelegate: class {
+    var onComplete: AnyObserver<()> { get }
 }
 
 // sourcery: CreateMock

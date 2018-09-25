@@ -42,14 +42,15 @@ extension SourceryRuntime.TypeName {
         guard
             isGeneric,
             let generic = generic,
-            generic.name == "Observable" || generic.name == "AnyObserver",
+            generic.name == "Single" || generic.name == "Observable" || generic.name == "AnyObserver",
             generic.typeParameters.count == 1
         else { throw MockError.noDefaultValue(typeName: self) }
 
+        let returnTypeName = !generic.typeParameters[0].typeName.isVoid ? generic.typeParameters[0].typeName.name : "()"
         switch generic.name {
-        case "Observable":
-            let getterImplementation = SourceCode("return \(mockVariablePrefix)Subject.asObservable()")
-            let mockedVariableHandlers = [SourceCode("lazy var \(mockVariablePrefix)Subject = PublishSubject<\(generic.typeParameters[0].typeName.name)>()")]
+        case "Single", "Observable":
+            let getterImplementation = SourceCode("return \(mockVariablePrefix)Subject.as\(generic.name)()") // ".asSingle()" | ".asObservable()"
+            let mockedVariableHandlers = [SourceCode("lazy var \(mockVariablePrefix)Subject = PublishSubject<\(returnTypeName)>()")]
             return (getterImplementation, mockedVariableHandlers)
         case "AnyObserver":
             let getterImplementation = SourceCode("return AnyObserver { [weak self] event in") { [
@@ -58,7 +59,7 @@ extension SourceryRuntime.TypeName {
             ]}
             let mockedVariableHandlers: [SourceCode] = [
                 SourceCode("var \(mockVariablePrefix)EventCallCount: Int = 0"),
-                SourceCode("var \(mockVariablePrefix)EventHandler: ((Event<\(generic.typeParameters[0].typeName.name)>) -> ())? = nil"),
+                SourceCode("var \(mockVariablePrefix)EventHandler: ((Event<\(returnTypeName)>) -> ())? = nil"),
             ]
             return (getterImplementation, mockedVariableHandlers)
         default:

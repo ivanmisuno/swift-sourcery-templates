@@ -104,7 +104,7 @@ extension MockMethod {
     private var mockHandlerImpl: (String, SourceCode) {
         let mockMethodHandlerName = "\(mockedMethodName)Handler"
         let handlerParameters = method.parameters.map { "_ \($0.name): \($0.typeName.name)" }.joined(separator: ", ")
-        let returnType = !isVoid ? method.actualReturnTypeName.name.trimmingWhereClause() : ""
+        let returnType = !isVoid ? method.returnTypeName.name.trimmingWhereClause() : ""
         return (mockMethodHandlerName, SourceCode("var \(mockMethodHandlerName): ((\(handlerParameters))\(method.throwingHandlerDecl) -> (\(returnType)))? = nil"))
     }
 
@@ -120,7 +120,7 @@ extension MockMethod {
                 return "\($0.name)"
             }
             .joined(separator: ", ")
-        let forceCastingToGenericReturnValue = isGeneric && !isVoid ? " as! \(method.actualReturnTypeName.name.trimmingWhereClause())" : ""
+        let forceCastingToGenericReturnValue = isGeneric && !isVoid ? " as! \(method.returnTypeName.name.trimmingWhereClause())" : ""
         let invocationThrowing = method.`throws` ? "try " : method.`rethrows` ? "try! " : ""
         let handlerName = mockHandlerImpl.0
         return SourceCode("if let __\(handlerName) = self.\(handlerName)") {[

@@ -14,6 +14,22 @@ import RxTest
 
 // MARK: - AlbumPageSizeProviderDelegate
 class AlbumPageSizeProviderDelegateMock: AlbumPageSizeProviderDelegate {
+
+    // MARK: - Variables
+    var onComplete: AnyObserver<()> {
+        onCompleteGetCount += 1
+        if let handler = onCompleteGetHandler {
+            return handler()
+        }
+        return AnyObserver { [weak self] event in
+            self?.onCompleteEventCallCount += 1
+            self?.onCompleteEventHandler?(event)
+        }
+    }
+    var onCompleteGetCount: Int = 0
+    var onCompleteGetHandler: (() -> AnyObserver<()>)? = nil
+    var onCompleteEventCallCount: Int = 0
+    var onCompleteEventHandler: ((Event<()>) -> ())? = nil
 }
 
 // MARK: - AlbumPageSizeProviding
@@ -226,6 +242,22 @@ class ExifImageAttributeProvidingMock: ExifImageAttributeProviding {
     }
     var dateTakenCallCount: Int = 0
     var dateTakenHandler: ((_ fileUrl: URL) -> (Date?))? = nil
+}
+
+// MARK: - FileService
+class FileServiceMock: FileService {
+
+    // MARK: - Methods
+    func upload(fileUrl: URL) -> Single<()> {
+        uploadCallCount += 1
+        if let __uploadHandler = self.uploadHandler {
+            return __uploadHandler(fileUrl)
+        }
+        return uploadSubject.asSingle()
+    }
+    var uploadCallCount: Int = 0
+    var uploadHandler: ((_ fileUrl: URL) -> (Single<()>))? = nil
+    lazy var uploadSubject = PublishSubject<()>()
 }
 
 // MARK: - ImageAttributeProviding
