@@ -89,6 +89,14 @@ protocol ErrorPopoverBuildableRawRepresentable {
         buttons: [(title: String, identifier: T, handler: ()->())]) -> AnyErrorPopoverPresentableRawRepresentable<T> where T: RawRepresentable, T: Hashable
 }
 
+/// sourcery: CreateMock
+protocol ErrorPresenting {
+    // sourcery: genericType = "T: RawRepresentable, Hashable"
+    func presentErrorPopover<T>(
+        // sourcery: genericTypePlaceholder = "AnyErrorPopoverPresentable<{T}>"
+        _ popoverPresenter: AnyErrorPopoverPresentable<T>) -> Observable<T> where T: RawRepresentable, T: Hashable
+}
+
 // sourcery: CreateMock
 // sourcery: TypeErase
 public protocol Interactable: class {
@@ -202,7 +210,7 @@ extension ProtocolWithExtensions {
         return 5
     }
 
-    func extended(completionCallback callback: (@escaping () -> ())?) {
+    func extended(completionCallback callback: (() -> ())?) {
         callback?()
     }
 }

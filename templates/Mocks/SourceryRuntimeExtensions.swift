@@ -38,7 +38,7 @@ extension SourceryRuntime.TypeName {
         return (try? smartDefaultValueImplementation(isProperty: true, mockVariablePrefix: "")) != nil
     }
 
-    func smartDefaultValueImplementation(isProperty: Bool, mockVariablePrefix: String) throws -> (getterImplementation: SourceCode, mockedVariableHandlers: [SourceCode]) {
+    func smartDefaultValueImplementation(isProperty: Bool, mockVariablePrefix: String, forceCastingToReturnTypeName: Bool = false) throws -> (getterImplementation: SourceCode, mockedVariableHandlers: [SourceCode]) {
         guard
             isGeneric,
             let generic = generic,
@@ -47,12 +47,14 @@ extension SourceryRuntime.TypeName {
         else { throw MockError.noDefaultValue(typeName: self) }
 
         let returnTypeName = !generic.typeParameters[0].typeName.isVoid ? generic.typeParameters[0].typeName.name : "()"
+        let forceCasting = forceCastingToReturnTypeName && !isVoid ? " as! \(name.trimmingWhereClause())" : ""
         switch generic.name {
         case "Single", "Observable":
-            let getterImplementation = SourceCode("return \(mockVariablePrefix)Subject.as\(generic.name)()") // ".asSingle()" | ".asObservable()"
+            let getterImplementation = SourceCode("return \(mockVariablePrefix)Subject.as\(generic.name)()\(forceCasting)") // ".asSingle()" | ".asObservable()"
             let mockedVariableHandlers = [SourceCode("lazy var \(mockVariablePrefix)Subject = PublishSubject<\(returnTypeName)>()")]
             return (getterImplementation, mockedVariableHandlers)
         case "AnyObserver":
+            guard isProperty else { throw MockError.noDefaultValue(typeName: self) } // Only properties with `AnyObserver` type are supported.
             let getterImplementation = SourceCode("return AnyObserver { [weak self] event in") { [
                 SourceCode("self?.\(mockVariablePrefix)EventCallCount += 1"),
                 SourceCode("self?.\(mockVariablePrefix)EventHandler?(event)"),

@@ -229,6 +229,25 @@ class ErrorPopoverPresentableRawRepresentableMock<_EventType>: ErrorPopoverPrese
     lazy var showSubject = PublishSubject<EventType>()
 }
 
+// MARK: - ErrorPresenting
+class ErrorPresentingMock<_T>: ErrorPresenting where _T: Hashable, _T: RawRepresentable {
+
+    // MARK: - Generic typealiases
+    typealias T = _T
+
+    // MARK: - Methods
+    func presentErrorPopover<T>(_ popoverPresenter: AnyErrorPopoverPresentable<T>) -> Observable<T> where T: RawRepresentable, T: Hashable {
+        presentErrorPopoverCallCount += 1
+        if let __presentErrorPopoverHandler = self.presentErrorPopoverHandler {
+            return __presentErrorPopoverHandler(popoverPresenter as! AnyErrorPopoverPresentable<_T>) as! Observable<T>
+        }
+        return presentErrorPopoverSubject.asObservable() as! Observable<T>
+    }
+    var presentErrorPopoverCallCount: Int = 0
+    var presentErrorPopoverHandler: ((_ popoverPresenter: AnyErrorPopoverPresentable<T>) -> (Observable<T>))? = nil
+    lazy var presentErrorPopoverSubject = PublishSubject<T>()
+}
+
 // MARK: - ExifImageAttributeProviding
 class ExifImageAttributeProvidingMock: ExifImageAttributeProviding {
 

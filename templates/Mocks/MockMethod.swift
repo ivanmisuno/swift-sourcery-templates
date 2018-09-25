@@ -79,7 +79,7 @@ extension MockMethod {
         } else {
             // Do something smart
             if method.returnTypeName.isComplexTypeWithSmartDefaultValue {
-                let smartDefaultValueImplementation = try method.returnTypeName.smartDefaultValueImplementation(isProperty: false, mockVariablePrefix: mockedMethodName)
+                let smartDefaultValueImplementation = try method.returnTypeName.smartDefaultValueImplementation(isProperty: false, mockVariablePrefix: mockedMethodName, forceCastingToReturnTypeName: isGeneric)
                 methodImpl += smartDefaultValueImplementation.0
                 mockMethodHandlers += smartDefaultValueImplementation.1
             } else if method.returnTypeName.hasDefaultValue, let defaultValue = try? method.returnTypeName.defaultValue() {
@@ -113,7 +113,7 @@ extension MockMethod {
         let returning = isVoid ? "" : "return "
         let parameters = method.parameters
             .map {
-                if isGeneric, let extractedAnnotatedGenericTypesPlaceholder = $0.annotations(for: ["annotatedGenericTypes"]).first {
+                if isGeneric, let extractedAnnotatedGenericTypesPlaceholder = $0.annotations(for: ["annotatedGenericType", "annotatedGenericTypes", "genericTypePlaceholder", "genericTypesPlaceholder"]).first {
                     let forceCastingToGenericParameterType = " as! \(extractedAnnotatedGenericTypesPlaceholder.resolvingGenericPlaceholders(prefix: genericTypePrefix))"
                     return "\($0.name)\(forceCastingToGenericParameterType)"
                 }
@@ -142,13 +142,6 @@ private extension String {
             .replacingOccurrences(of: "`", with: "")
             .camelCased()
             .lowercasedFirstWord()
-    }
-
-    func trimmingWhereClause() -> String {
-        if let rangeOfWhereClause = range(of: " where ") {
-            return String(self[..<rangeOfWhereClause.lowerBound]).trimmingWhitespace()
-        }
-        return self
     }
 
     func resolvingGenericPlaceholders(prefix genericTypePrefix: String) -> String {
