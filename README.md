@@ -7,34 +7,34 @@ This repository contains two code-generation templates (to be used along with [S
 2. `TypeErase.swifttemplate` — to generate advanced [type erasures](https://www.bignerdranch.com/blog/breaking-down-type-erasures-in-swift/).
 
 Both templates support protocols with associated types and generic functions (with constraints on generic types),
-provide reasonable default values to primitive types, and also support advanced types and use cases typical in projects
+provide reasonable default values for primitive types, and support advanced types and use cases typically found in projects
 that use [RxSwift](https://github.com/ReactiveX/RxSwift), and, in particular, User's [RIBs](https://github.com/uber/RIBs) frameworks.
 
 ## Rationale
 
 Code-generation is an extremely powerful technique to improve the developer team's productivity by eliminating time-consuming
 manual tasks, and ensuring consistency between different parts of the codebase. Typical examples include generating API wrappers
-for database and network services, native data structure representations in a specific programming language, generating test doubles
-and mocks for unit-testing, etc.
+for database and network services, data structure representations as native types in a specific programming language, generating
+test doubles and mocks for unit-testing, etc.
 
 Due to Swift language's static nature and a (very) limited runtime reflection capabilities, it's arguably [the only modern language
-with no mocking frameworks](https://blog.pragmaticengineer.com/swift-the-only-modern-language-with-no-mocking-framework/),
-which makes it hard for development teams to apply patterns typical for more dynamic languages for writing unit-tests.
+with no mocking framework](https://blog.pragmaticengineer.com/swift-the-only-modern-language-with-no-mocking-framework/),
+which makes it hard for development teams to apply patterns typical for more dynamic languages when writing unit-tests.
 
 The common approach to improving developer's productivity has been to write tools that parse the source code of the program,
 and automatically generate mock class definitions that can be later used in place of actual object's dependencies in unit tests,
 to be able to instantiate the object in isolation from the rest of the system and test its behavior by analyzing side effects it
 performs on dependencies. There are tools like [Sourcery](https://github.com/krzysztofzablocki/Sourcery),
 [SwiftyMocky](https://github.com/MakeAWishFoundation/SwiftyMocky), [Cuckoo](https://github.com/Brightify/Cuckoo),
-there's even a [plugin](https://plugins.jetbrains.com/plugin/9601-swift-mock-generator-for-appcode) for the JetBrain's AppCode.
+there's even a [plug-in](https://plugins.jetbrains.com/plugin/9601-swift-mock-generator-for-appcode) for the JetBrain's AppCode.
 These tools and plug-ins are capable of auto-generating mock class definitions based on reading source type declarations,
 however, I was personally struggling to find a comprehensive solution so far, that would cover some advanced coding patterns,
-in particular, involving `RxSwift` types, and patterns arising from application of Uber's `RIBs` framework.
+in particular, typical for programs that combine `RxSwift` and Uber's `RIBs` frameworks.
 
 
 ## Usage
 
-_Following examples refer to the [tutorial project](https://github.com/ivanmisuno/Tutorial_RIBs_CodeGeneration),
+_Following examples refer to the [tutorial project](https://github.com/ivanmisuno/Tutorial_RIBs_CodeGeneration) (WIP),
 please feel free to clone and see its workings. Accompanying blog post is coming._
 
 * Podfile
@@ -84,7 +84,7 @@ please feel free to clone and see its workings. Accompanying blog post is coming
     ```
     Note that `sourcery` executable is installed in `Pods` folder.
 
-4. Annotate protocols in your code for which you'd like to generate mock classes with following annotation:
+4. Annotate protocols in your code for which you'd like to generate mock classes with the following annotation:
     ```
     /// sourcery: CreateMock
     ```
@@ -94,7 +94,7 @@ please feel free to clone and see its workings. Accompanying blog post is coming
     ```
     scripts $ ./codegen.sh [--disableCache]
     ```
-    This command will generate `Mocks.generated.swift` file in the `output` as specified in the config file.
+    This command will generate `Mocks.generated.swift` file in the `output` folder as specified in the config file.
 
 6. Add the generated file to the test target in the Xcode project.
 
