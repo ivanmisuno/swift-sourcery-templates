@@ -40,13 +40,13 @@ please feel free to clone and see its workings. Accompanying blog post is coming
 * Podfile
 
 1. Add `SwiftMockTemplates` Pod to your projects's Test target:
-    ```
+    ```Podfile
     pod 'SwiftMockTemplates', :git => 'https://github.com/ivanmisuno/swift-sourcery-templates.git', :tag => '0.1.0'
     ```
     (I'll release it as a public Podspec once I complete unit-tests).
 
 2. Add `.sourcery-mocks.yml` config file to the project's root:
-    ```
+    ```yml
     sources:
       - Tutorial_RIBs_CodeGeneration
       - Tutorial_RIBs_CodeGenerationTests/Mocks/AnnotatedRIBsProtocols.swift
@@ -70,7 +70,7 @@ please feel free to clone and see its workings. Accompanying blog post is coming
     ```
 
 3. Add `codegen.sh` script that will run `Sourcery` with the above config file:
-    ```
+    ```sh
     #!/bin/bash
 
     # the directory of the script. all locations are relative to the $DIR
@@ -85,13 +85,13 @@ please feel free to clone and see its workings. Accompanying blog post is coming
     Note that `sourcery` executable is installed in `Pods` folder.
 
 4. Annotate protocols in your code for which you'd like to generate mock classes with the following annotation:
-    ```
+    ```Swift
     /// sourcery: CreateMock
     ```
     There are more advanced use cases, the documentation is coming.
 
 5. Run following command to generate mock classes:
-    ```
+    ```sh
     scripts $ ./codegen.sh [--disableCache]
     ```
     This command will generate `Mocks.generated.swift` file in the `output` folder as specified in the config file.
