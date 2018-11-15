@@ -12,6 +12,7 @@ import Alamofire // for `Result`
 // sourcery: CreateMock
 protocol DataSource {
     var bindingTarget: AnyObserver<UploadAPI.LocalFile> { get }
+    func bindStreams() -> Disposable
 }
 
 // sourcery: CreateMock
@@ -117,8 +118,7 @@ public protocol SomeInteractable: Interactable {
 // sourcery: CreateMock
 // sourcery: TypeErase
 // sourcery: associatedtype = "InteractorType: SomeInteractable"
-public protocol SomeRouting: Routing {
-    associatedtype InteractorType: SomeInteractable
+public protocol SomeRouting: Routing where InteractorType: SomeInteractable {
 }
 
 /// sourcery: CreateMock
@@ -214,3 +214,8 @@ extension ProtocolWithExtensions {
         callback?()
     }
 }
+
+/// sourcery: CreateMock
+// protocol EdgeCases {
+//     func functionMissingArgumentLabel(_: Int)
+// }

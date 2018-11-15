@@ -77,6 +77,22 @@ class DataSourceMock: DataSource {
     var bindingTargetGetHandler: (() -> AnyObserver<UploadAPI.LocalFile>)? = nil
     var bindingTargetEventCallCount: Int = 0
     var bindingTargetEventHandler: ((Event<UploadAPI.LocalFile>) -> ())? = nil
+
+    // MARK: - Methods
+    func bindStreams() -> Disposable {
+        bindStreamsCallCount += 1
+        if let __bindStreamsHandler = self.bindStreamsHandler {
+            return __bindStreamsHandler()
+        }
+        return Disposables.create { [weak self] in
+            self?.bindStreamsDisposeCallCount += 1
+            self?.bindStreamsDisposeHandler?()
+        }
+    }
+    var bindStreamsCallCount: Int = 0
+    var bindStreamsHandler: (() -> (Disposable))? = nil
+    var bindStreamsDisposeCallCount: Int = 0
+    var bindStreamsDisposeHandler: (() -> ())? = nil
 }
 
 // MARK: - DuplicateGenericTypeNames
