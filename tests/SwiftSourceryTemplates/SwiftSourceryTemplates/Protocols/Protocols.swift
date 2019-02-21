@@ -23,7 +23,7 @@ protocol UploadProgressing {
 
 // sourcery: CreateMock
 protocol FileService {
-    func upload(fileUrl: URL) -> Single<()>
+    func upload(fileUrl: URL) -> Single<[FilePart]>
 }
 
 // sourcery: CreateMock

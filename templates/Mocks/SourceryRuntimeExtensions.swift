@@ -47,7 +47,24 @@ extension SourceryRuntime.TypeName {
             let returnTypeName = !generic.typeParameters[0].typeName.isVoid ? generic.typeParameters[0].typeName.name : "()"
             let forceCasting = forceCastingToReturnTypeName && !isVoid ? " as! \(name.trimmingWhereClause())" : ""
             switch generic.name {
-            case "Single", "Observable":
+            case "Single":
+                let getterImplementation = SourceCode("return Single.create { (observer: @escaping (SingleEvent<\(returnTypeName)>) -> ()) -> Disposable in") { [
+                    SourceCode("""
+                        return self.\(mockVariablePrefix)Subject.subscribe { (event: Event<\(returnTypeName)>) in
+                                        switch event {
+                                        case .next(let element):
+                                            observer(.success(element))
+                                        case .error(let error):
+                                            observer(.error(error))
+                                        default:
+                                            break
+                                        }
+                                    }
+                        """)
+                ]}
+                let mockedVariableHandlers = [SourceCode("lazy var \(mockVariablePrefix)Subject = PublishSubject<\(returnTypeName)>()")]
+                return (getterImplementation, mockedVariableHandlers)
+            case "Observable":
                 let getterImplementation = SourceCode("return \(mockVariablePrefix)Subject.as\(generic.name)()\(forceCasting)") // ".asSingle()" | ".asObservable()"
                 let mockedVariableHandlers = [SourceCode("lazy var \(mockVariablePrefix)Subject = PublishSubject<\(returnTypeName)>()")]
                 return (getterImplementation, mockedVariableHandlers)

@@ -283,16 +283,27 @@ class ExifImageAttributeProvidingMock: ExifImageAttributeProviding {
 class FileServiceMock: FileService {
 
     // MARK: - Methods
-    func upload(fileUrl: URL) -> Single<()> {
+    func upload(fileUrl: URL) -> Single<[FilePart]> {
         uploadCallCount += 1
         if let __uploadHandler = self.uploadHandler {
             return __uploadHandler(fileUrl)
         }
-        return uploadSubject.asSingle()
+        return Single.create { (observer: @escaping (SingleEvent<[FilePart]>) -> ()) -> Disposable in
+            return self.uploadSubject.subscribe { (event: Event<[FilePart]>) in
+                switch event {
+                case .next(let element):
+                    observer(.success(element))
+                case .error(let error):
+                    observer(.error(error))
+                default:
+                    break
+                }
+            }
+        }
     }
     var uploadCallCount: Int = 0
-    var uploadHandler: ((_ fileUrl: URL) -> (Single<()>))? = nil
-    lazy var uploadSubject = PublishSubject<()>()
+    var uploadHandler: ((_ fileUrl: URL) -> (Single<[FilePart]>))? = nil
+    lazy var uploadSubject = PublishSubject<[FilePart]>()
 }
 
 // MARK: - ImageAttributeProviding
