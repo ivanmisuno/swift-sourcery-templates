@@ -22,14 +22,17 @@ extension MockVar {
 
     // Does this variable require init()?
     var provideValueInInitializer: Bool {
-        return !variable.typeName.isComplexTypeWithSmartDefaultValue
+        return !variable.typeName.hasComplexTypeWithSmartDefaultValue(isProperty: true)
             && (variable.isAnnotatedInit || !variable.typeName.hasDefaultValue)
     }
 
     func mockImpl() throws -> [SourceCode] {
         let mockedVariableImplementation: SourceCode
         let mockedVariableHandlers = TopScope()
-        if !variable.isMutable, variable.typeName.isComplexTypeWithSmartDefaultValue, let smartDefaultValueImplementation = try? variable.typeName.smartDefaultValueImplementation(isProperty: true, mockVariablePrefix: mockedVariableName) {
+        if !variable.isMutable,
+            variable.typeName.hasComplexTypeWithSmartDefaultValue(isProperty: true),
+            let smartDefaultValueImplementation = try? variable.typeName.smartDefaultValueImplementation(isProperty: true, mockVariablePrefix: mockedVariableName) {
+
             mockedVariableImplementation = SourceCode("var \(variable.name): \(variable.typeName)") {[
                 SourceCode("\(mockedVariableName)GetCount += 1"),
                 SourceCode("if let handler = \(mockedVariableName)GetHandler") {[

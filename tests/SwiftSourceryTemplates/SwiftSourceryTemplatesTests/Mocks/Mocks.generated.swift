@@ -77,6 +77,22 @@ class DataSourceMock: DataSource {
     var bindingTargetGetHandler: (() -> AnyObserver<UploadAPI.LocalFile>)? = nil
     var bindingTargetEventCallCount: Int = 0
     var bindingTargetEventHandler: ((Event<UploadAPI.LocalFile>) -> ())? = nil
+
+    // MARK: - Methods
+    func bindStreams() -> Disposable {
+        bindStreamsCallCount += 1
+        if let __bindStreamsHandler = self.bindStreamsHandler {
+            return __bindStreamsHandler()
+        }
+        return Disposables.create { [weak self] in
+            self?.bindStreamsDisposeCallCount += 1
+            self?.bindStreamsDisposeHandler?()
+        }
+    }
+    var bindStreamsCallCount: Int = 0
+    var bindStreamsHandler: (() -> (Disposable))? = nil
+    var bindStreamsDisposeCallCount: Int = 0
+    var bindStreamsDisposeHandler: (() -> ())? = nil
 }
 
 // MARK: - DuplicateGenericTypeNames
@@ -267,16 +283,27 @@ class ExifImageAttributeProvidingMock: ExifImageAttributeProviding {
 class FileServiceMock: FileService {
 
     // MARK: - Methods
-    func upload(fileUrl: URL) -> Single<()> {
+    func upload(fileUrl: URL) -> Single<[FilePart]> {
         uploadCallCount += 1
         if let __uploadHandler = self.uploadHandler {
             return __uploadHandler(fileUrl)
         }
-        return uploadSubject.asSingle()
+        return Single.create { (observer: @escaping (SingleEvent<[FilePart]>) -> ()) -> Disposable in
+            return self.uploadSubject.subscribe { (event: Event<[FilePart]>) in
+                switch event {
+                case .next(let element):
+                    observer(.success(element))
+                case .error(let error):
+                    observer(.error(error))
+                default:
+                    break
+                }
+            }
+        }
     }
     var uploadCallCount: Int = 0
-    var uploadHandler: ((_ fileUrl: URL) -> (Single<()>))? = nil
-    lazy var uploadSubject = PublishSubject<()>()
+    var uploadHandler: ((_ fileUrl: URL) -> (Single<[FilePart]>))? = nil
+    lazy var uploadSubject = PublishSubject<[FilePart]>()
 }
 
 // MARK: - ImageAttributeProviding

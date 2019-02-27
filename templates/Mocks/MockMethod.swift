@@ -78,8 +78,12 @@ extension MockMethod {
             methodImpl += "return nil"
         } else {
             // Do something smart
-            if method.returnTypeName.isComplexTypeWithSmartDefaultValue {
-                let smartDefaultValueImplementation = try method.returnTypeName.smartDefaultValueImplementation(isProperty: false, mockVariablePrefix: mockedMethodName, forceCastingToReturnTypeName: isGeneric)
+            if method.returnTypeName.hasComplexTypeWithSmartDefaultValue(isProperty: false) {
+                let smartDefaultValueImplementation = try method.returnTypeName.smartDefaultValueImplementation(
+                    isProperty: false,
+                    mockVariablePrefix: mockedMethodName,
+                    forceCastingToReturnTypeName: isGeneric)
+                    
                 methodImpl += smartDefaultValueImplementation.0
                 mockMethodHandlers += smartDefaultValueImplementation.1
             } else if method.returnTypeName.hasDefaultValue, let defaultValue = try? method.returnTypeName.defaultValue() {
