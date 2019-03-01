@@ -525,6 +525,24 @@ class SomeRoutingMock<_InteractorType>: SomeRouting where _InteractorType: SomeI
     }
 }
 
+// MARK: - ThrowingGenericBuildable
+class ThrowingGenericBuildableMock<_EventType>: ThrowingGenericBuildable {
+
+    // MARK: - Generic typealiases
+    typealias EventType = _EventType
+
+    // MARK: - Methods
+    func build() throws -> AnyErrorPopoverPresentable<EventType> {
+        buildCallCount += 1
+        if let __buildHandler = self.buildHandler {
+            return try __buildHandler()
+        }
+        fatalError("buildHandler expected to be set.")
+    }
+    var buildCallCount: Int = 0
+    var buildHandler: (() throws -> (AnyErrorPopoverPresentable<EventType>))? = nil
+}
+
 // MARK: - ThumbCreating
 class ThumbCreatingMock: ThumbCreating {
 

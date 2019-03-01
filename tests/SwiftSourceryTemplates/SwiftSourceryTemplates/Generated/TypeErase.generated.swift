@@ -203,3 +203,42 @@ final class AnySomeRouting<InteractorType>: SomeRouting where InteractorType: So
         
     }
 }
+
+// MARK: - Type erasure for `ThrowingGenericBuildable`
+
+private class _AnyThrowingGenericBuildableBase<EventType>: ThrowingGenericBuildable {
+    init() {
+        guard type(of: self) != _AnyThrowingGenericBuildableBase.self else {
+            fatalError("_AnyThrowingGenericBuildableBase<EventType> instances can not be created; create a subclass instance instead")
+        }
+    }
+
+    func build() throws -> AnyErrorPopoverPresentable<EventType> {
+        fatalError("Must override")
+    }
+}
+
+private final class _AnyThrowingGenericBuildableBox<Concrete: ThrowingGenericBuildable>: _AnyThrowingGenericBuildableBase<Concrete.EventType> {
+    private let concrete: Concrete
+    typealias EventType = Concrete.EventType
+
+    init(_ concrete: Concrete) {
+        self.concrete = concrete
+    }
+
+    override func build() throws -> AnyErrorPopoverPresentable<EventType> {
+        return try concrete.build()
+    }
+}
+
+final class AnyThrowingGenericBuildable<EventType>: ThrowingGenericBuildable {
+    private let box: _AnyThrowingGenericBuildableBase<EventType>
+
+    init<Concrete: ThrowingGenericBuildable>(_ concrete: Concrete) where Concrete.EventType == EventType {
+        self.box = _AnyThrowingGenericBuildableBox(concrete)
+    }
+
+    func build() throws -> AnyErrorPopoverPresentable<EventType> {
+        return try box.build()
+    }
+}

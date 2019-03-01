@@ -62,7 +62,7 @@ private class _Any<%=type.name%>Base<%=genericTypesModifier%>: <%=type.name%><%=
     <%_ if !allMethods.isEmpty { -%>
 
     <%_ for m in allMethods { -%>
-    func <%=m.name%> -> <%=m.returnTypeName%> {
+    func <%=m.name%><%=m.throws ? " throws" : ""%> -> <%=m.returnTypeName%> {
         fatalError("Must override")
     }
     <%_ } -%>
@@ -90,8 +90,8 @@ private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type
     <%_ if !allMethods.isEmpty { -%>
 
     <%_ for m in allMethods { -%>
-    override func <%=m.name%> -> <%=m.returnTypeName%> {
-        return concrete.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel != nil ? "\($0.argumentLabel!): " : "")\($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
+    override func <%=m.name%><%=m.throws ? " throws" : ""%> -> <%=m.returnTypeName%> {
+        return <%=m.throws ? "try " : ""%>concrete.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel != nil ? "\($0.argumentLabel!): " : "")\($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
     }
     <%_ } -%>
     <%_ } -%>
@@ -115,8 +115,8 @@ final class Any<%=type.name%><%=genericTypesModifier%>: <%=type.name%><%=generic
     <%_ if !allMethods.isEmpty { -%>
 
     <%_ for m in allMethods { -%>
-    func <%=m.name%> -> <%=m.returnTypeName%> {
-        return box.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel != nil ? "\($0.argumentLabel!): " : "")\($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
+    func <%=m.name%><%=m.throws ? " throws" : ""%> -> <%=m.returnTypeName%> {
+        return <%=m.throws ? "try " : ""%>box.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel != nil ? "\($0.argumentLabel!): " : "")\($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
     }
     <%_ } -%>
     <%_ } -%>
