@@ -139,6 +139,14 @@ protocol ErrorPopoverPresentableRawRepresentable {
 }
 
 /// sourcery: CreateMock
+/// sourcery: TypeErase
+/// sourcery: associatedtype = "EventType"
+protocol ThrowingGenericBuildable {
+    associatedtype EventType
+    func build() throws -> AnyErrorPopoverPresentable<EventType>
+}
+
+/// sourcery: CreateMock
 protocol TipsManaging: class {
     var tips: [String: String] { get }
     var tipsOptional: [String: String]? { get }
