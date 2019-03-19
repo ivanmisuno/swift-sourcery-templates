@@ -474,6 +474,44 @@ class ObjectManupulatingMock: ObjectManupulating {
     var removeObjectWhereMatchPredicateHandler: ((_ matchPredicate: @escaping (Any) throws -> (Bool)) throws -> (Int))? = nil
 }
 
+// MARK: - ProtocolWithCollections
+class ProtocolWithCollectionsMock: ProtocolWithCollections {
+
+    // MARK: - Variables
+    var data: Array<String> = []
+    var items: Set<String> = Set()
+    var mapping: Dictionary<String, Int> = [:]
+
+    // MARK: - Methods
+    func getData() -> Array<String> {
+        getDataCallCount += 1
+        if let __getDataHandler = self.getDataHandler {
+            return __getDataHandler()
+        }
+        return []
+    }
+    var getDataCallCount: Int = 0
+    var getDataHandler: (() -> (Array<String>))? = nil
+    func getItems() -> Set<String> {
+        getItemsCallCount += 1
+        if let __getItemsHandler = self.getItemsHandler {
+            return __getItemsHandler()
+        }
+        return Set()
+    }
+    var getItemsCallCount: Int = 0
+    var getItemsHandler: (() -> (Set<String>))? = nil
+    func getMapping() -> Dictionary<String, Int> {
+        getMappingCallCount += 1
+        if let __getMappingHandler = self.getMappingHandler {
+            return __getMappingHandler()
+        }
+        return [:]
+    }
+    var getMappingCallCount: Int = 0
+    var getMappingHandler: (() -> (Dictionary<String, Int>))? = nil
+}
+
 // MARK: - ProtocolWithExtensions
 class ProtocolWithExtensionsMock: ProtocolWithExtensions {
 

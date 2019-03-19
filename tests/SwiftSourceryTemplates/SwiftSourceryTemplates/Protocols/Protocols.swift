@@ -62,6 +62,17 @@ protocol ExifImageAttributeProviding {
     func dateTaken(fileUrl: URL) -> Date?
 }
 
+// sourcery: CreateMock
+protocol ProtocolWithCollections {
+    var items: Set<String> { get }
+    var data: Array<String> { get }
+    var mapping: Dictionary<String, Int> { get }
+
+    func getItems() -> Set<String>
+    func getData() -> Array<String>
+    func getMapping() -> Dictionary<String, Int>
+}
+
 /// sourcery: CreateMock
 protocol DuplicateGenericTypeNames {
     // sourcery: generictype = T
