@@ -194,6 +194,18 @@ protocol MutableTipsManaging: TipsManaging, DuplicateRequirements {
 }
 
 /// sourcery: CreateMock
+protocol TipsAccessing {
+    /// sourcery: handler
+    var tip: Tip { get }
+}
+
+/// sourcery: CreateMock
+protocol MutableTipsAccessing {
+    /// sourcery: handler
+    var tip: Tip { get set }
+}
+
+/// sourcery: CreateMock
 protocol TipsManagerBuilding {
     func build() -> TipsManaging & MutableTipsManaging
 }

@@ -343,6 +343,27 @@ class LegacyProtocolMock: NSObject, LegacyProtocol {
     var compareHandler: ((_ lhs: CGSize, _ rhs: CGSize) -> (ComparisonResult))? = nil
 }
 
+// MARK: - MutableTipsAccessing
+class MutableTipsAccessingMock: MutableTipsAccessing {
+
+    // MARK: - Variables
+    var tip: Tip {
+        get {
+            tipGetCount += 1
+            if let handler = tipGetHandler {
+                return handler()
+            }
+            fatalError("`tipGetHandler` must be set!")
+        }
+        set {
+            tipSetCount += 1
+        }
+    }
+    var tipGetCount: Int = 0
+    var tipGetHandler: (() -> Tip)? = nil
+    var tipSetCount: Int = 0
+}
+
 // MARK: - MutableTipsManaging
 class MutableTipsManagingMock: MutableTipsManaging {
 
@@ -603,6 +624,21 @@ class ThumbCreatingMock: ThumbCreating {
     }
     var createThumbJpegDataCallCount: Int = 0
     var createThumbJpegDataHandler: ((_ pictureUrl: URL, _ size: CGSize, _ compression: Double) throws -> (Data))? = nil
+}
+
+// MARK: - TipsAccessing
+class TipsAccessingMock: TipsAccessing {
+
+    // MARK: - Variables
+    var tip: Tip {
+        tipGetCount += 1
+        if let handler = tipGetHandler {
+            return handler()
+        }
+        fatalError("`tipGetHandler` must be set!")
+    }
+    var tipGetCount: Int = 0
+    var tipGetHandler: (() -> Tip)? = nil
 }
 
 // MARK: - TipsManagerBuilding
