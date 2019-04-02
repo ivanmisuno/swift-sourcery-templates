@@ -112,7 +112,7 @@ private final class _AnyInteractableBox<Concrete: Interactable>: _AnyInteractabl
     }
 }
 
-final class AnyInteractable: Interactable {
+public final class AnyInteractable: Interactable {
     private let box: _AnyInteractableBase
 
     init<Concrete: Interactable>(_ concrete: Concrete) {
@@ -149,7 +149,7 @@ private final class _AnyRoutingBox<Concrete: Routing>: _AnyRoutingBase<Concrete.
     }
 }
 
-final class AnyRouting<InteractorType>: Routing where InteractorType: Interactable {
+public final class AnyRouting<InteractorType>: Routing where InteractorType: Interactable {
     private let box: _AnyRoutingBase<InteractorType>
 
     init<Concrete: Routing>(_ concrete: Concrete) where Concrete.InteractorType == InteractorType {
@@ -191,7 +191,7 @@ private final class _AnySomeRoutingBox<Concrete: SomeRouting>: _AnySomeRoutingBa
     }
 }
 
-final class AnySomeRouting<InteractorType>: SomeRouting where InteractorType: SomeInteractable {
+public final class AnySomeRouting<InteractorType>: SomeRouting where InteractorType: SomeInteractable {
     private let box: _AnySomeRoutingBase<InteractorType>
 
     init<Concrete: SomeRouting>(_ concrete: Concrete) where Concrete.InteractorType == InteractorType {

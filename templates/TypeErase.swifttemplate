@@ -97,7 +97,7 @@ private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type
     <%_ } -%>
 }
 
-final class Any<%=type.name%><%=genericTypesModifier%>: <%=type.name%><%=genericTypesConstraints%> {
+<%=type.accessLevel == "public" ? "public " : ""%>final class Any<%=type.name%><%=genericTypesModifier%>: <%=type.name%><%=genericTypesConstraints%> {
     private let box: _Any<%=type.name%>Base<%=genericTypesModifier%>
 
     init<Concrete: <%=type.name%>>(_ concrete: Concrete)<%=!associatedTypes.isEmpty ? " where \(associatedTypes.map {"Concrete.\($0.genericType) == \($0.genericType)"}.joined(separator: ", "))" : ""%> {
