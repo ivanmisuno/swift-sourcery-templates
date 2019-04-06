@@ -97,16 +97,16 @@ private final class _Any<%=type.name%>Box<Concrete: <%=type.name%>>: _Any<%=type
     <%_ } -%>
 }
 
-final class Any<%=type.name%><%=genericTypesModifier%>: <%=type.name%><%=genericTypesConstraints%> {
+<%=type.accessLevel == "public" ? "public " : ""%>final class Any<%=type.name%><%=genericTypesModifier%>: <%=type.name%><%=genericTypesConstraints%> {
     private let box: _Any<%=type.name%>Base<%=genericTypesModifier%>
 
-    init<Concrete: <%=type.name%>>(_ concrete: Concrete)<%=!associatedTypes.isEmpty ? " where \(associatedTypes.map {"Concrete.\($0.genericType) == \($0.genericType)"}.joined(separator: ", "))" : ""%> {
+    <%=type.accessLevel == "public" ? "public " : ""%>init<Concrete: <%=type.name%>>(_ concrete: Concrete)<%=!associatedTypes.isEmpty ? " where \(associatedTypes.map {"Concrete.\($0.genericType) == \($0.genericType)"}.joined(separator: ", "))" : ""%> {
         self.box = _Any<%=type.name%>Box(concrete)
     }
     <%_ if !allVariables.isEmpty { -%>
 
     <%_ for p in allVariables { -%>
-    var <%=p.name%>: <%=p.typeName%> {
+    <%=type.accessLevel == "public" ? "public " : ""%>var <%=p.name%>: <%=p.typeName%> {
         get { return box.<%=p.name%> }
         <% if p.isMutable { %>set { box.<%=p.name%> = newValue }<% } %>
     }
@@ -115,7 +115,7 @@ final class Any<%=type.name%><%=genericTypesModifier%>: <%=type.name%><%=generic
     <%_ if !allMethods.isEmpty { -%>
 
     <%_ for m in allMethods { -%>
-    func <%=m.name%><%=m.throws ? " throws" : ""%> -> <%=m.returnTypeName%> {
+    <%=type.accessLevel == "public" ? "public " : ""%>func <%=m.name%><%=m.throws ? " throws" : ""%> -> <%=m.returnTypeName%> {
         return <%=m.throws ? "try " : ""%>box.<%=m.callName%>(<%= m.parameters.map { "\($0.argumentLabel != nil ? "\($0.argumentLabel!): " : "")\($0.`inout` ? "inout ": "")\($0.name)" }.joined(separator: ", ") %>)
     }
     <%_ } -%>

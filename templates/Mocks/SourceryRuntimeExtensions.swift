@@ -31,6 +31,14 @@ extension SourceryRuntime.TypeName {
             break
         }
 
+        if let generic = generic {
+            switch generic.name {
+            case "Set": return "\(generic.name)()"
+            default:
+                break
+            }
+        }
+
         throw MockError.noDefaultValue(typeName: self)
     }
 

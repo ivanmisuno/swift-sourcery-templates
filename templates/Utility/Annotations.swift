@@ -27,7 +27,20 @@ extension SourceryRuntime.Annotated {
 
     // For a 'get'-only variable requirement in the protocol, determine if it should be included in the mock class' initializer list.
     var isAnnotatedInit: Bool {
+        precondition(!isAnnotatedInitInternal || !isAnnotatedHandlerInternal, "`isAnnotatedInit` is mutually exclusive with `isAnnotatedHandler`")
+        return isAnnotatedInitInternal
+    }
+    private var isAnnotatedInitInternal: Bool {
         return annotations[caseInsensitive: "init"] != nil
+    }
+
+    // For a `get`-only variable requirement in the protocol,
+    var isAnnotatedHandler: Bool {
+        precondition(!isAnnotatedHandlerInternal || !isAnnotatedInitInternal, "`isAnnotatedHandler` is mutually exclusive with `isAnnotatedInit`")
+        return isAnnotatedHandlerInternal
+    }
+    private var isAnnotatedHandlerInternal: Bool {
+        return annotations[caseInsensitive: "handler"] != nil
     }
 }
 

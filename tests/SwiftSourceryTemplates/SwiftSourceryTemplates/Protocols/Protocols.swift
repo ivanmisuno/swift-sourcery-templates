@@ -62,6 +62,17 @@ protocol ExifImageAttributeProviding {
     func dateTaken(fileUrl: URL) -> Date?
 }
 
+// sourcery: CreateMock
+protocol ProtocolWithCollections {
+    var items: Set<String> { get }
+    var data: Array<String> { get }
+    var mapping: Dictionary<String, Int> { get }
+
+    func getItems() -> Set<String>
+    func getData() -> Array<String>
+    func getMapping() -> Dictionary<String, Int>
+}
+
 /// sourcery: CreateMock
 protocol DuplicateGenericTypeNames {
     // sourcery: generictype = T
@@ -180,6 +191,18 @@ protocol DuplicateRequirementsSameLevel {
 protocol MutableTipsManaging: TipsManaging, DuplicateRequirements {
     func updateTips(_ tips: [Tip])
     func updateTips(with tips: AnySequence<Tip>) throws
+}
+
+/// sourcery: CreateMock
+protocol TipsAccessing {
+    /// sourcery: handler
+    var tip: Tip { get }
+}
+
+/// sourcery: CreateMock
+protocol MutableTipsAccessing {
+    /// sourcery: handler
+    var tip: Tip { get set }
 }
 
 /// sourcery: CreateMock
