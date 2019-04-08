@@ -590,14 +590,22 @@ class RealmInteropMock<_Element, _KeyType, _S>: RealmInterop where _Element: Obj
     var isInWriteTransaction: Bool = false
 
     // MARK: - Methods
-    func add<S>(_ objects: S, update: Bool) {
-        addCallCount += 1
-        if let __addHandler = self.addHandler {
-            __addHandler(objects as! _S, update)
+    func add(_ object: Object, update: Bool) {
+        addObjectCallCount += 1
+        if let __addObjectHandler = self.addObjectHandler {
+            __addObjectHandler(object, update)
         }
     }
-    var addCallCount: Int = 0
-    var addHandler: ((_ objects: S, _ update: Bool) -> ())? = nil
+    var addObjectCallCount: Int = 0
+    var addObjectHandler: ((_ object: Object, _ update: Bool) -> ())? = nil
+    func add<S>(_ objects: S, update: Bool) {
+        addObjectsCallCount += 1
+        if let __addObjectsHandler = self.addObjectsHandler {
+            __addObjectsHandler(objects as! _S, update)
+        }
+    }
+    var addObjectsCallCount: Int = 0
+    var addObjectsHandler: ((_ objects: S, _ update: Bool) -> ())? = nil
     func beginWrite() {
         beginWriteCallCount += 1
         if let __beginWriteHandler = self.beginWriteHandler {
@@ -631,14 +639,6 @@ class RealmInteropMock<_Element, _KeyType, _S>: RealmInterop where _Element: Obj
     }
     var createCallCount: Int = 0
     var createHandler: ((_ type: Element.Type, _ value: Any, _ update: Bool) -> (Element))? = nil
-    func delete<S>(_ objects: S) {
-        deleteCallCount += 1
-        if let __deleteHandler = self.deleteHandler {
-            __deleteHandler(objects as! _S)
-        }
-    }
-    var deleteCallCount: Int = 0
-    var deleteHandler: ((_ objects: S) -> ())? = nil
     func deleteAll() {
         deleteAllCallCount += 1
         if let __deleteAllHandler = self.deleteAllHandler {
@@ -647,6 +647,38 @@ class RealmInteropMock<_Element, _KeyType, _S>: RealmInterop where _Element: Obj
     }
     var deleteAllCallCount: Int = 0
     var deleteAllHandler: (() -> ())? = nil
+    func delete<Element>(_ objects: List<Element>) {
+        deleteListCallCount += 1
+        if let __deleteListHandler = self.deleteListHandler {
+            __deleteListHandler(objects as! List<_Element>)
+        }
+    }
+    var deleteListCallCount: Int = 0
+    var deleteListHandler: ((_ objects: List<Element>) -> ())? = nil
+    func delete(_ object: Object) {
+        deleteObjectCallCount += 1
+        if let __deleteObjectHandler = self.deleteObjectHandler {
+            __deleteObjectHandler(object)
+        }
+    }
+    var deleteObjectCallCount: Int = 0
+    var deleteObjectHandler: ((_ object: Object) -> ())? = nil
+    func delete<S>(_ objects: S) {
+        deleteObjectsCallCount += 1
+        if let __deleteObjectsHandler = self.deleteObjectsHandler {
+            __deleteObjectsHandler(objects as! _S)
+        }
+    }
+    var deleteObjectsCallCount: Int = 0
+    var deleteObjectsHandler: ((_ objects: S) -> ())? = nil
+    func delete<Element>(_ objects: Results<Element>) {
+        deleteResultsCallCount += 1
+        if let __deleteResultsHandler = self.deleteResultsHandler {
+            __deleteResultsHandler(objects as! Results<_Element>)
+        }
+    }
+    var deleteResultsCallCount: Int = 0
+    var deleteResultsHandler: ((_ objects: Results<Element>) -> ())? = nil
     func invalidate() {
         invalidateCallCount += 1
         if let __invalidateHandler = self.invalidateHandler {

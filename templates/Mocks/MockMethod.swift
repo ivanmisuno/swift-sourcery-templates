@@ -41,7 +41,14 @@ extension MockMethod {
 }
 
 extension MockMethod {
+    fileprivate var annotatedMethodName: String? {
+        return method.annotations(for: ["methodName"]).first
+    }
+
     fileprivate var mockedMethodName: String {
+        if let annotatedMethodName = annotatedMethodName {
+            return annotatedMethodName
+        }
         var result: [String] = [method.callName]
         if !useShortName {
             result += method.parameters.map {
@@ -83,7 +90,7 @@ extension MockMethod {
                     isProperty: false,
                     mockVariablePrefix: mockedMethodName,
                     forceCastingToReturnTypeName: isGeneric)
-                    
+
                 methodImpl += smartDefaultValueImplementation.0
                 mockMethodHandlers += smartDefaultValueImplementation.1
             } else if method.returnTypeName.hasDefaultValue, let defaultValue = try? method.returnTypeName.defaultValue() {

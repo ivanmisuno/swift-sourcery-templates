@@ -269,36 +269,59 @@ protocol RealmInterop: class
     func commitWrite(withoutNotifying tokens: [NotificationToken]) throws
     func cancelWrite()
     var isInWriteTransaction: Bool { get }
-    //func add(_ object: Object, update: Bool)
+
+    /// sourcery: methodName = addObject
+    func add(_ object: Object, update: Bool)
+
+    /// sourcery: methodName = addObjects
     /// sourcery: genericType = "S: Sequence, S.Iterator.Element: Object"
     func add<S>(
         // sourcery: annotatedGenericTypes = "{S}"
         _ objects: S,
         update: Bool) where S: Sequence, S.Iterator.Element: Object
+
     /// sourcery: genericType = "Element: Object"
     func create<Element>(
         // sourcery: annotatedGenericTypes = "{Element}.Type"
         _ type: Element.Type,
         value: Any,
         update: Bool) -> Element where Element: Object
-//    func delete(_ object: Object)
+
+    /// sourcery: methodName = deleteObject
+    func delete(_ object: Object)
+
+    /// sourcery: methodName = deleteObjects
     /// sourcery: genericType = "S: Sequence, S.Iterator.Element: Object"
     func delete<S>(
         // sourcery: annotatedGenericTypes = "{S}"
         _ objects: S) where S: Sequence, S.Iterator.Element: Object
-//    //func delete<Element: Object>(_ objects: List<Element>)
-//    //func delete<Element: Object>(_ objects: Results<Element>)
+
+    /// sourcery: methodName = deleteList
+    /// sourcery: genericType = "Element: Object"
+    func delete<Element>(
+        // sourcery: annotatedGenericTypes = "List<{Element}>"
+        _ objects: List<Element>) where Element: Object
+
+    /// sourcery: methodName = deleteResults
+    /// sourcery: genericType = "Element: Object"
+    func delete<Element>(
+        // sourcery: annotatedGenericTypes = "Results<{Element}>"
+        _ objects: Results<Element>) where Element: Object
+
     func deleteAll()
+
     /// sourcery: genericType = "Element: Object"
     func objects<Element>(
         // sourcery: annotatedGenericTypes = "{Element}.Type"
         _ type: Element.Type) -> Results<Element> where Element: Object
+
     /// sourcery: genericType = "Element: Object, KeyType"
     func object<Element, KeyType>(
         // sourcery: annotatedGenericTypes = "{Element}.Type"
         ofType type: Element.Type,
         // sourcery: annotatedGenericTypes = "{KeyType}"
         forPrimaryKey key: KeyType) -> Element? where Element: Object
+
     func observe(_ block: @escaping RealmNotificationInteropBlock) -> NotificationToken
     var autorefresh: Bool { get set }
     func refresh() -> Bool
