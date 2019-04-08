@@ -24,20 +24,7 @@ class MockGenerator {
             topScope += Constants.NEWL
             topScope += "// MARK: - \(type.name)"
 
-            let genericTypes: [GenericTypeInfo]
-            do {
-                genericTypes = try mockMethods.reduce(into: type.genericTypes) { (partialResult: inout [GenericTypeInfo], mockMethod: MockMethod) in
-                    try mockMethod.genericTypes.forEach { genericType in
-                        guard !partialResult.contains(where: { $0.genericType == genericType.genericType }) else {
-                            throw MockError.duplicateGenericTypeName(context: "`func \(mockMethod.method.name)` has generic type name `\(genericType.genericType)` which is not unique across all generic types for the protocol (\(partialResult.map { $0.genericType })). Please change protocol declaration so that generic types have unique names!")
-                        }
-                        partialResult.append(genericType)
-                    }
-                }
-            } catch {
-                topScope += "// \(error)"
-                continue
-            }
+            let genericTypes: [GenericTypeInfo] = (type.genericTypes + mockMethods.flatMap { $0.genericTypes }).merged()
 
             var mock = SourceCode("class \(type.name)Mock\(genericTypes.genericTypesModifier): \(type.isObjcProtocol ? "NSObject, " : "")\(type.name)\(genericTypes.genericTypesConstraints)")
             mock.isBlockMandatory = true
@@ -98,16 +85,16 @@ private extension SourceryRuntime.`Type` {
 private extension Collection where Element == GenericTypeInfo {
 
     /// For a given list of generic types, creates a corresponding type declaration modifier string.
-    /// E.g., for a list ["T1", "T2"] this will create "<T1, T2>" modifier string.
+    /// E.g., for a list ["T1", "T2"] this will create "<_T1, _T2>" modifier string (where "_" is the value of genericTypePrefix).
     var genericTypesModifier: String {
         let types = sorted { $0.genericType < $1.genericType }.map { "\(Constants.genericTypePrefix)\($0.genericType)" }
         return !types.isEmpty ? "<\(types.joined(separator: ", "))>" : ""
     }
 
-    /// For a given list of generic types, some of which has constraints, creates a "where" clause for the type declaration.
-    /// E.g., for a list ["T1: RawRepresentable, Hashable", "T2"] this will create "where T1: RawRepresentable, T1: Hashable" modifier string.
+    /// For a given list of generic types, some of which have type constraints, creates a "where" clause for the type declaration.
+    /// E.g., for a list ["T1: RawRepresentable", "T1: Hashable", "T2"] this will create "where _T1: RawRepresentable, _T1: Hashable" modifier string (where "_" is the value of genericTypePrefix).
     var genericTypesConstraints: String {
-        let constraints = sorted { $0.genericType < $1.genericType }.flatMap { genericType in return genericType.constraints.map { "\(Constants.genericTypePrefix)\(genericType.genericType): \($0)" } }
+        let constraints = sorted { $0.genericType < $1.genericType }.flatMap { genericType in return genericType.constraints.map { "\(Constants.genericTypePrefix)\($0)" }.sorted() }
         return !constraints.isEmpty ? " where \(constraints.joined(separator: ", "))" : ""
     }
 

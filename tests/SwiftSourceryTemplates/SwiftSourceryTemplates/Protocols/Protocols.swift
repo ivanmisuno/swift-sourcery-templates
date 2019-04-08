@@ -76,9 +76,13 @@ protocol ProtocolWithCollections {
 /// sourcery: CreateMock
 protocol DuplicateGenericTypeNames {
     // sourcery: generictype = T
-    func action<T>(_: T)
+    func action<T>(
+        // sourcery: annotatedGenericTypes = "{T}"
+        _ a: T)
     // sourcery: generictype = T
-    func action2<T>(_: T)
+    func action2<T>(
+        // sourcery: annotatedGenericTypes = "{T}"
+        _ a: T)
 }
 
 /// sourcery: CreateMock
@@ -94,7 +98,7 @@ protocol ErrorPopoverBuildable {
 
 /// sourcery: CreateMock
 protocol ErrorPopoverBuildableRawRepresentable {
-    // sourcery: generictype = "T: RawRepresentable, Hashable"
+    // sourcery: generictype = "T: RawRepresentable, T: Hashable"
     func buildPopoverPresenter<T>(
         title: String,
         // sourcery: annotatedGenericTypes = "[(title: String, identifier: {T}, handler: ()->())]"
@@ -103,7 +107,7 @@ protocol ErrorPopoverBuildableRawRepresentable {
 
 /// sourcery: CreateMock
 protocol ErrorPresenting {
-    // sourcery: genericType = "T: RawRepresentable, Hashable"
+    // sourcery: genericType = "T: RawRepresentable, T: Hashable"
     func presentErrorPopover<T>(
         // sourcery: genericTypePlaceholder = "AnyErrorPopoverPresentable<{T}>"
         _ popoverPresenter: AnyErrorPopoverPresentable<T>) -> Observable<T> where T: RawRepresentable, T: Hashable
@@ -143,7 +147,7 @@ protocol ErrorPopoverPresentable {
 
 /// sourcery: CreateMock
 /// sourcery: TypeErase
-/// sourcery: associatedtype = "EventType: RawRepresentable, Hashable"
+/// sourcery: associatedtype = "EventType: RawRepresentable, EventType: Hashable"
 protocol ErrorPopoverPresentableRawRepresentable {
     associatedtype EventType: RawRepresentable, Hashable
     func show(relativeTo positioningRect: NSRect, of positioningView: NSView, preferredEdge: NSRectEdge) -> Observable<EventType>
@@ -250,3 +254,54 @@ extension ProtocolWithExtensions {
 // protocol EdgeCases {
 //     func functionMissingArgumentLabel(_: Int)
 // }
+
+typealias RealmNotificationInteropBlock = (_ notification: Notification, _ realmInterop: RealmInterop) -> ()
+class Object {}
+class List<Element> {}
+class Results<Element> {}
+struct NotificationToken {}
+
+/// sourcery: CreateMock
+protocol RealmInterop: class
+{
+    func write(_ block: (() throws -> Void)) throws
+    func beginWrite()
+    func commitWrite(withoutNotifying tokens: [NotificationToken]) throws
+    func cancelWrite()
+    var isInWriteTransaction: Bool { get }
+    //func add(_ object: Object, update: Bool)
+    /// sourcery: genericType = "S: Sequence, S.Iterator.Element: Object"
+    func add<S>(
+        // sourcery: annotatedGenericTypes = "{S}"
+        _ objects: S,
+        update: Bool) where S: Sequence, S.Iterator.Element: Object
+    /// sourcery: genericType = "Element: Object"
+    func create<Element>(
+        // sourcery: annotatedGenericTypes = "{Element}.Type"
+        _ type: Element.Type,
+        value: Any,
+        update: Bool) -> Element where Element: Object
+//    func delete(_ object: Object)
+    /// sourcery: genericType = "S: Sequence, S.Iterator.Element: Object"
+    func delete<S>(
+        // sourcery: annotatedGenericTypes = "{S}"
+        _ objects: S) where S: Sequence, S.Iterator.Element: Object
+//    //func delete<Element: Object>(_ objects: List<Element>)
+//    //func delete<Element: Object>(_ objects: Results<Element>)
+    func deleteAll()
+    /// sourcery: genericType = "Element: Object"
+    func objects<Element>(
+        // sourcery: annotatedGenericTypes = "{Element}.Type"
+        _ type: Element.Type) -> Results<Element> where Element: Object
+    /// sourcery: genericType = "Element: Object, KeyType"
+    func object<Element, KeyType>(
+        // sourcery: annotatedGenericTypes = "{Element}.Type"
+        ofType type: Element.Type,
+        // sourcery: annotatedGenericTypes = "{KeyType}"
+        forPrimaryKey key: KeyType) -> Element? where Element: Object
+    func observe(_ block: @escaping RealmNotificationInteropBlock) -> NotificationToken
+    var autorefresh: Bool { get set }
+    func refresh() -> Bool
+    func invalidate()
+    func writeCopy(toFile fileURL: URL, encryptionKey: Data?) throws
+}

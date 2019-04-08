@@ -31,10 +31,7 @@
     let associatedTypes: [GenericTypeInfo] = type.annotatedAssociatedTypes()
     let genericTypesModifier = !associatedTypes.isEmpty ? "<\(associatedTypes.map { $0.genericType }.joined(separator: ", "))>" : ""
     let genericTypesConstraints: String = {
-        let constraints = associatedTypes
-          .flatMap { associatedType in
-            return associatedType.constraints.map { "\(associatedType.genericType): \($0)" }
-           }
+        let constraints = associatedTypes.flatMap { $0.constraints }.sorted()
         return !constraints.isEmpty ? " where \(constraints.joined(separator: ", "))" : ""
     }()
 

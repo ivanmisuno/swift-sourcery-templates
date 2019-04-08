@@ -96,7 +96,29 @@ class DataSourceMock: DataSource {
 }
 
 // MARK: - DuplicateGenericTypeNames
-// Duplicate generic type name found while generating mock implementation: `func action2<T>(_: T)` has generic type name `T` which is not unique across all generic types for the protocol (["T"]). Please change protocol declaration so that generic types have unique names!
+class DuplicateGenericTypeNamesMock<_T>: DuplicateGenericTypeNames {
+
+    // MARK: - Generic typealiases
+    typealias T = _T
+
+    // MARK: - Methods
+    func action<T>(_ a: T) {
+        actionCallCount += 1
+        if let __actionHandler = self.actionHandler {
+            __actionHandler(a as! _T)
+        }
+    }
+    var actionCallCount: Int = 0
+    var actionHandler: ((_ a: T) -> ())? = nil
+    func action2<T>(_ a: T) {
+        action2CallCount += 1
+        if let __action2Handler = self.action2Handler {
+            __action2Handler(a as! _T)
+        }
+    }
+    var action2CallCount: Int = 0
+    var action2Handler: ((_ a: T) -> ())? = nil
+}
 
 // MARK: - DuplicateRequirements
 class DuplicateRequirementsMock: DuplicateRequirements {
@@ -548,6 +570,143 @@ class ProtocolWithExtensionsMock: ProtocolWithExtensions {
     }
     var requiredInProtocolCallCount: Int = 0
     var requiredInProtocolHandler: (() -> ())? = nil
+}
+
+// MARK: - RealmInterop
+class RealmInteropMock<_Element, _KeyType, _S>: RealmInterop where _Element: Object, _S.Iterator.Element: Object, _S: Sequence {
+
+    // MARK: - Generic typealiases
+    typealias Element = _Element
+    typealias KeyType = _KeyType
+    typealias S = _S
+
+    // MARK: - Variables
+    var autorefresh: Bool = false {
+        didSet {
+            autorefreshSetCount += 1
+        }
+    }
+    var autorefreshSetCount: Int = 0
+    var isInWriteTransaction: Bool = false
+
+    // MARK: - Methods
+    func add<S>(_ objects: S, update: Bool) {
+        addCallCount += 1
+        if let __addHandler = self.addHandler {
+            __addHandler(objects as! _S, update)
+        }
+    }
+    var addCallCount: Int = 0
+    var addHandler: ((_ objects: S, _ update: Bool) -> ())? = nil
+    func beginWrite() {
+        beginWriteCallCount += 1
+        if let __beginWriteHandler = self.beginWriteHandler {
+            __beginWriteHandler()
+        }
+    }
+    var beginWriteCallCount: Int = 0
+    var beginWriteHandler: (() -> ())? = nil
+    func cancelWrite() {
+        cancelWriteCallCount += 1
+        if let __cancelWriteHandler = self.cancelWriteHandler {
+            __cancelWriteHandler()
+        }
+    }
+    var cancelWriteCallCount: Int = 0
+    var cancelWriteHandler: (() -> ())? = nil
+    func commitWrite(withoutNotifying tokens: [NotificationToken]) throws {
+        commitWriteCallCount += 1
+        if let __commitWriteHandler = self.commitWriteHandler {
+            try __commitWriteHandler(tokens)
+        }
+    }
+    var commitWriteCallCount: Int = 0
+    var commitWriteHandler: ((_ tokens: [NotificationToken]) throws -> ())? = nil
+    func create<Element>(_ type: Element.Type, value: Any, update: Bool) -> Element where Element: Object {
+        createCallCount += 1
+        if let __createHandler = self.createHandler {
+            return __createHandler(type as! _Element.Type, value, update) as! Element
+        }
+        fatalError("createHandler expected to be set.")
+    }
+    var createCallCount: Int = 0
+    var createHandler: ((_ type: Element.Type, _ value: Any, _ update: Bool) -> (Element))? = nil
+    func delete<S>(_ objects: S) {
+        deleteCallCount += 1
+        if let __deleteHandler = self.deleteHandler {
+            __deleteHandler(objects as! _S)
+        }
+    }
+    var deleteCallCount: Int = 0
+    var deleteHandler: ((_ objects: S) -> ())? = nil
+    func deleteAll() {
+        deleteAllCallCount += 1
+        if let __deleteAllHandler = self.deleteAllHandler {
+            __deleteAllHandler()
+        }
+    }
+    var deleteAllCallCount: Int = 0
+    var deleteAllHandler: (() -> ())? = nil
+    func invalidate() {
+        invalidateCallCount += 1
+        if let __invalidateHandler = self.invalidateHandler {
+            __invalidateHandler()
+        }
+    }
+    var invalidateCallCount: Int = 0
+    var invalidateHandler: (() -> ())? = nil
+    func object<Element, KeyType>(ofType type: Element.Type, forPrimaryKey key: KeyType) -> Element? where Element: Object {
+        objectCallCount += 1
+        if let __objectHandler = self.objectHandler {
+            return __objectHandler(type as! _Element.Type, key as! _KeyType) as! Element?
+        }
+        return nil
+    }
+    var objectCallCount: Int = 0
+    var objectHandler: ((_ type: Element.Type, _ key: KeyType) -> (Element?))? = nil
+    func objects<Element>(_ type: Element.Type) -> Results<Element> where Element: Object {
+        objectsCallCount += 1
+        if let __objectsHandler = self.objectsHandler {
+            return __objectsHandler(type as! _Element.Type) as! Results<Element>
+        }
+        fatalError("objectsHandler expected to be set.")
+    }
+    var objectsCallCount: Int = 0
+    var objectsHandler: ((_ type: Element.Type) -> (Results<Element>))? = nil
+    func observe(_ block: @escaping RealmNotificationInteropBlock) -> NotificationToken {
+        observeCallCount += 1
+        if let __observeHandler = self.observeHandler {
+            return __observeHandler(block)
+        }
+        fatalError("observeHandler expected to be set.")
+    }
+    var observeCallCount: Int = 0
+    var observeHandler: ((_ block: @escaping RealmNotificationInteropBlock) -> (NotificationToken))? = nil
+    func refresh() -> Bool {
+        refreshCallCount += 1
+        if let __refreshHandler = self.refreshHandler {
+            return __refreshHandler()
+        }
+        return false
+    }
+    var refreshCallCount: Int = 0
+    var refreshHandler: (() -> (Bool))? = nil
+    func write(_ block: (() throws -> Void)) throws {
+        writeCallCount += 1
+        if let __writeHandler = self.writeHandler {
+            try __writeHandler(block)
+        }
+    }
+    var writeCallCount: Int = 0
+    var writeHandler: ((_ block: (() throws -> Void)) throws -> ())? = nil
+    func writeCopy(toFile fileURL: URL, encryptionKey: Data?) throws {
+        writeCopyCallCount += 1
+        if let __writeCopyHandler = self.writeCopyHandler {
+            try __writeCopyHandler(fileURL, encryptionKey)
+        }
+    }
+    var writeCopyCallCount: Int = 0
+    var writeCopyHandler: ((_ fileURL: URL, _ encryptionKey: Data?) throws -> ())? = nil
 }
 
 // MARK: - Routing
