@@ -1,5 +1,5 @@
 <%# ================================================== SwiftLint -%><%_ -%>
-<%_ if let rules = arguments["excludedSwiftLintRules"] as? [String] { -%>
+<%_ if let rules = argument["excludedSwiftLintRules"] as? [String] { -%>
     <%_ for rule in rules { -%>
     <%_ %>//swiftlint:disable <%= rule %>
     <%_ } -%>
@@ -16,9 +16,9 @@ func generateAdditionalImports(_ types: [Type]) {
 }
 
 func extractImports(attributeName: String = "import") -> [String] {
-  if let imported = arguments[attributeName] as? String {
+  if let imported = argument[attributeName] as? String {
     return [imported]
-  } else if let allimported = arguments[attributeName] as? [String] {
+  } else if let allimported = argument[attributeName] as? [String] {
     return allimported
   } else {
     return []

@@ -7,9 +7,9 @@ target 'SwiftSourceryTemplates' do
     use_frameworks!
     project 'SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj'
 
-    pod 'Alamofire'
+    pod 'Alamofire', '~> 4.0'
     pod 'RxSwift'
-    pod 'Sourcery', '~> 0.15.0'
+    pod 'Sourcery', '~> 0.16.0'
 
     target 'SwiftSourceryTemplatesTests' do
       inherit! :search_paths
