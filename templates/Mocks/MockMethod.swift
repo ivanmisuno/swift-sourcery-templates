@@ -107,31 +107,40 @@ extension MockMethod {
         return result.nested
     }
 
+    private var mockedVarCallCountName: String {
+        return "\(mockedMethodName)CallCount"
+    }
+
     private var mockCallCountImpl: (String, SourceCode) {
-        let mockedVarCallCountName = "\(mockedMethodName)CallCount"
         return (mockedVarCallCountName, SourceCode("var \(mockedVarCallCountName): Int = 0"))
     }
 
+    private var mockMethodHandlerName: String {
+        return "\(mockedMethodName)Handler"
+    }
+
+    private var mockMethodHandlerReturnType: String {
+        return !isVoid ? method.returnTypeName.name.trimmingWhereClause() : ""
+    }
+
     private var mockHandlerImpl: (String, SourceCode) {
-        let mockMethodHandlerName = "\(mockedMethodName)Handler"
         let handlerParameters = method.parameters.map { "_ \($0.name): \($0.typeName.name)" }.joined(separator: ", ")
-        let returnType = !isVoid ? method.returnTypeName.name.trimmingWhereClause() : ""
-        return (mockMethodHandlerName, SourceCode("var \(mockMethodHandlerName): ((\(handlerParameters))\(method.throwingHandlerDecl) -> (\(returnType)))? = nil"))
+        return (mockMethodHandlerName, SourceCode("var \(mockMethodHandlerName): ((\(handlerParameters))\(method.throwingHandlerDecl) -> (\(mockMethodHandlerReturnType)))? = nil"))
     }
 
     private var mockHandlerCallImpl: SourceCode {
-        let mockMethodHandlerName = "\(mockedMethodName)Handler"
         let returning = isVoid ? "" : "return "
         let parameters = method.parameters
             .map {
+                let autoclosureInvoking = $0.typeAttributes["autoclosure"] != nil ? "()" : ""
                 if isGeneric, let extractedAnnotatedGenericTypesPlaceholder = $0.annotations(for: ["annotatedGenericType", "annotatedGenericTypes", "genericTypePlaceholder", "genericTypesPlaceholder"]).first {
                     let forceCastingToGenericParameterType = " as! \(extractedAnnotatedGenericTypesPlaceholder.resolvingGenericPlaceholders(prefix: genericTypePrefix))"
-                    return "\($0.name)\(forceCastingToGenericParameterType)"
+                    return "\($0.name)\(autoclosureInvoking)\(forceCastingToGenericParameterType)"
                 }
-                return "\($0.name)"
+                return "\($0.name)\(autoclosureInvoking)"
             }
             .joined(separator: ", ")
-        let forceCastingToGenericReturnValue = isGeneric && !isVoid ? " as! \(method.returnTypeName.name.trimmingWhereClause())" : ""
+        let forceCastingToGenericReturnValue = isGeneric && !isVoid ? " as! \(mockMethodHandlerReturnType)" : ""
         let invocationThrowing = method.`throws` ? "try " : method.`rethrows` ? "try! " : ""
         let handlerName = mockHandlerImpl.0
         return SourceCode("if let __\(handlerName) = self.\(handlerName)") {[
