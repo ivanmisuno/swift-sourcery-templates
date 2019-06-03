@@ -1,9 +1,9 @@
 Pod::Spec.new do |s|
   s.name             = 'SwiftMockTemplates'
-  s.version          = '0.1.0'
+  s.version          = '0.1.1'
   s.summary          = 'Code-generation templates for Swift language.'
   s.description      = <<-DESC
-Code-generation templates (to be used along with Sourcery engine) for generating advanced protocol mock classes 
+Code-generation templates (to be used along with Sourcery engine) for generating advanced protocol mock classes
 that can be used as test doubles in place of object dependencies for unit-testing.
                        DESC
   s.homepage         = 'https://github.com/ivanmisuno/swift-sourcery-templates'
