@@ -507,7 +507,7 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = XBN7J4RR42;
+				DEVELOPMENT_TEAM = 5BB3NX25WV;
 				INFOPLIST_FILE = SwiftSourceryTemplates/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -529,7 +529,7 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = XBN7J4RR42;
+				DEVELOPMENT_TEAM = 5BB3NX25WV;
 				INFOPLIST_FILE = SwiftSourceryTemplates/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -550,7 +550,7 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = XBN7J4RR42;
+				DEVELOPMENT_TEAM = 5BB3NX25WV;
 				INFOPLIST_FILE = SwiftSourceryTemplatesTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -573,7 +573,7 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = XBN7J4RR42;
+				DEVELOPMENT_TEAM = 5BB3NX25WV;
 				INFOPLIST_FILE = SwiftSourceryTemplatesTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
