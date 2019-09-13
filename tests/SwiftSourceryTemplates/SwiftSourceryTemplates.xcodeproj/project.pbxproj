@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -222,9 +222,11 @@
 				TargetAttributes = {
 					1415F0FD20FF583700CBE106 = {
 						CreatedOnToolsVersion = 9.4.1;
+						LastSwiftMigration = 1020;
 					};
 					1415F10D20FF583800CBE106 = {
 						CreatedOnToolsVersion = 9.4.1;
+						LastSwiftMigration = 1020;
 						TestTargetID = 1415F0FD20FF583700CBE106;
 					};
 				};
@@ -514,7 +516,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.albumprinter.SwiftSourceryTemplates;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -536,7 +538,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.albumprinter.SwiftSourceryTemplates;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -558,7 +560,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.albumprinter.SwiftSourceryTemplatesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SwiftSourceryTemplates.app/Contents/MacOS/SwiftSourceryTemplates";
 			};
 			name = Debug;
@@ -581,7 +583,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.albumprinter.SwiftSourceryTemplatesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SwiftSourceryTemplates.app/Contents/MacOS/SwiftSourceryTemplates";
 			};
 			name = Release;

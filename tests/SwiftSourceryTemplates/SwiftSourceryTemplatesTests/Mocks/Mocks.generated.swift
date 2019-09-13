@@ -1,4 +1,4 @@
-// Generated using Sourcery 0.15.0 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 0.16.1 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 
 //swiftlint:disable force_cast
@@ -500,7 +500,7 @@ class ObjectManupulatingMock: ObjectManupulating {
     func removeObject(_ object: @autoclosure () throws -> Any) rethrows -> Int {
         removeObjectObjectCallCount += 1
         if let __removeObjectObjectHandler = self.removeObjectObjectHandler {
-            return try! __removeObjectObjectHandler(object)
+            return try! __removeObjectObjectHandler(object())
         }
         return 0
     }
