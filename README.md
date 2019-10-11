@@ -4,7 +4,7 @@ Advanced Protocol Mock and Type Erasure Code-generation templates for Swift lang
 
 This repository contains two code-generation templates (to be used along with [Sourcery](https://github.com/krzysztofzablocki/Sourcery) engine):
 1. `Mocks.swifttemplate` — to generate advanced protocol mock classes that can be used as [test doubles](https://martinfowler.com/bliki/TestDouble.html) in place of object dependencies for unit-testing;
-2. `TypeErase.swifttemplate` — to generate advanced [type erasures](https://www.bignerdranch.com/blog/breaking-down-type-erasures-in-swift/).
+2. `TypeErase.swifttemplate` — to generate advanced [type erasures](https://www.bignerdranch.com/blog/breaking-down-type-erasure-in-swift/).
 
 Both templates support protocols with associated types and generic functions (with constraints on generic types),
 provide reasonable default values for primitive types, and support advanced types and use cases typically found in projects
