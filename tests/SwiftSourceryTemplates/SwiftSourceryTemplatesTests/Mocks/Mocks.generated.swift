@@ -1,6 +1,5 @@
-// Generated using Sourcery 0.17.0 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 1.9.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 //swiftlint:disable force_cast
 //swiftlint:disable function_body_length
 //swiftlint:disable line_length
@@ -76,7 +75,7 @@ class DataSourceMock: DataSource {
     var bindingTargetGetCount: Int = 0
     var bindingTargetGetHandler: (() -> AnyObserver<UploadAPI.LocalFile>)? = nil
     var bindingTargetEventCallCount: Int = 0
-    var bindingTargetEventHandler: ((Event<UploadAPI.LocalFile>) -> ())? = nil
+    var bindingTargetEventHandler: ((Event<SwiftSourceryTemplates.UploadAPI.LocalFile>) -> ())? = nil
 
     // MARK: - Methods
     func bindStreams() -> Disposable {
@@ -310,8 +309,8 @@ class FileServiceMock: FileService {
         if let __uploadHandler = self.uploadHandler {
             return __uploadHandler(fileUrl)
         }
-        return Single.create { (observer: @escaping (SingleEvent<[FilePart]>) -> ()) -> Disposable in
-            return self.uploadSubject.subscribe { (event: Event<[FilePart]>) in
+        return Single.create { (observer: @escaping (SingleEvent<[SwiftSourceryTemplates.FilePart]>) -> ()) -> Disposable in
+            return self.uploadSubject.subscribe { (event: Event<[SwiftSourceryTemplates.FilePart]>) in
                 switch event {
                 case .next(let element):
                     observer(.success(element))
@@ -325,7 +324,7 @@ class FileServiceMock: FileService {
     }
     var uploadCallCount: Int = 0
     var uploadHandler: ((_ fileUrl: URL) -> (Single<[FilePart]>))? = nil
-    lazy var uploadSubject = PublishSubject<[FilePart]>()
+    lazy var uploadSubject = PublishSubject<[SwiftSourceryTemplates.FilePart]>()
 }
 
 // MARK: - ImageAttributeProviding
@@ -465,7 +464,7 @@ class MutableUploadProgressingMock: MutableUploadProgressing {
     }
     var fileProgressCallCount: Int = 0
     var fileProgressHandler: ((_ source: UploadAPI.LocalFile.Source) -> (Observable<RxProgress>))? = nil
-    lazy var fileProgressSubject = PublishSubject<RxProgress>()
+    lazy var fileProgressSubject = PublishSubject<SwiftSourceryTemplates.RxProgress>()
     func setInputFiles(localFiles: [UploadAPI.LocalFile]) {
         setInputFilesCallCount += 1
         if let __setInputFilesHandler = self.setInputFilesHandler {
@@ -497,7 +496,7 @@ class ObjectManupulatingMock: ObjectManupulating {
     }
     var removeObjectCallCount: Int = 0
     var removeObjectHandler: (() -> (Int))? = nil
-    func removeObject(_ object: @autoclosure () throws -> Any) rethrows -> Int {
+    func removeObject(_ object: () throws -> Any) rethrows -> Int {
         removeObjectObjectCallCount += 1
         if let __removeObjectObjectHandler = self.removeObjectObjectHandler {
             return try! __removeObjectObjectHandler(object())
@@ -505,8 +504,8 @@ class ObjectManupulatingMock: ObjectManupulating {
         return 0
     }
     var removeObjectObjectCallCount: Int = 0
-    var removeObjectObjectHandler: ((_ object: @autoclosure () throws -> Any) throws -> (Int))? = nil
-    func removeObject(where matchPredicate: @escaping (Any) throws -> (Bool)) rethrows -> Int {
+    var removeObjectObjectHandler: ((_ object: () throws -> Any) throws -> (Int))? = nil
+    func removeObject(where matchPredicate: (Any) throws -> Bool) rethrows -> Int {
         removeObjectWhereMatchPredicateCallCount += 1
         if let __removeObjectWhereMatchPredicateHandler = self.removeObjectWhereMatchPredicateHandler {
             return try! __removeObjectWhereMatchPredicateHandler(matchPredicate)
@@ -514,7 +513,7 @@ class ObjectManupulatingMock: ObjectManupulating {
         return 0
     }
     var removeObjectWhereMatchPredicateCallCount: Int = 0
-    var removeObjectWhereMatchPredicateHandler: ((_ matchPredicate: @escaping (Any) throws -> (Bool)) throws -> (Int))? = nil
+    var removeObjectWhereMatchPredicateHandler: ((_ matchPredicate: (Any) throws -> Bool) throws -> (Int))? = nil
 }
 
 // MARK: - ProtocolWithCollections
@@ -705,7 +704,7 @@ class RealmInteropMock<_Element, _KeyType, _S>: RealmInterop where _Element: Obj
     }
     var objectsCallCount: Int = 0
     var objectsHandler: ((_ type: Element.Type) -> (Results<Element>))? = nil
-    func observe(_ block: @escaping RealmNotificationInteropBlock) -> NotificationToken {
+    func observe(_ block: RealmNotificationInteropBlock) -> NotificationToken {
         observeCallCount += 1
         if let __observeHandler = self.observeHandler {
             return __observeHandler(block)
@@ -713,7 +712,7 @@ class RealmInteropMock<_Element, _KeyType, _S>: RealmInterop where _Element: Obj
         fatalError("observeHandler expected to be set.")
     }
     var observeCallCount: Int = 0
-    var observeHandler: ((_ block: @escaping RealmNotificationInteropBlock) -> (NotificationToken))? = nil
+    var observeHandler: ((_ block: RealmNotificationInteropBlock) -> (NotificationToken))? = nil
     func refresh() -> Bool {
         refreshCallCount += 1
         if let __refreshHandler = self.refreshHandler {
@@ -723,14 +722,14 @@ class RealmInteropMock<_Element, _KeyType, _S>: RealmInterop where _Element: Obj
     }
     var refreshCallCount: Int = 0
     var refreshHandler: (() -> (Bool))? = nil
-    func write(_ block: (() throws -> Void)) throws {
+    func write(_ block: () throws -> Void) throws {
         writeCallCount += 1
         if let __writeHandler = self.writeHandler {
             try __writeHandler(block)
         }
     }
     var writeCallCount: Int = 0
-    var writeHandler: ((_ block: (() throws -> Void)) throws -> ())? = nil
+    var writeHandler: ((_ block: () throws -> Void) throws -> ())? = nil
     func writeCopy(toFile fileURL: URL, encryptionKey: Data?) throws {
         writeCopyCallCount += 1
         if let __writeCopyHandler = self.writeCopyHandler {
@@ -884,5 +883,5 @@ class UploadProgressingMock: UploadProgressing {
     }
     var fileProgressCallCount: Int = 0
     var fileProgressHandler: ((_ source: UploadAPI.LocalFile.Source) -> (Observable<RxProgress>))? = nil
-    lazy var fileProgressSubject = PublishSubject<RxProgress>()
+    lazy var fileProgressSubject = PublishSubject<SwiftSourceryTemplates.RxProgress>()
 }
