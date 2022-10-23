@@ -47,7 +47,7 @@ protocol ImageAttributeProviding {
 }
 
 // sourcery: CreateMock
-protocol AlbumPageSizeProviderDelegate: class {
+protocol AlbumPageSizeProviderDelegate: AnyObject {
     var onComplete: AnyObserver<()> { get }
 }
 
@@ -115,13 +115,13 @@ protocol ErrorPresenting {
 
 // sourcery: CreateMock
 // sourcery: TypeErase
-public protocol Interactable: class {
+public protocol Interactable: AnyObject {
 }
 
 // sourcery: CreateMock
 // sourcery: TypeErase
 // sourcery: associatedtype = "InteractorType: Interactable"
-public protocol Routing: class {
+public protocol Routing: AnyObject {
     associatedtype InteractorType: Interactable
     var interactor: InteractorType { get }
 }
@@ -162,7 +162,7 @@ protocol ThrowingGenericBuildable {
 }
 
 /// sourcery: CreateMock
-protocol TipsManaging: class {
+protocol TipsManaging: AnyObject {
     var tips: [String: String] { get }
     var tipsOptional: [String: String]? { get }
     var tupleVariable: (String, Int) { get }
@@ -262,7 +262,7 @@ class Results<Element> {}
 struct NotificationToken {}
 
 /// sourcery: CreateMock
-protocol RealmInterop: class
+protocol RealmInterop: AnyObject
 {
     func write(_ block: (() throws -> Void)) throws
     func beginWrite()
