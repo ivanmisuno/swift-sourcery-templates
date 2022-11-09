@@ -755,6 +755,22 @@ class RoutingMock<_InteractorType>: Routing where _InteractorType: Interactable 
     }
 }
 
+// MARK: - ShapesAccessing
+class ShapesAccessingMock: ShapesAccessing {
+
+    // MARK: - Variables
+    var shapes: Observable<[Shape1]> {
+        shapesGetCount += 1
+        if let handler = shapesGetHandler {
+            return handler()
+        }
+        return shapesSubject.asObservable()
+    }
+    var shapesGetCount: Int = 0
+    var shapesGetHandler: (() -> Observable<[Shape1]>)? = nil
+    lazy var shapesSubject = PublishSubject<[Shape1]>()
+}
+
 // MARK: - SomeInteractable
 class SomeInteractableMock: SomeInteractable {
 }
