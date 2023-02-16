@@ -14,7 +14,7 @@ DEPENDENCIES:
   - RxBlocking
   - RxSwift
   - RxTest
-  - Sourcery (~> 2)
+  - Sourcery (~> 2.0)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -31,6 +31,6 @@ SPEC CHECKSUMS:
   RxTest: 4349afe98f564e0a9bc19063368904622d17d49a
   Sourcery: c873ccac00b051aa0bf2236f86cc3678e403ff27
 
-PODFILE CHECKSUM: 4d5f9bb878e26f637d141fe35c0c25c3b5e2eb12
+PODFILE CHECKSUM: 6ccef2b664f76b7560dc8146f8cec0269da6657c
 
 COCOAPODS: 1.11.3
