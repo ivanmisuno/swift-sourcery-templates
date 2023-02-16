@@ -132,12 +132,11 @@ extension MockMethod {
         let returning = isVoid ? "" : "return "
         let parameters = method.parameters
             .map {
-                let autoclosureInvoking = $0.typeAttributes["autoclosure"] != nil ? "()" : ""
                 if isGeneric, let extractedAnnotatedGenericTypesPlaceholder = $0.annotations(for: ["annotatedGenericType", "annotatedGenericTypes", "genericTypePlaceholder", "genericTypesPlaceholder"]).first {
                     let forceCastingToGenericParameterType = " as! \(extractedAnnotatedGenericTypesPlaceholder.resolvingGenericPlaceholders(prefix: genericTypePrefix))"
-                    return "\($0.name)\(autoclosureInvoking)\(forceCastingToGenericParameterType)"
+                    return "\($0.name)\(forceCastingToGenericParameterType)"
                 }
-                return "\($0.name)\(autoclosureInvoking)"
+                return $0.name
             }
             .joined(separator: ", ")
         let forceCastingToGenericReturnValue = isGeneric && !isVoid ? " as! \(mockMethodHandlerReturnType)" : ""
@@ -178,10 +177,7 @@ private extension MockMethod {
 private extension SourceryRuntime.Method {
     var methodParametersDecl: String {
         return parameters
-            .map {
-                let argumentLabel = $0.argumentLabel == nil ? "_ " : $0.argumentLabel != $0.name ? "\($0.argumentLabel!) " : ""
-                return "\(argumentLabel)\($0.name): \($0.typeName.name)"
-            }
+            .map { $0.parametersDecl }
             .joined(separator: ", ")
     }
 
@@ -195,6 +191,13 @@ private extension SourceryRuntime.Method {
 
     var returnTypeDecl: String {
         return !returnTypeName.isVoid ? " -> \(returnTypeName.name)" : ""
+    }
+}
+
+private extension SourceryRuntime.MethodParameter {
+    var parametersDecl: String {
+        let argumentLabel = argumentLabel == nil ? "_ " : argumentLabel != name ? "\(argumentLabel!) " : ""
+        return "\(argumentLabel)\(name): \(typeName.name)"
     }
 }
 

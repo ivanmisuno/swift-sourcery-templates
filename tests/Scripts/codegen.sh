@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PARENT_DIR="$DIR/.."
 CACHES_DIR="$PARENT_DIR/.SourceryCache"
 
-if [ "$1" == "--clearCache" ]; then
+if [ "$1" == "--disableCache" ]; then
   echo "🧹 Cleaning caches dir..."
   rm -rf "$CACHES_DIR"
 fi

@@ -1,4 +1,4 @@
-// Generated using Sourcery 1.9.0 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.0.1 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 //swiftlint:disable force_cast
 //swiftlint:disable function_body_length
@@ -499,7 +499,7 @@ class ObjectManupulatingMock: ObjectManupulating {
     func removeObject(_ object: () throws -> Any) rethrows -> Int {
         removeObjectObjectCallCount += 1
         if let __removeObjectObjectHandler = self.removeObjectObjectHandler {
-            return try! __removeObjectObjectHandler(object())
+            return try! __removeObjectObjectHandler(object)
         }
         return 0
     }
