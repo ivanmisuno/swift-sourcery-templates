@@ -1,3 +1,4 @@
 tests/Pods
 tests/SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj/xcuserdata
 tests/SwiftSourceryTemplates.xcworkspace/xcuserdata
+tests/.SourceryCache

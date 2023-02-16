@@ -5,14 +5,16 @@ PODS:
   - RxSwift (5.0.0)
   - RxTest (5.0.0):
     - RxSwift (~> 5)
-  - Sourcery (0.17.0)
+  - Sourcery (2.0.1):
+    - Sourcery/CLI-Only (= 2.0.1)
+  - Sourcery/CLI-Only (2.0.1)
 
 DEPENDENCIES:
   - Alamofire (~> 4.0)
   - RxBlocking
   - RxSwift
   - RxTest
-  - Sourcery (~> 0.17.0)
+  - Sourcery (~> 2)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -27,8 +29,8 @@ SPEC CHECKSUMS:
   RxBlocking: c67185d26498ea3cbe3e121917c3c16739e43123
   RxSwift: 8b0671caa829a763bbce7271095859121cbd895f
   RxTest: 4349afe98f564e0a9bc19063368904622d17d49a
-  Sourcery: 3ed61be7c8a1218fce349266139379dba477efe0
+  Sourcery: c873ccac00b051aa0bf2236f86cc3678e403ff27
 
-PODFILE CHECKSUM: 0f27fda099b32919af184ec3f96ebd77cfe5a8da
+PODFILE CHECKSUM: 4d5f9bb878e26f637d141fe35c0c25c3b5e2eb12
 
 COCOAPODS: 1.11.3

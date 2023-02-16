@@ -42,6 +42,34 @@ extension SourceryRuntime.TypeName {
         throw MockError.noDefaultValue(typeName: self)
     }
 
+    var mockTypeName: String {
+        if isVoid {
+            return "()"
+        }
+
+        if isTuple, let tuple {
+            return tuple.name
+        }
+
+        if isArray, let array {
+            return "[\(array.elementTypeName.mockTypeName)]"
+        }
+
+        return actualTypeName?.mockTypeName ?? name
+    }
+
+    var hasNestedTupleType: Bool {
+        if isTuple {
+            return true
+        }
+
+        if isArray, let array {
+            return array.elementTypeName.hasNestedTupleType
+        }
+
+        return false
+    }
+
     func hasComplexTypeWithSmartDefaultValue(isProperty: Bool) -> Bool {
         return (try? smartDefaultValueImplementation(isProperty: isProperty, mockVariablePrefix: "")) != nil
     }
@@ -52,7 +80,7 @@ extension SourceryRuntime.TypeName {
             generic.name == "Single" || generic.name == "Observable" || generic.name == "AnyObserver",
             generic.typeParameters.count == 1 {
 
-            let returnTypeName = !generic.typeParameters[0].typeName.isVoid ? generic.typeParameters[0].typeName.name : "()"
+            let returnTypeName = generic.typeParameters[0].typeName.mockTypeName
             let forceCasting = forceCastingToReturnTypeName && !isVoid ? " as! \(name.trimmingWhereClause())" : ""
             switch generic.name {
             case "Single":
@@ -73,7 +101,8 @@ extension SourceryRuntime.TypeName {
                 let mockedVariableHandlers = [SourceCode("lazy var \(mockVariablePrefix)Subject = PublishSubject<\(returnTypeName)>()")]
                 return (getterImplementation, mockedVariableHandlers)
             case "Observable":
-                let getterImplementation = SourceCode("return \(mockVariablePrefix)Subject.as\(generic.name)()\(forceCasting)") // ".asSingle()" | ".asObservable()"
+                let optionalMappingClauseForTupleTypes = generic.typeParameters[0].typeName.hasNestedTupleType ? ".map { $0 }" : ""
+                let getterImplementation = SourceCode("return \(mockVariablePrefix)Subject\(optionalMappingClauseForTupleTypes).as\(generic.name)()\(forceCasting)")
                 let mockedVariableHandlers = [SourceCode("lazy var \(mockVariablePrefix)Subject = PublishSubject<\(returnTypeName)>()")]
                 return (getterImplementation, mockedVariableHandlers)
             case "AnyObserver":

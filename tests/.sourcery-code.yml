@@ -1,8 +1,10 @@
-project:
-  file: SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj
-  target:
-    name: SwiftSourceryTemplates
-    module: SwiftSourceryTemplates
+# project:
+#   file: SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj
+#   target:
+#     name: SwiftSourceryTemplates
+#     module: SwiftSourceryTemplates
+sources:
+  - SwiftSourceryTemplates
 templates:
   - ../templates/TypeErase.swifttemplate
 output:
@@ -14,3 +16,5 @@ args:
     - function_body_length
     - line_length
     - vertical_whitespace
+cacheBasePath:
+  .SourceryCache

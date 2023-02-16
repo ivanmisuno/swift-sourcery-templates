@@ -6,6 +6,8 @@
 //  Copyright © 2018 AlbumPrinter BV. All rights reserved.
 //
 
+import AppKit // for `NSColor`
+
 struct UploadAPI {
     typealias UploadId = String
 

@@ -234,6 +234,28 @@ protocol ObjectManupulating {
     var modifierFlags: NSEvent.ModifierFlags { get }
 }
 
+enum ShapeType: CaseIterable {
+    case circle
+    case rect
+    case tri
+}
+
+typealias Shape1 = (
+  type: ShapeType,
+  origin: CGPoint,
+  size: CGFloat,
+  linearSpeed: CGPoint,
+  angle: CGFloat,
+  angularSpeed: CGFloat,
+  strokeColor: NSColor,
+  fillColor: NSColor
+)
+
+/// sourcery: CreateMock
+protocol ShapesAccessing {
+    var shapes: Observable<[Shape1]> { get }
+}
+
 /// sourcery: CreateMock
 protocol ProtocolWithExtensions {
     var protocolRequirement: Int { get }
