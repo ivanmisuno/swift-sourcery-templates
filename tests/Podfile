@@ -1,15 +1,15 @@
-source 'https://github.com/CocoaPods/Specs.git'
+source 'https://cdn.cocoapods.org/'
 
 workspace 'SwiftSourceryTemplates.xcworkspace'
 
 target 'SwiftSourceryTemplates' do
-    platform :osx, '10.11'
+    platform :osx, '10.13'
     use_frameworks!
     project 'SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj'
 
     pod 'Alamofire', '~> 4.0'
     pod 'RxSwift'
-    pod 'Sourcery', '~> 2.0'
+    pod 'Sourcery', :git => 'https://github.com/krzysztofzablocki/Sourcery', :tag => '2.1.2'
 
     target 'SwiftSourceryTemplatesTests' do
       inherit! :search_paths

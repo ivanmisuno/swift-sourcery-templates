@@ -91,7 +91,7 @@ extension SourceryRuntime.TypeName {
                                         case .next(let element):
                                             observer(.success(element))
                                         case .error(let error):
-                                            observer(.error(error))
+                                            observer(.failure(error))
                                         default:
                                             break
                                         }

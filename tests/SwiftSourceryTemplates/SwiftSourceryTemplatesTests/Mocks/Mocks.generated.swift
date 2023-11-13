@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.0.1 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.1.2 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 //swiftlint:disable force_cast
 //swiftlint:disable function_body_length
@@ -315,7 +315,7 @@ class FileServiceMock: FileService {
                 case .next(let element):
                     observer(.success(element))
                 case .error(let error):
-                    observer(.error(error))
+                    observer(.failure(error))
                 default:
                     break
                 }
