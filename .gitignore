@@ -1,4 +1,8 @@
-tests/Pods
-tests/SwiftSourceryTemplates/SwiftSourceryTemplates.xcodeproj/xcuserdata
-tests/SwiftSourceryTemplates.xcworkspace/xcuserdata
-tests/.SourceryCache
+Examples/ExampleProjectCocoapods/Pods
+xcuserdata
+.SourceryCache
+.build
+.swiftpm
+/Packages
+.netrc
+.DS_Store
