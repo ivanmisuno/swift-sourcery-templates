@@ -4,7 +4,7 @@ project:
     name: SwiftSourceryTemplates
     module: SwiftSourceryTemplates
 templates:
-  - ../templates/Mocks.swifttemplate
+  - ../../templates/Mocks.swifttemplate
 output:
   SwiftSourceryTemplates/SwiftSourceryTemplatesTests/Mocks
 args:

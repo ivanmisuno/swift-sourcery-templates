@@ -12,6 +12,7 @@ target 'SwiftSourceryTemplates' do
     pod 'Sourcery', :git => 'https://github.com/krzysztofzablocki/Sourcery', :tag => '2.1.2'
 
     target 'SwiftSourceryTemplatesTests' do
+      platform :osx, '10.13'
       inherit! :search_paths
 
       pod 'RxBlocking'
