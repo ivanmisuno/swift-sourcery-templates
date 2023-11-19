@@ -1,12 +1,12 @@
-# package:
-#   path: ../.. #${SOURCERY_PACKAGE_PATH}
-#   target:
-#     - ExampleProjectSpm
-#     - ExampleProjectSpmTests
-sources:
-  - ${SOURCERY_TARGET_ExampleProjectSpm}
-  - ${SOURCERY_TARGET_ExampleProjectSpm_DEP_RIBs_MODULE_RIBs}
-  - ${SOURCERY_TARGET_ExampleProjectSpmTests}/SourceryAnnotations
+package:
+  path: ../.. #${SOURCERY_PACKAGE_PATH}
+  target:
+    - ExampleProjectSpm
+    - ExampleProjectSpmTests
+# sources:
+#   - ${SOURCERY_TARGET_ExampleProjectSpm}
+#   - ${SOURCERY_TARGET_ExampleProjectSpm_DEP_RIBs_MODULE_RIBs}
+#   - ${SOURCERY_TARGET_ExampleProjectSpmTests}/SourceryAnnotations
 output: ${SOURCERY_OUTPUT_DIR}
 templates:
   - ../../../../templates/Mocks.swifttemplate
