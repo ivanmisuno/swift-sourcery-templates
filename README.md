@@ -1,8 +1,9 @@
-# swift-sourcery-templates (Beta)
+# swift-sourcery-templates
 
-Advanced Protocol Mock and Type Erasure Code-generation templates for Swift language.
+Advanced Protocol Mock and Type Erasure Code-generation templates for Swift language (using Sourcery).
 
 This repository contains two code-generation templates (to be used along with [Sourcery](https://github.com/krzysztofzablocki/Sourcery) engine):
+
 1. `Mocks.swifttemplate` — to generate advanced protocol mock classes that can be used as [test doubles](https://martinfowler.com/bliki/TestDouble.html) in place of object dependencies for unit-testing;
 2. `TypeErase.swifttemplate` — to generate advanced [type erasures](https://www.bignerdranch.com/blog/breaking-down-type-erasure-in-swift/).
 
@@ -31,73 +32,180 @@ These tools and plug-ins are capable of auto-generating mock class definitions b
 however, I was personally struggling to find a comprehensive solution so far, that would cover some advanced coding patterns,
 in particular, typical for programs that combine `RxSwift` and Uber's `RIBs` frameworks.
 
-
 ## Usage
+
+### Swift Package Manager (SPM) prebuild plugin
+
+A [prebuild SPM plugin](https://github.com/apple/swift-package-manager/blob/main/Documentation/Plugins.md#build-tool-plugins)
+runs before the project is built, allowing to generate code based on the project source files.
+
+1. To add the plugin to your project, add the plugin dependency to your `Package.swift`:
+
+```swift
+// Package.swift
+// swift-tools-version: 5.9 // The minimum supported swift-tools version is 5.6
+import PackageDescription
+
+let package = Package(
+  name: "YourPackageName",
+  products: [
+    // ...
+  ],
+  dependencies: [
+    // ...
+    .package(url: "https://github.com/ivanmisuno/swift-sourcery-templates.git", from: "0.2.2"),
+  ],
+  targets: [
+    .target(
+      name: "YourTarget",
+      dependencies: [
+        // ...
+      ],
+      plugins: [
+        .plugin(name: "SourcerySwiftCodegenPlugin", package: "swift-sourcery-templates")
+      ]
+    ),
+    .testTarget(
+      name: "YourTargetTests",
+      dependencies: [
+        // ...
+        .target(name: "ExampleProjectSpm"),
+      ],
+      plugins: [
+        .plugin(name: "SourcerySwiftCodegenPlugin", package: "swift-sourcery-templates")
+      ]
+    ),
+  ]
+)
+```
+
+The `SourcerySwiftCodegenPlugin` depends on the binary distribution of the Sourcery CLI.
+The first time it is invoked, Xcode/build system would ask for a permission to run the plugin.
+
+You might also get an unverified developer warning when the plugin tries to invoke Sourcery for the first time.
+To fix it, please use the [woraround](https://github.com/krzysztofzablocki/Sourcery/#issues) for removing Sourcery from quarantine:
+
+```
+xattr -dr com.apple.quarantine <...Derived Data Folder>/SourcePackages/checkouts/swift-sourcery-templates/Plugins/Sourcery/sourcery.artifactbundle/sourcery/bin/sourcery
+```
+
+2. Configuring code generation
+
+The codegeneration is configured per target in an SPM project. Put a `*.sourcery.yml` config file in the target's source folder
+(refer to the [example project](Examples/ExampleProjectSpm/)):
+
+<img src="/docs/img/sourcery_target_config.png" alt="Sourcery config files per target" style="height: 332px;"/>
+
+Here, `ExampleProjectSpm` and `ExampleProjectSpmTests` are product targets, for which we want to enable code generation.
+We want to generate type erasures and interface mocks. Type erasure classes should be available for use in the main target,
+while mocks should be available in the test target.
+
+Here is caveat: Some mock classes should be generated for interfaces that are declared in external packages (e.g. for the `RIBs` package).
+We need to (a) include the external package sources in the config file:
+
+```
+# .Sourcery.Mocks.yml
+sources:
+  - ${SOURCERY_TARGET_ExampleProjectSpm}
+  - ${SOURCERY_TARGET_ExampleProjectSpmTests}/SourceryAnnotations
+  - ${SOURCERY_TARGET_ExampleProjectSpm_DEP_RIBs_MODULE_RIBs}
+```
+
+We're doing a little trickery here to work around an issue with Sourcery — when invoked from a build tool SPM plugin,
+Sourcery cannot analyze the package structure, so the plugin exports the package structure via environment variables.
+In the excample above:
+
+- `SOURCERY_TARGET_ExampleProjectSpm` refers to the `ExampleProjectSpm` target source location;
+- `SOURCERY_TARGET_ExampleProjectSpmTests` refers to the `ExampleProjectSpmTests` target source location;
+- `SOURCERY_TARGET_ExampleProjectSpm_DEP_RIBs_MODULE_RIBs` refers to the `RIBs` module source location (`RIBs` is the dependency of the `ExampleProjectSpm` target).
+
+The plugin exports all package dependencies' source locations via environment variable similarly:
+
+- `SOURCERY_TARGET_<target_name>_DEP_<dependecy_module>_MODULE_RIBs`
+- `SOURCERY_TARGET_<target_name>_DEP_<dependecy_target>_TARGET_RIBs`
+
+> [!NOTE]
+> For the complete Sourcery config file reference, please refer to the [official documentation](https://krzysztofzablocki.github.io/Sourcery/).
+
+3. Finding the generated files
+
+The above might seem tricky at first. The plugin helps debug setup issues by emitting invocation and debug logs to the build log:
+
+<img src="/docs/img/command_invocation_log.png" alt="Command invocation log" style="height: 260px;"/>
+
+The invocation log also contains all exported environment variables for the dependencies.
+
+### Podfile
 
 _Following examples refer to the [tutorial project](https://github.com/ivanmisuno/Tutorial_RIBs_CodeGeneration) (WIP),
 please feel free to clone and see its workings. Accompanying blog post is coming._
 
-* Podfile
-
 1. Add `SwiftMockTemplates` Pod to your projects's Test target:
-    ```Podfile
-    pod 'SwiftMockTemplates', :git => 'https://github.com/ivanmisuno/swift-sourcery-templates.git', :tag => '0.1.0'
-    ```
-    (I'll release it as a public Podspec once I complete unit-tests).
+
+   ```Podfile
+   pod 'SwiftMockTemplates', :git => 'https://github.com/ivanmisuno/swift-sourcery-templates.git', :tag => '0.1.0'
+   ```
+
+   (I'll release it as a public Podspec once I complete unit-tests).
 
 2. Add `.sourcery-mocks.yml` config file to the project's root:
-    ```yml
-    sources:
-      - Tutorial_RIBs_CodeGeneration
-      - Tutorial_RIBs_CodeGenerationTests/Mocks/AnnotatedRIBsProtocols.swift
-      - Pods/RIBs
-    templates:
-      - Pods/SwiftMockTemplates/templates/Mocks.swifttemplate
-    output:
-      Tutorial_RIBs_CodeGenerationTests/Mocks
-    args:
-      testable:
-        - Tutorial_RIBs_CodeGeneration
-      import:
-        - RIBs
-        - RxSwift
-        - RxTest
-      excludedSwiftLintRules:
-        - force_cast
-        - function_body_length
-        - line_length
-        - vertical_whitespace
-    ```
+
+   ```yml
+   sources:
+     - Tutorial_RIBs_CodeGeneration
+     - Tutorial_RIBs_CodeGenerationTests/Mocks/AnnotatedRIBsProtocols.swift
+     - Pods/RIBs
+   templates:
+     - Pods/SwiftMockTemplates/templates/Mocks.swifttemplate
+   output: Tutorial_RIBs_CodeGenerationTests/Mocks
+   args:
+     testable:
+       - Tutorial_RIBs_CodeGeneration
+     import:
+       - RIBs
+       - RxSwift
+       - RxTest
+     excludedSwiftLintRules:
+       - force_cast
+       - function_body_length
+       - line_length
+       - vertical_whitespace
+   ```
 
 3. Add `codegen.sh` script that will run `Sourcery` with the above config file:
-    ```sh
-    #!/bin/bash
 
-    # the directory of the script. all locations are relative to the $DIR
-    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    PARENT_DIR="$DIR/.."
+   ```sh
+   #!/bin/bash
 
-    SOURCERY_DIR="$PARENT_DIR/Pods/Sourcery"
-    SOURCERY="$SOURCERY_DIR/bin/sourcery"
+   # the directory of the script. all locations are relative to the $DIR
+   DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+   PARENT_DIR="$DIR/.."
 
-    "$SOURCERY" --config "$PARENT_DIR"/.sourcery-mocks.yml $1 $2
-    ```
-    Note that `sourcery` executable is installed in `Pods` folder.
+   SOURCERY_DIR="$PARENT_DIR/Pods/Sourcery"
+   SOURCERY="$SOURCERY_DIR/bin/sourcery"
+
+   "$SOURCERY" --config "$PARENT_DIR"/.sourcery-mocks.yml $1 $2
+   ```
+
+   Note that `sourcery` executable is installed in `Pods` folder.
 
 4. Annotate protocols in your code for which you'd like to generate mock classes with the following annotation:
-    ```Swift
-    /// sourcery: CreateMock
-    ```
-    There are more advanced use cases, the documentation is coming.
+
+   ```Swift
+   /// sourcery: CreateMock
+   ```
+
+   There are more advanced use cases, the documentation is coming.
 
 5. Run following command to generate mock classes:
-    ```sh
-    scripts $ ./codegen.sh [--disableCache]
-    ```
-    This command will generate `Mocks.generated.swift` file in the `output` folder as specified in the config file.
+
+   ```sh
+   scripts $ ./codegen.sh [--disableCache]
+   ```
+
+   This command will generate `Mocks.generated.swift` file in the `output` folder as specified in the config file.
 
 6. Add the generated file to the test target in the Xcode project.
-
 
 # License
 
