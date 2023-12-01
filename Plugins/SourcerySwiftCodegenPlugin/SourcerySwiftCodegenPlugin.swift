@@ -41,8 +41,8 @@ struct SourcerySwiftCodegenPlugin: BuildToolPlugin {
 
     task.waitUntilExit()
 
-    let output = String(data: outputData, encoding: .utf8) ?? ""
-    let error = String(data: errorData, encoding: .utf8) ?? ""
+    let output = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    let error = String(data: errorData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
     guard task.terminationStatus == 0 else {
       Diagnostics.warning("Error running git command: \(task.terminationStatus): \(error)")

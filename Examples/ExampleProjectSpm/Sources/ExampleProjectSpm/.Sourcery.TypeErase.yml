@@ -6,7 +6,7 @@ sources:
   - ${SOURCERY_TARGET_ExampleProjectSpm}
 output: ${SOURCERY_OUTPUT_DIR}
 templates:
-  - ../../../../templates/TypeErase.swifttemplate
+  - ${GIT_ROOT}/templates/TypeErase.swifttemplate
 args:
   import:
     - RIBs

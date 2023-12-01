@@ -9,7 +9,7 @@ sources:
   - ${SOURCERY_TARGET_ExampleProjectSpmTests}/SourceryAnnotations
 output: ${SOURCERY_OUTPUT_DIR}
 templates:
-  - ../../../../templates/Mocks.swifttemplate
+  - ${GIT_ROOT}/templates/Mocks.swifttemplate
 args:
   testable:
     - ExampleProjectSpm
