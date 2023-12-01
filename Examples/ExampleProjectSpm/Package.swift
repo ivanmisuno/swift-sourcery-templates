@@ -15,7 +15,7 @@ let package = Package(
     .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.6.0"),
     .package(url: "https://github.com/Quick/Quick.git", from: "7.3.0"),
     .package(url: "https://github.com/Quick/Nimble.git", from: "13.0.0"),
-    .package(url: "https://github.com/ivanmisuno/swift-sourcery-templates.git", branch: "pre_build_command_plugin"),
+    .package(url: "https://github.com/ivanmisuno/swift-sourcery-templates.git", from: "0.2.3"),
   ],
   targets: [
     .target(
