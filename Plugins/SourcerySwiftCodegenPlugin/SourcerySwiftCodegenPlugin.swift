@@ -19,6 +19,40 @@ struct SourcerySwiftCodegenPlugin: BuildToolPlugin {
     throw "Could not locate Sourcery executable in the tool path \(sourcery)"
   }
 
+  private func gitRootDirectory(packageDirectory path: Path) -> String {
+    let task = Process()
+    task.launchPath = "/usr/bin/env"
+    task.currentDirectoryURL = URL(filePath: path.string)
+    task.arguments = ["git", "rev-parse", "--show-toplevel"]
+
+    let outputPipe = Pipe()
+    let errorPipe = Pipe()
+    task.standardOutput = outputPipe
+    task.standardError = errorPipe
+    let outHandle = outputPipe.fileHandleForReading
+    let errorHandle = errorPipe.fileHandleForReading
+
+    task.launch()
+
+    let outputData = outHandle.readDataToEndOfFile()
+    let errorData = errorHandle.readDataToEndOfFile()
+    outHandle.closeFile()
+    errorHandle.closeFile()
+
+    task.waitUntilExit()
+
+    let output = String(data: outputData, encoding: .utf8) ?? ""
+    let error = String(data: errorData, encoding: .utf8) ?? ""
+
+    guard task.terminationStatus == 0 else {
+      Diagnostics.warning("Error running git command: \(task.terminationStatus): \(error)")
+      return ""
+    }
+
+    Diagnostics.remark("GIT_ROOT=\(output)")
+    return output
+  }
+
   func createBuildCommands(context: PluginContext, target: Target) throws -> [Command] {
 
     let sourcery = try locateSourceryExecutable(context: context)
@@ -52,6 +86,7 @@ struct SourcerySwiftCodegenPlugin: BuildToolPlugin {
       try FileManager.default.createDirectory(atPath: generatedFilesDir.string, withIntermediateDirectories: true)
 
       let environmentVars = [
+        "GIT_ROOT": gitRootDirectory(packageDirectory: context.package.directory),
         "SOURCERY_PACKAGE": context.package.directory.string,
         "SOURCERY_OUTPUT_DIR": generatedFilesDir.string,
       ].merging(context.package.targets.flatMap { t in
