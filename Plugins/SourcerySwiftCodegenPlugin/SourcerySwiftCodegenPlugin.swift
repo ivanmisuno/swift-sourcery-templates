@@ -219,7 +219,7 @@ extension XcodeProjectPlugin.XcodePluginContext: CodegenPluginContext {
 extension XcodeTargetDependency {
   var dependencyInfoArray: [(String, Path)] {
     switch self {
-    case let .target(target):
+    case .target(_):
       // Diagnostics.warning("### Dependency target: \(target.name)")
       return []
 
