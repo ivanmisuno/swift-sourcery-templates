@@ -204,7 +204,7 @@ extension XcodeProjectPlugin.XcodePluginContext: CodegenPluginContext {
       "GIT_ROOT": gitRootDirectory(rootDirectory),
       "SOURCERY_PROJECT": rootDirectory.string,
     ].merging(xcodeProject.targets.flatMap { t in
-      Diagnostics.warning("### Target '\(t.name)' dependencies: \(t.dependencies)")
+      // Diagnostics.warning("### Target '\(t.name)' dependencies: \(t.dependencies)")
       return t.dependencies.flatMap { (d: XcodeTargetDependency) in
         d.dependencyInfoArray.map {
           ("SOURCERY_TARGET_\(t.name)_DEP_\($0.0)", $0.1.string)
@@ -220,11 +220,11 @@ extension XcodeTargetDependency {
   var dependencyInfoArray: [(String, Path)] {
     switch self {
     case let .target(target):
-      Diagnostics.warning("### Dependency target: \(target.name)")
+      // Diagnostics.warning("### Dependency target: \(target.name)")
       return []
 
     case let .product(product):
-      Diagnostics.warning("### Dependency product: \(product.name)")
+      // Diagnostics.warning("### Dependency product: \(product.name)")
       return product.sourceModules.map {
         ("\(product.name)_MODULE_\($0.moduleName)", $0.directory)
       } + product.targets.map {
