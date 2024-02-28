@@ -230,10 +230,10 @@ typealias Shape1 = (
   fillColor: UIColor
 )
 
-/// sourcery: CreateMock
-protocol ShapesAccessing {
-    var shapes: Observable<[Shape1]> { get }
-}
+///// sourcery: CreateMock
+//protocol ShapesAccessing {
+//    var shapes: Observable<[Shape1]> { get }
+//}
 
 /// sourcery: CreateMock
 protocol ProtocolWithExtensions {

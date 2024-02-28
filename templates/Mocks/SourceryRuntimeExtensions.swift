@@ -48,23 +48,36 @@ extension SourceryRuntime.TypeName {
         }
 
         if isTuple, let tuple {
-            return tuple.name
+            return tuple.name + (isOptional ? "?" : "")
         }
 
         if isArray, let array {
-            return "[\(array.elementTypeName.mockTypeName)]"
+            return "[\(array.elementTypeName.mockTypeName)]" + (isOptional ? "?" : "")
+        }
+
+        if isDictionary, let dictionary {
+            return "[\(dictionary.keyTypeName.mockTypeName) : \(dictionary.valueTypeName.mockTypeName)]" + (isOptional ? "?" : "")
         }
 
         return actualTypeName?.mockTypeName ?? name
     }
 
-    var hasNestedTupleType: Bool {
-        if isTuple {
-            return true
+    var needsSubjectMapToReturnType: Bool {
+        if isTuple, let tuple {
+            for element in tuple.elements {
+                if element.typeName.isGeneric {
+                    return false
+                }
+            }
+            return false
         }
 
         if isArray, let array {
-            return array.elementTypeName.hasNestedTupleType
+            return array.elementTypeName.needsSubjectMapToReturnType
+        }
+
+        if isDictionary, let dictionary {
+            return dictionary.valueTypeName.needsSubjectMapToReturnType
         }
 
         return false
@@ -101,7 +114,7 @@ extension SourceryRuntime.TypeName {
                 let mockedVariableHandlers = [SourceCode("lazy var \(mockVariablePrefix)Subject = PublishSubject<\(returnTypeName)>()")]
                 return (getterImplementation, mockedVariableHandlers)
             case "Observable":
-                let optionalMappingClauseForTupleTypes = generic.typeParameters[0].typeName.hasNestedTupleType ? ".map { $0 }" : ""
+                let optionalMappingClauseForTupleTypes = generic.typeParameters[0].typeName.needsSubjectMapToReturnType ? ".map { $0 }" : ""
                 let getterImplementation = SourceCode("return \(mockVariablePrefix)Subject\(optionalMappingClauseForTupleTypes).as\(generic.name)()\(forceCasting)")
                 let mockedVariableHandlers = [SourceCode("lazy var \(mockVariablePrefix)Subject = PublishSubject<\(returnTypeName)>()")]
                 return (getterImplementation, mockedVariableHandlers)
