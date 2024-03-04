@@ -59,6 +59,11 @@ extension SourceryRuntime.TypeName {
             return "[\(dictionary.keyTypeName.mockTypeName) : \(dictionary.valueTypeName.mockTypeName)]" + (isOptional ? "?" : "")
         }
 
+        if isOptional, unwrappedTypeName.hasPrefix("any ") {
+            // Fix `any ProtocolName?` --> `(any ProtocolName)?`
+            return "(\(unwrappedTypeName))?"
+        }
+
         return actualTypeName?.mockTypeName ?? name
     }
 

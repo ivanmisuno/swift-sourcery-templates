@@ -329,3 +329,31 @@ protocol RealmInterop: AnyObject
     func invalidate()
     func writeCopy(toFile fileURL: URL, encryptionKey: Data?) throws
 }
+
+/// sourcery: CreateMock
+/// sourcery: TypeErase
+/// sourcery: associatedType = "DocumentType: Codable"
+public protocol CodableDocumentStoring {
+  associatedtype DocumentType: Codable
+
+  var documentId: String { get }
+
+  func get(
+    /// sourcery: annotatedGenericTypes = "{DocumentType.Type}"
+    as type: DocumentType.Type) -> Swift.Result<DocumentType?, Error>
+
+  func observe(
+    /// sourcery: annotatedGenericTypes = "{DocumentType.Type}"
+    as type: DocumentType.Type) -> Observable<DocumentType?>
+
+  func set(
+    /// sourcery: annotatedGenericTypes = "{DocumentType}"
+    _ data: DocumentType) -> Single<Void>
+
+  func delete() -> Single<Void>
+}
+
+/// sourcery: CreateMock
+public protocol LearningSessionsCollectionStoring {
+  func latestSession() -> Observable<(any CodableDocumentStoring)?>
+}
