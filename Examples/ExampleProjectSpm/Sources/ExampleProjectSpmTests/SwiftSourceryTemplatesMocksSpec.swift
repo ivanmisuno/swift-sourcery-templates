@@ -8,6 +8,7 @@
 
 import Quick
 import Nimble
+import RxSwift
 @testable import ExampleProjectSpm
 
 class SwiftSourceryTemplatesMocksSpec: QuickSpec {
@@ -31,5 +32,28 @@ class SwiftSourceryTemplatesMocksSpec: QuickSpec {
         expect(sut.activateCallCount) == 0
       }
     } // describe("InteractableMock")
+
+    describe("mock with AnyObserver") {
+      var sut: SomeEntityBindableMock!
+      beforeEach {
+        sut = SomeEntityBindableMock()
+      }
+      describe("entityObserver() called on the mock") {
+        beforeEach {
+          _ = sut.entityObserver()
+        }
+        it("entityObserver call count increases") {
+          expect(sut.entityObserverCallCount) == 1
+        }
+        context("entityObserver.on() called") {
+          beforeEach {
+            sut.entityObserver().onNext("next element")
+          }
+          it("entityObserverEvent call count increased") {
+            expect(sut.entityObserverEventCallCount) == 1
+          }
+        } // context("entityObserver.on() called")
+      }
+    } // describe("mock with AnyObserver")
   }
 }

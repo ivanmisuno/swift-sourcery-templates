@@ -124,7 +124,6 @@ extension SourceryRuntime.TypeName {
                 let mockedVariableHandlers = [SourceCode("lazy var \(mockVariablePrefix)Subject = PublishSubject<\(returnTypeName)>()")]
                 return (getterImplementation, mockedVariableHandlers)
             case "AnyObserver":
-                guard isProperty else { throw MockError.noDefaultValue(typeName: self) } // Only properties with `AnyObserver` type are supported.
                 let getterImplementation = SourceCode("return AnyObserver { [weak self] event in") { [
                     SourceCode("self?.\(mockVariablePrefix)EventCallCount += 1"),
                     SourceCode("self?.\(mockVariablePrefix)EventHandler?(event)"),

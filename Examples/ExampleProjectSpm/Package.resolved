@@ -62,15 +62,6 @@
         "revision" : "9dcaa4b333db437b0fbfaf453fad29069044a8b4",
         "version" : "6.6.0"
       }
-    },
-    {
-      "identity" : "swift-sourcery-templates",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ivanmisuno/swift-sourcery-templates.git",
-      "state" : {
-        "branch" : "master",
-        "revision" : "7f782e20e87ba2e67cb6160d27e8f0a26ebe73fc"
-      }
     }
   ],
   "version" : 2

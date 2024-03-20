@@ -357,3 +357,8 @@ public protocol CodableDocumentStoring {
 public protocol LearningSessionsCollectionStoring {
   func latestSession() -> Observable<(any CodableDocumentStoring)?>
 }
+
+/// sourcery: CreateMock
+public protocol SomeEntityBindable {
+  func entityObserver() -> AnyObserver<String>
+}
