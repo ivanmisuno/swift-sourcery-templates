@@ -12,8 +12,8 @@ let package = Package(
   targets: [
     .binaryTarget(
       name: "sourcery",
-      url: "https://github.com/krzysztofzablocki/Sourcery/releases/download/2.1.2/sourcery-2.1.2.artifactbundle.zip",
-      checksum: "550c5a6a63b321bcd2ac595595cf6943efd09ce23d1ebba640b2598a4a1106a3"
+      url: "https://github.com/krzysztofzablocki/Sourcery/releases/download/2.2.4/sourcery-2.2.4.artifactbundle.zip",
+      checksum: "79282fd22949653dcaf0ab6a215d33a913ce09840f577c5959b7e94292b12bd4"
     ),
     .plugin(
       name: "SourcerySwiftCodegenPlugin",
