@@ -14,11 +14,13 @@ args:
   testable:
     - ExampleProjectSpm
   import:
-    - RIBs
-    - RxSwift
-    - RxBlocking
-    - RxTest
     - Alamofire
+    - Combine
+    - RIBs
+    - RxBlocking
+    - RxSwift
+    - RxTest
+    - SwiftUI
     - UIKit
   excludedSwiftLintRules:
     - force_cast

@@ -132,11 +132,14 @@ extension MockMethod {
         let returning = isVoid ? "" : "return "
         let parameters = method.parameters
             .map {
+                let referenceTaking = $0.`inout` ? "&" : ""
+                let parameterName = "\(referenceTaking)\($0.name)"
                 if isGeneric, let extractedAnnotatedGenericTypesPlaceholder = $0.annotations(for: ["annotatedGenericType", "annotatedGenericTypes", "genericTypePlaceholder", "genericTypesPlaceholder"]).first {
                     let forceCastingToGenericParameterType = " as! \(extractedAnnotatedGenericTypesPlaceholder.resolvingGenericPlaceholders(prefix: genericTypePrefix))"
-                    return "\($0.name)\(forceCastingToGenericParameterType)"
+                    return "\(parameterName)\(forceCastingToGenericParameterType)"
+                } else {
+                    return parameterName
                 }
-                return $0.name
             }
             .joined(separator: ", ")
         let forceCastingToGenericReturnValue = isGeneric && !isVoid ? " as! \(mockMethodHandlerReturnType)" : ""

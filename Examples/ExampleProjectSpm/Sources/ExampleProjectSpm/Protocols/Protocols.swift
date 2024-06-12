@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 import RxSwift
 import Alamofire // for `Result`
+import SwiftUI
+import Combine
 
 // sourcery: CreateMock
 protocol DataSource {
@@ -257,73 +259,73 @@ extension ProtocolWithExtensions {
 // }
 
 typealias RealmNotificationInteropBlock = (_ notification: Notification, _ realmInterop: RealmInterop) -> ()
-class Object {}
-class List<Element> {}
-class Results<Element> {}
-struct NotificationToken {}
+class RLObject {}
+class RLList<Element> {}
+class RLResults<Element> {}
+struct RLNotificationToken {}
 
 /// sourcery: CreateMock
 protocol RealmInterop: AnyObject
 {
     func write(_ block: (() throws -> Void)) throws
     func beginWrite()
-    func commitWrite(withoutNotifying tokens: [NotificationToken]) throws
+    func commitWrite(withoutNotifying tokens: [RLNotificationToken]) throws
     func cancelWrite()
     var isInWriteTransaction: Bool { get }
 
     /// sourcery: methodName = addObject
-    func add(_ object: Object, update: Bool)
+    func add(_ object: RLObject, update: Bool)
 
     /// sourcery: methodName = addObjects
-    /// sourcery: genericType = "S: Sequence, S.Iterator.Element: Object"
+    /// sourcery: genericType = "S: Sequence, S.Iterator.Element: RLObject"
     func add<S>(
         // sourcery: annotatedGenericTypes = "{S}"
         _ objects: S,
-        update: Bool) where S: Sequence, S.Iterator.Element: Object
+        update: Bool) where S: Sequence, S.Iterator.Element: RLObject
 
-    /// sourcery: genericType = "Element: Object"
+    /// sourcery: genericType = "Element: RLObject"
     func create<Element>(
         // sourcery: annotatedGenericTypes = "{Element}.Type"
         _ type: Element.Type,
         value: Any,
-        update: Bool) -> Element where Element: Object
+        update: Bool) -> Element where Element: RLObject
 
     /// sourcery: methodName = deleteObject
-    func delete(_ object: Object)
+    func delete(_ object: RLObject)
 
     /// sourcery: methodName = deleteObjects
-    /// sourcery: genericType = "S: Sequence, S.Iterator.Element: Object"
+    /// sourcery: genericType = "S: Sequence, S.Iterator.Element: RLObject"
     func delete<S>(
         // sourcery: annotatedGenericTypes = "{S}"
-        _ objects: S) where S: Sequence, S.Iterator.Element: Object
+        _ objects: S) where S: Sequence, S.Iterator.Element: RLObject
 
     /// sourcery: methodName = deleteList
-    /// sourcery: genericType = "Element: Object"
+    /// sourcery: genericType = "Element: RLObject"
     func delete<Element>(
-        // sourcery: annotatedGenericTypes = "List<{Element}>"
-        _ objects: List<Element>) where Element: Object
+        // sourcery: annotatedGenericTypes = "RLList<{Element}>"
+        _ objects: RLList<Element>) where Element: RLObject
 
     /// sourcery: methodName = deleteResults
-    /// sourcery: genericType = "Element: Object"
+    /// sourcery: genericType = "Element: RLObject"
     func delete<Element>(
-        // sourcery: annotatedGenericTypes = "Results<{Element}>"
-        _ objects: Results<Element>) where Element: Object
+        // sourcery: annotatedGenericTypes = "RLResults<{Element}>"
+        _ objects: RLResults<Element>) where Element: RLObject
 
     func deleteAll()
 
-    /// sourcery: genericType = "Element: Object"
+    /// sourcery: genericType = "Element: RLObject"
     func objects<Element>(
         // sourcery: annotatedGenericTypes = "{Element}.Type"
-        _ type: Element.Type) -> Results<Element> where Element: Object
+        _ type: Element.Type) -> RLResults<Element> where Element: RLObject
 
-    /// sourcery: genericType = "Element: Object, KeyType"
+    /// sourcery: genericType = "Element: RLObject, KeyType"
     func object<Element, KeyType>(
         // sourcery: annotatedGenericTypes = "{Element}.Type"
         ofType type: Element.Type,
         // sourcery: annotatedGenericTypes = "{KeyType}"
-        forPrimaryKey key: KeyType) -> Element? where Element: Object
+        forPrimaryKey key: KeyType) -> Element? where Element: RLObject
 
-    func observe(_ block: @escaping RealmNotificationInteropBlock) -> NotificationToken
+    func observe(_ block: @escaping RealmNotificationInteropBlock) -> RLNotificationToken
     var autorefresh: Bool { get set }
     func refresh() -> Bool
     func invalidate()
@@ -361,4 +363,13 @@ public protocol LearningSessionsCollectionStoring {
 /// sourcery: CreateMock
 public protocol SomeEntityBindable {
   func entityObserver() -> AnyObserver<String>
+}
+
+/// sourcery: CreateMock
+/// sourcery: associatedtype = "TaskAuxilliaryView: View"
+public protocol MultiplicationByCountingTaskVariationBuildable {
+  associatedtype TaskAuxilliaryView: View
+  func taskAuxilliaryView(
+    answer: CurrentValueSubject<String, Never>,
+    cancellables: inout Set<AnyCancellable>) -> TaskAuxilliaryView
 }
