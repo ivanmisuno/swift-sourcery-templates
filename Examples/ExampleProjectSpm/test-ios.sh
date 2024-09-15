@@ -1,6 +1,8 @@
 #!/bin/bash
 
-xcodebuild test \
+set -e
+
+set -o pipefail && xcodebuild test \
     -scheme ExampleProjectSpm \
     -destination 'platform=iOS Simulator,OS=17.4,name=iPhone 15' \
     -configuration "Debug" \
