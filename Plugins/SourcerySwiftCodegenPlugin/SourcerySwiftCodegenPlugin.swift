@@ -58,7 +58,18 @@ private func locateSourceryExecutable(_ context: CodegenPluginContext) throws ->
     return sourceryNestedDirectory
   }
 
-  throw "Could not locate Sourcery executable in the tool path \(sourcery)"
+  throw SourcerySwiftCodegenPluginError.sourceryNotFound(path: sourcery.string)
+}
+
+enum SourcerySwiftCodegenPluginError: Error, LocalizedError {
+  case sourceryNotFound(path: String)
+
+  var errorDescription: String? {
+    switch self {
+    case .sourceryNotFound(let path):
+      return "Could not locate Sourcery executable in the tool path '\(path)'"
+    }
+  }
 }
 
 @main
@@ -331,9 +342,6 @@ extension String {
     guard let m = wholeMatch(of: regex) else { return false }
     return !m.isEmpty
   }
-}
-
-extension String: LocalizedError {
 }
 
 extension Path {
