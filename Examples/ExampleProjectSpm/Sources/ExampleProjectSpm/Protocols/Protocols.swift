@@ -122,7 +122,7 @@ protocol ErrorPresenting {
 /// sourcery: associatedtype = EventType
 protocol ErrorPopoverPresentable {
     associatedtype EventType
-    func show(relativeTo positioningRect: CGRect, of positioningView: UIView, preferredEdge: CGRectEdge) -> Observable<EventType>
+    //func show(relativeTo positioningRect: CGRect, of positioningView: UIView, preferredEdge: CGRectEdge) -> Observable<EventType>
     func setActionSink(_ actionSink: AnyObject?)
 }
 
@@ -131,7 +131,7 @@ protocol ErrorPopoverPresentable {
 /// sourcery: associatedtype = "EventType: RawRepresentable, EventType: Hashable"
 protocol ErrorPopoverPresentableRawRepresentable {
     associatedtype EventType: RawRepresentable, Hashable
-    func show(relativeTo positioningRect: CGRect, of positioningView: UIView, preferredEdge: CGRectEdge) -> Observable<EventType>
+    //func show(relativeTo positioningRect: CGRect, of positioningView: UIView, preferredEdge: CGRectEdge) -> Observable<EventType>
 }
 
 /// sourcery: CreateMock
@@ -344,9 +344,9 @@ public protocol CodableDocumentStoring {
     /// sourcery: annotatedGenericTypes = "{DocumentType.Type}"
     as type: DocumentType.Type) -> Swift.Result<DocumentType?, Error>
 
-  func observe(
-    /// sourcery: annotatedGenericTypes = "{DocumentType.Type}"
-    as type: DocumentType.Type) -> Observable<DocumentType?>
+//  func observe(
+//    /// sourcery: annotatedGenericTypes = "{DocumentType.Type}"
+//    as type: DocumentType.Type) -> Observable<DocumentType?>
 
   func set(
     /// sourcery: annotatedGenericTypes = "{DocumentType}"

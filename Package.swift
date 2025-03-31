@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
   name: "SourcerySwiftCodegen",
   platforms: [
-    .macOS(.v12)
+    .macOS(.v13)
   ],
   products: [
     .plugin(name: "SourcerySwiftCodegenPlugin", targets: ["SourcerySwiftCodegenPlugin"])

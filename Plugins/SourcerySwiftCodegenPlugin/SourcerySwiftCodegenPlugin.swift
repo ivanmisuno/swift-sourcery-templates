@@ -100,28 +100,78 @@ struct SourcerySwiftCodegenPlugin {
     ].merging(context.environmentVars, uniquingKeysWith: { k, _ in k })
 
     return sourceryConfigFilePaths.map { configFilePath in
-      let command = Command._prebuildCommand(
-        displayName: "Target \(target.name): running Sourcery with config: \(configFilePath.lastComponent)",
-        executable: sourcery,
-        arguments: [
-          "--config",
-          configFilePath.string,
-          "--cacheBasePath",
-          perTargetCachesFilesDir.string,
-          "--buildPath",
-          perTargetBuildDir.string,
-          "--verbose",
-        ],
-        environment: environmentVars,
-        workingDirectory: context.pluginWorkDirectory,
-        outputFilesDirectory: generatedFilesDir
-      )
+      let command = Self._createCommand(
+        context: context,
+        target: target,
+        configFilePath: configFilePath,
+        sourcery: sourcery,
+        perTargetCachesFilesDir: perTargetCachesFilesDir,
+        perTargetBuildDir: perTargetBuildDir,
+        environmentVars: environmentVars,
+        generatedFilesDir: generatedFilesDir)
 
       Diagnostics.remark("\(command)")
 
       return command
     }
   }
+
+#if compiler(>=6.0)
+  private static func _createCommand(
+    context: CodegenPluginContext,
+    target: CodegenPluginTarget,
+    configFilePath: Path,
+    sourcery: Path,
+    perTargetCachesFilesDir: Path,
+    perTargetBuildDir: Path,
+    environmentVars: [String: String],
+    generatedFilesDir: Path
+  ) -> Command {
+    Command.prebuildCommand(
+      displayName: "Target \(target.name): running Sourcery with config: \(configFilePath.lastComponent)",
+      executable: sourcery,
+      arguments: [
+        "--config",
+        configFilePath.string,
+        "--cacheBasePath",
+        perTargetCachesFilesDir.string,
+        "--buildPath",
+        perTargetBuildDir.string,
+        "--verbose",
+      ],
+      environment: environmentVars,
+      outputFilesDirectory: generatedFilesDir
+    )
+  }
+#else
+  private static func _createCommand(
+    context: CodegenPluginContext,
+    target: CodegenPluginTarget,
+    configFilePath: Path,
+    sourcery: Path,
+    perTargetCachesFilesDir: Path,
+    perTargetBuildDir: Path,
+    environmentVars: [String: String],
+    generatedFilesDir: Path
+  ) -> Command {
+    Command._prebuildCommand(
+      displayName: "Target \(target.name): running Sourcery with config: \(configFilePath.lastComponent)",
+      executable: sourcery,
+      arguments: [
+        "--config",
+        configFilePath.string,
+        "--cacheBasePath",
+        perTargetCachesFilesDir.string,
+        "--buildPath",
+        perTargetBuildDir.string,
+        "--verbose",
+      ],
+      environment: environmentVars,
+      workingDirectory: context.pluginWorkDirectory,
+      outputFilesDirectory: generatedFilesDir
+    )
+  }
+#endif
 }
 
 // MARK: - BuildToolPlugin

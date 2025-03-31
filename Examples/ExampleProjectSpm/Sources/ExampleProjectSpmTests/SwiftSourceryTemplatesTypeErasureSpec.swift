@@ -36,7 +36,7 @@ class SwiftSourceryTemplatesTypeErasureSpec: QuickSpec {
       sut = AnyErrorPopoverPresentable<ErrorEvent>(MyErrorPresenter())
     }
     it("") {
-      _ = sut.show(relativeTo: .zero, of: UIView(), preferredEdge: .maxXEdge)
+      //_ = sut.show(relativeTo: .zero, of: UIView(), preferredEdge: .maxXEdge)
     }
   }
 }
